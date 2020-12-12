@@ -140,12 +140,25 @@ export default function App() {
       </div>
       <div className="card-body">
               <div className="card-title">
+              DRO: 0.0
+              </div>
+      </div>
+      <div className="card-body">
+              <div className="card-title">
                 <form onSubmit={handleSubmit(onSubmitPitch)}>
                 Pitch: <input className="form-control" name="pitch" type="text" defaultValue={config.pitch}
                   ref={register({ required: true })}
                   /> 
-                Feed: 0.1
-                <input type="submit" />
+                <label for="customRange1" className="form-label">Pitch</label>
+                <input type="range" className="form-range" id="customRange1" defaultValue={config.pitch} step="0.1" />
+                <input className="btn btn-primary" type="submit" />
+                </form>
+                <form onSubmit={handleSubmit(onSubmitPitch)}>
+                Pitch: <input className="form-control" name="pitch" type="text" defaultValue={config.pitch}
+                  ref={register({ required: true })}
+                  />
+                <label for="customRange1" className="form-label">Rapid</label>                                                          <input type="range" className="form-range" id="customRange1" defaultValue={config.rapid} step="0.1" />
+                <input className="btn btn-primary" type="submit" />
                 </form>
               </div>
               <div className="dropdown">
