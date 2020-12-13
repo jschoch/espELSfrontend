@@ -13,6 +13,14 @@ export default function App() {
     console.log("data",data);
     send();
   }
+
+  const onSubmitRapid = data => {
+    var c = config
+    c.rapid = data.rapid
+    setConfig(c);
+    console.log("range submit data",data);
+    send();
+  }
   //const [addr,config,connected] = useState(0);
   //const [addr,setAddr] = useState("ws://elsWS/test");
   const [addr,setAddr] = useState("ws://192.168.1.93/test");
@@ -47,7 +55,7 @@ export default function App() {
 
   function send(){
     var d = {cmd: "send",config: config}
-    console.log("ws",ws);
+    console.log("ws",config,ws);
     ws.send(JSON.stringify(d));
   }
  
@@ -150,15 +158,17 @@ export default function App() {
                   ref={register({ required: true })}
                   /> 
                 <label for="customRange1" className="form-label">Pitch</label>
-                <input type="range" className="form-range" id="customRange1" defaultValue={config.pitch} step="0.1" />
+                <input type="range" className="form-range" id="pitchRange" defaultValue={config.pitch} step="0.1" />
                 <input className="btn btn-primary" type="submit" />
                 </form>
-                <form onSubmit={handleSubmit(onSubmitPitch)}>
-                Pitch: <input className="form-control" name="pitch" type="text" defaultValue={config.pitch}
-                  ref={register({ required: true })}
-                  />
-                <label for="customRange1" className="form-label">Rapid</label>                                                          <input type="range" className="form-range" id="customRange1" defaultValue={config.rapid} step="0.1" />
-                <input className="btn btn-primary" type="submit" />
+                
+                <form onSubmit={handleSubmit(onSubmitRapid)}>
+                <div className="row row-cols-lg-auto g-3 align-items-center">
+                <div className="col-12">
+                 <RangeSlider name="Range" defaultValue={config.rapid} register={register} /> 
+                </div>
+
+                </div>
                 </form>
               </div>
               <div className="dropdown">
@@ -183,3 +193,26 @@ export default function App() {
     </div>
   );
 }
+
+const RangeSlider = (props) => {
+
+  const [rangeval, setRangeval] = useState(props.defaultValue);
+
+  return (
+    <div>
+      <input type="text" value={rangeval} 
+        onChange={(event) => setRangeval(event.target.value)}
+        name="rapid"
+        ref={props.register({ required: true })}
+      />
+      <input type="range" className="custom-range" min=".5" max="5" 
+       step="0.1"
+       defaultValue={props.defaultValue}
+       onChange={(event) => setRangeval(event.target.value)} />
+      <span>{props.name}: {rangeval}</span>
+      <span className="col-12">
+        <input className="btn btn-primary" type="submit" value={`Submit ${props.name}`} />
+      </span>
+    </div>
+  );
+};
