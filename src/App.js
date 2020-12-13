@@ -2,6 +2,18 @@ import logo from './logo.svg';
 import './App.css';
 import React, { Component, useState, useEffect } from 'react';
 import {useForm} from 'react-hook-form';
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import Dropdown from 'react-bootstrap/Dropdown';
+
+const modes = {
+  0: "Startup",
+  1: "Configure",
+  2: "Staus",
+  3: "Ready",
+  4: "Feeding",
+  5: "Slave Jog Ready",
+  6: "Debug"
+};
 
 var ws = "";
 export default function App() {
@@ -20,6 +32,10 @@ export default function App() {
     setConfig(c);
     console.log("range submit data",data);
     send();
+  }
+
+  const handleSelect = data => {
+    console.log("select data",data);
   }
   //const [addr,config,connected] = useState(0);
   //const [addr,setAddr] = useState("ws://elsWS/test");
@@ -148,7 +164,12 @@ export default function App() {
       </div>
       <div className="card-body">
               <div className="card-title">
-              DRO: 0.0
+              <span>
+                DRO: 0.0
+              </span>
+              <span>
+                Mode: {modes[config.m]}
+              </span>
               </div>
       </div>
       <div className="card-body">
@@ -189,6 +210,19 @@ export default function App() {
               ...</p>
 
             </div>
+      <DropdownButton
+      alignRight
+      title="Dropdown right"
+      id="dropdown-menu-align-right"
+      onSelect={handleSelect}
+    
+        >
+              <Dropdown.Item eventKey="option-1">option-1</Dropdown.Item>
+              <Dropdown.Item eventKey="option-2">option-2</Dropdown.Item>
+              <Dropdown.Item eventKey="option-3">option 3</Dropdown.Item>
+              <Dropdown.Divider />
+              <Dropdown.Item eventKey="some link">some link</Dropdown.Item>
+      </DropdownButton>
       <div><pre>{JSON.stringify(config, null, 2) }</pre></div>
     </div>
   );
