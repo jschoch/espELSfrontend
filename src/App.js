@@ -1,9 +1,11 @@
-import logo from './logo.svg';
 import './App.css';
 import React, { Component, useState, useEffect } from 'react';
 import {useForm} from 'react-hook-form';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
+import Button from 'react-bootstrap/Button';
+import {Form, InputGroup} from 'react-bootstrap';
+import FormControl from 'react-bootstrap/FormControl';
 
 const modes = {
   0: "Startup",
@@ -24,6 +26,20 @@ export default function App() {
     send();
   }
 
+  const onSubmitJog = data => {
+    /*
+      //e.preventDefault()
+          const formData = new FormData(e.target),
+                formDataObj = Object.fromEntries(formData.entries())
+          console.log("formdataobj", formDataObj,e)
+    */
+    var c = config
+    c.jm = data.jog_mm;
+    setConfig(c);
+    console.log("data",data,c);
+    jog();
+  }
+
   const onSubmitRapid = data => {
     var c = config
     c.rapid = data.rapid
@@ -35,16 +51,27 @@ export default function App() {
   const handleSelect = data => {
     config["m"] = data;
     console.log("select data",data);
+    if(config["m"] == 2 || config["m"] == 3){
+      //show jog control
+      setShowJog(true);
+    }else{
+      setShowJog(false);
+    }
+  
     send();
   }
-  //const [addr,config,connected] = useState(0);
   //const [addr,setAddr] = useState("ws://elsWS/test");
   const [addr,setAddr] = useState("ws://192.168.1.93/test");
   const [config,setConfig] = useState({});
   const [connected,setConnected] = useState(false);
   const [wsS,setWSS] = useState();
+  const [showJog,setShowJog] = useState(false);
+  const [timeout, setTimeout] = useState(250);
 
   useEffect(() => {
+    if(!connected){
+      connect();
+    }
     //connect();
   });
   function inputUpdate(e){
@@ -60,7 +87,7 @@ export default function App() {
   function disconnect(){
     console.log("WS: ",ws);
     ws.close();
-    //this.setConnected(false);
+    setConnected(false);
     console.log(ws.readyState);
   }
 
@@ -71,6 +98,12 @@ export default function App() {
 
   function send(){
     var d = {cmd: "send",config: config}
+    console.log("ws",config,ws);
+    ws.send(JSON.stringify(d));
+  }
+
+  function jog(){
+    var d = {cmd: "jog",config: config}
     console.log("ws",config,ws);
     ws.send(JSON.stringify(d));
   }
@@ -85,9 +118,9 @@ export default function App() {
         ws.onopen = () => {
             console.log("connected websocket main component");
 
-            //this.setConnected(true);
+            setConnected(true);
 
-            //that.timeout = 250; // reset timer to 250 on open of websocket connection 
+            setTimeout(500); // reset timer to 250 on open of websocket connection 
             clearTimeout(connectInterval); // clear Interval on on open of websocket connection
             fetch();
         };
@@ -99,7 +132,7 @@ export default function App() {
                 e.reason
             );
 
-            //connectInterval = setTimeout(this.check, Math.min(10000, that.timeout)); //call check function after timeout
+            connectInterval = setTimeout(check, Math.min(10000, timeout)); //call check function after timeout
         };
 
         // websocket onerror event listener
@@ -110,7 +143,7 @@ export default function App() {
                 "Closing socket"
             );
 
-            //ws.close();
+            ws.close();
             return false;
         };
         ws.onmessage = (message) => {
@@ -134,7 +167,7 @@ export default function App() {
   
    
   function check(){
-        if (!ws || ws.readyState == WebSocket.CLOSED) connect(); //check if websocket instance is closed, if so call `connect` function.
+        if (!ws || ws.readyState === WebSocket.CLOSED) connect(); //check if websocket instance is closed, if so call `connect` function.
     };
 
 
@@ -142,10 +175,12 @@ export default function App() {
     <div>
     <div>
       <label for="mdns">MDNS</label>
+      <form>
       <input className="form-control" type="text"
         name="mdns"
         onChange={e => setAddr(e.target.value)}
         value={addr} />
+      </form>
       <div className="btn-group" role="group" >
         <div className="btn btn-primary" type="button" onClick={meclick}>
           Connect
@@ -172,33 +207,44 @@ export default function App() {
                 Mode: <span className="badge bg-light">{modes[config.m]}</span>
               </span>
               </div>
+              { showJog &&
+              <Form inline onSubmit={handleSubmit(onSubmitJog)} >
+                <InputGroup className="mb-2 mr-sm-2">
+                  <InputGroup.Prepend>
+                    <InputGroup.Text>Jog mm:</InputGroup.Text>
+                     <Form.Control id="jog_mm" name="jog_mm" type="number" 
+                      ref={register({ required: true })}
+                      inputMode='decimal' step='any' placeholder="1.0" defaultValue="1.0" />
+                  </InputGroup.Prepend>
+                  <Button type="submit" className="mb-2">
+                    Do Jog!
+                  </Button>
+                </InputGroup>
+              </Form>
+              }
       </div>
       <div className="card-body">
-              <div className="card-title">
-                <form onSubmit={handleSubmit(onSubmitPitch)}>
-                Pitch: 
-                <input className="form-control" 
-                  inputMode='decimal' type='number'
-                  min="0.01" max="3.0" step='any'
-                  name="pitch" type="text" defaultValue={config.pitch}
-                  ref={register({ required: true })}
-                  /> 
-                {/*
-                <label for="customRange1" className="form-label">Pitch</label>
-                <input type="range" className="form-range" id="pitchRange" defaultValue={config.pitch} step="0.1" />
-                */}
-                <input className="btn btn-primary" type="submit" />
-                </form>
-                
+                <Form inline onSubmit={handleSubmit(onSubmitPitch)} >
+                <InputGroup className="mb-2 mr-sm-2">
+                  <InputGroup.Prepend>
+                    <InputGroup.Text>Pitch:</InputGroup.Text>
+                     <Form.Control id="pitch" name="pitch" type="number"
+                      ref={register({ required: true })}
+                      inputMode='decimal' step='any' placeholder="1.0" />
+                  </InputGroup.Prepend>
+                  <Button type="submit" className="mb-2">
+                    Update Pitch!
+                  </Button>
+                </InputGroup>
+              </Form>
                 <form onSubmit={handleSubmit(onSubmitRapid)}>
                 <div className="row row-cols-lg-auto g-3 align-items-center">
-                <div className="col-12">
-                 <RangeSlider name="Rapid" defaultValue={config.rapid} register={register} /> 
-                </div>
+                  <div className="col-12">
+                   <RangeSlider name="Rapid" defaultValue={config.rapid} register={register} /> 
+                  </div>
 
                 </div>
                 </form>
-              </div>
 
 
 
@@ -207,13 +253,12 @@ export default function App() {
               ...</p>
 
             </div>
+      <div>
       <DropdownButton
       alignRight
       title="Select Mode:"
       id="dropdown-menu-align-right"
-      onSelect={handleSelect}
-    
-        >
+      onSelect={handleSelect} >
               <Dropdown.Item eventKey="0">Startup Mode</Dropdown.Item>
               <Dropdown.Item eventKey="1">Slave Mode</Dropdown.Item>
               <Dropdown.Item eventKey="2">Slave Jog Mode</Dropdown.Item>
@@ -221,6 +266,7 @@ export default function App() {
               <Dropdown.Item eventKey="4">Free Jog Mode</Dropdown.Item>
               <Dropdown.Item eventKey="5">To and Fro Mode</Dropdown.Item>
       </DropdownButton>
+      </div>
       <div><pre>{JSON.stringify(config, null, 2) }</pre></div>
     </div>
   );

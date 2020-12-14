@@ -8,3 +8,7 @@ Todo:
 2. virtual control buttons
 3. send messages, maybe all logging to webUI
 4. mode specific run screens
+
+Fix: 
+
+1. RunMode should propagate from config fetch in GUI
