@@ -5,4 +5,5 @@ uses react and websockets to make awesome
 Todo:
 
 1. fix ws reconnections
-2. ...
+2. virtual control buttons
+3. mode specific run screens

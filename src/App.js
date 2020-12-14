@@ -7,12 +7,10 @@ import Dropdown from 'react-bootstrap/Dropdown';
 
 const modes = {
   0: "Startup",
-  1: "Configure",
-  2: "Staus",
-  3: "Ready",
-  4: "Feeding",
-  5: "Slave Jog Ready",
-  6: "Debug"
+  1: "Slave Ready",
+  2: "Slave Jog Ready",
+  3: "Debug Ready",
+  4: "Running"
 };
 
 var ws = "";
@@ -35,6 +33,7 @@ export default function App() {
   }
 
   const handleSelect = data => {
+    config["m"] = data;
     console.log("select data",data);
   }
   //const [addr,config,connected] = useState(0);
@@ -144,7 +143,7 @@ export default function App() {
       <label for="mdns">MDNS</label>
       <input className="form-control" type="text"
         name="mdns"
-        onInput=""
+        onChange={e => setAddr(e.target.value)}
         value={addr} />
       <div className="btn-group" role="group" >
         <div className="btn btn-primary" type="button" onClick={meclick}>
@@ -165,42 +164,39 @@ export default function App() {
       <div className="card-body">
               <div className="card-title">
               <span>
-                DRO: 0.0
+                DRO: <span className="badge bg-warning">0.0</span>
               </span>
+              ---
               <span>
-                Mode: {modes[config.m]}
+                Mode: <span className="badge bg-light">{modes[config.m]}</span>
               </span>
               </div>
       </div>
       <div className="card-body">
               <div className="card-title">
                 <form onSubmit={handleSubmit(onSubmitPitch)}>
-                Pitch: <input className="form-control" name="pitch" type="text" defaultValue={config.pitch}
+                Pitch: 
+                <input className="form-control" 
+                  inputMode='decimal' type='number'
+                  min="0.01" max="3.0" step='any'
+                  name="pitch" type="text" defaultValue={config.pitch}
                   ref={register({ required: true })}
                   /> 
+                {/*
                 <label for="customRange1" className="form-label">Pitch</label>
                 <input type="range" className="form-range" id="pitchRange" defaultValue={config.pitch} step="0.1" />
+                */}
                 <input className="btn btn-primary" type="submit" />
                 </form>
                 
                 <form onSubmit={handleSubmit(onSubmitRapid)}>
                 <div className="row row-cols-lg-auto g-3 align-items-center">
                 <div className="col-12">
-                 <RangeSlider name="Range" defaultValue={config.rapid} register={register} /> 
+                 <RangeSlider name="Rapid" defaultValue={config.rapid} register={register} /> 
                 </div>
 
                 </div>
                 </form>
-              </div>
-              <div className="dropdown">
-                <button type="button" className="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                  Mode: Slave
-                </button>
-                <div className="dropdown-menu">
-                  <a className="dropdown-item" href="#">Slave</a>
-                  <a className="dropdown-item" href="#">Slave Jog</a>
-                  <a className="dropdown-item" href="#">To and Fro</a>
-                </div>
               </div>
 
 
@@ -212,16 +208,17 @@ export default function App() {
             </div>
       <DropdownButton
       alignRight
-      title="Dropdown right"
+      title="Select Mode:"
       id="dropdown-menu-align-right"
       onSelect={handleSelect}
     
         >
-              <Dropdown.Item eventKey="option-1">option-1</Dropdown.Item>
-              <Dropdown.Item eventKey="option-2">option-2</Dropdown.Item>
-              <Dropdown.Item eventKey="option-3">option 3</Dropdown.Item>
-              <Dropdown.Divider />
-              <Dropdown.Item eventKey="some link">some link</Dropdown.Item>
+              <Dropdown.Item eventKey="0">Startup Mode</Dropdown.Item>
+              <Dropdown.Item eventKey="1">Slave Mode</Dropdown.Item>
+              <Dropdown.Item eventKey="2">Slave Jog Mode</Dropdown.Item>
+              <Dropdown.Item eventKey="3">Debug Mode</Dropdown.Item>
+              <Dropdown.Item eventKey="4">Free Jog Mode</Dropdown.Item>
+              <Dropdown.Item eventKey="5">To and Fro Mode</Dropdown.Item>
       </DropdownButton>
       <div><pre>{JSON.stringify(config, null, 2) }</pre></div>
     </div>
@@ -234,18 +231,13 @@ const RangeSlider = (props) => {
 
   return (
     <div>
-      <input type="text" value={rangeval} 
-        onChange={(event) => setRangeval(event.target.value)}
-        name="rapid"
-        ref={props.register({ required: true })}
-      />
       <input type="range" className="custom-range" min=".5" max="5" 
        step="0.1"
        defaultValue={props.defaultValue}
        onChange={(event) => setRangeval(event.target.value)} />
       <span>{props.name}: {rangeval}</span>
       <span className="col-12">
-        <input className="btn btn-primary" type="submit" value={`Submit ${props.name}`} />
+        <input className="btn btn-primary" type="submit" value={`Update ${props.name}`} />
       </span>
     </div>
   );
