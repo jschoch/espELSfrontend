@@ -4,10 +4,10 @@ uses react and websockets to make awesome
 
 Todo:
 
-1. fix ws reconnections
-2. virtual control buttons
-3. send messages, maybe all logging to webUI
-4. mode specific run screens
+1. [x] fix ws reconnections
+2. [] virtual control buttons
+3. [] send messages, maybe all logging to webUI
+4. [] mode specific run screens
 
 Fix: 
 
