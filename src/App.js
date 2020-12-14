@@ -74,12 +74,12 @@ export default function App() {
   const [wsS,setWSS] = useState();
   const [showJog,setShowJog] = useState(false);
   const [timeout, setTimeout] = useState(250);
+  const [dro,setDRO] = useState(0.0);
 
   useEffect(() => {
     if(!connected){
       connect();
     }
-    //connect();
   });
   function inputUpdate(e){
     const {value } = e.target;
@@ -87,8 +87,6 @@ export default function App() {
   }
   function meclick(e){
     connect();
-    //fetch();
-    //
     console.log("doink");
   }
   function disconnect(){
@@ -116,7 +114,6 @@ export default function App() {
   }
  
   function connect(){
-  //connect = () => {
         ws = new WebSocket(addr);
         let that = this; // cache the this
         var connectInterval;
@@ -156,7 +153,11 @@ export default function App() {
         ws.onmessage = (message) => {
           var inconfig = JSON.parse(message.data);
           console.log("config data", inconfig);
-          if("u" in inconfig){
+          if("pmm" in inconfig){
+            setDRO(inconfig["pmm"]);
+            console.log("status update",inconfig);
+          }
+          else if("u" in inconfig){
             setConfig(inconfig);
           }
           
@@ -207,7 +208,7 @@ export default function App() {
       <div className="card-body">
               <div className="card-title">
               <span>
-                DRO: <span className="badge bg-warning">0.0</span>
+                DRO: <span className="badge bg-warning">{dro}</span>
               </span>
               ---
               <span>
