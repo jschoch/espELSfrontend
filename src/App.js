@@ -47,6 +47,13 @@ export default function App() {
     console.log("range submit data",data);
     send();
   }
+  const onSubmitJogScaler = data => {
+    var c = config
+    c.sc = data.sc
+    setConfig(c);
+    console.log("Jog Scaler submit data",data);
+    send();
+  }
 
   const handleSelect = data => {
     config["m"] = data;
@@ -230,6 +237,7 @@ export default function App() {
                     <InputGroup.Text>Pitch:</InputGroup.Text>
                      <Form.Control id="pitch" name="pitch" type="number"
                       ref={register({ required: true })}
+                      defaultValue="0.1"
                       inputMode='decimal' step='any' placeholder="1.0" />
                   </InputGroup.Prepend>
                   <Button type="submit" className="mb-2">
@@ -245,8 +253,21 @@ export default function App() {
 
                 </div>
                 </form>
-
-
+              { showJog &&
+              <Form inline onSubmit={handleSubmit(onSubmitJogScaler)} >
+                <InputGroup className="mb-2 mr-sm-2">
+                  <InputGroup.Prepend>
+                    <InputGroup.Text>Jog Scaler</InputGroup.Text>
+                     <Form.Control id="sc" name="sc" type="number"
+                      ref={register({ required: true })}
+                      defaultValue="0.5"                                                                                                      inputMode='decimal' step='any' placeholder="1.0" />
+                  </InputGroup.Prepend>
+                  <Button type="submit" className="mb-2">
+                    Update Jog Scaler Hack!
+                  </Button>
+                </InputGroup>
+              </Form>
+              }
 
               <p className="card-text">
 
