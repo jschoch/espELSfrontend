@@ -35,6 +35,7 @@ export default function App() {
   const handleSelect = data => {
     config["m"] = data;
     console.log("select data",data);
+    send();
   }
   //const [addr,config,connected] = useState(0);
   //const [addr,setAddr] = useState("ws://elsWS/test");

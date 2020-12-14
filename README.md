@@ -6,4 +6,5 @@ Todo:
 
 1. fix ws reconnections
 2. virtual control buttons
-3. mode specific run screens
+3. send messages, maybe all logging to webUI
+4. mode specific run screens
