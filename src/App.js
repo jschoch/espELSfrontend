@@ -6,6 +6,8 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
 import {Form, InputGroup} from 'react-bootstrap';
 import FormControl from 'react-bootstrap/FormControl';
+import Tabs from 'react-bootstrap/Tabs';
+import Tab from 'react-bootstrap/Tab';
 
 const modes = {
   0: "Startup",
@@ -27,17 +29,17 @@ export default function App() {
   }
 
   const onSubmitJog = data => {
-    /*
-      //e.preventDefault()
-          const formData = new FormData(e.target),
-                formDataObj = Object.fromEntries(formData.entries())
-          console.log("formdataobj", formDataObj,e)
-    */
     var c = config
     c.jm = data.jog_mm;
     setConfig(c);
     console.log("data",data,c);
     jog();
+  }
+
+  const handleEncClick = data => {
+    console.log("debug click",data);
+    var d = {cmd: "debug",dir: data};
+    ws.send(JSON.stringify(d));
   }
 
   const onSubmitRapid = data => {
@@ -66,6 +68,16 @@ export default function App() {
     }
   
     send();
+  }
+
+  const handleJogTabSelect = data => {
+    console.log("select tab",data);
+    if(data == "jog"){
+
+      setShowJog(true);
+      config["m"] = 3;
+      send();
+    }
   }
   //const [addr,setAddr] = useState("ws://elsWS/test");
   const [addr,setAddr] = useState("ws://192.168.1.93/test");
@@ -158,6 +170,9 @@ export default function App() {
             console.log("status update",inconfig);
           }
           else if("u" in inconfig){
+            if(config["m"] != inconfig["m"]){
+              // do something
+            }
             setConfig(inconfig);
           }
           
@@ -180,31 +195,24 @@ export default function App() {
 
 
   return(
-    <div>
-    <div>
-      <label for="mdns">MDNS</label>
-      <form>
-      <input className="form-control" type="text"
-        name="mdns"
-        onChange={e => setAddr(e.target.value)}
-        value={addr} />
-      </form>
-      <div className="btn-group" role="group" >
-        <div className="btn btn-primary" type="button" onClick={meclick}>
-          Connect
-        </div>
-        <div className="btn btn-secondary" type="button" onClick={disconnect}>
-          Disconnect
-        </div>
-        <div className="btn btn-secondary" type="button" onClick={ping}>
-          Ping
-        </div>
-        <div className="btn btn-secondary" type="button" onClick={fetch}>
-          Fetch
-        </div>
+    <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example" 
+    onSelect={handleJogTabSelect}
+    transition={false}>
+    <Tab eventKey="home" title="Home">
+      <div> 
+        Connection Status: {
+          connected ? 
+              <span class="badge bg-success">"True"</span>
+            : <span class="badge bg-danger">"False"</span>
+          }
       </div>
-      
+      <div>
+      Device Mode: {config["m"]}
       </div>
+    </Tab>
+    <Tab eventKey="jog" title="Jog" >
+    <div>
+          
       <div className="card-body">
               <div className="card-title">
               <span>
@@ -289,8 +297,43 @@ export default function App() {
               <Dropdown.Item eventKey="5">To and Fro Mode</Dropdown.Item>
       </DropdownButton>
       </div>
-      <div><pre>{JSON.stringify(config, null, 2) }</pre></div>
     </div>
+    </Tab>
+    <Tab eventKey="net" title="Network">
+      <label for="mdns">MDNS</label>
+      <form>
+      <input className="form-control" type="text"
+        name="mdns"
+        onChange={e => setAddr(e.target.value)}
+        value={addr} />
+      </form>
+      <div className="btn-group" role="group" >
+        <div className="btn btn-primary" type="button" onClick={meclick}>
+          Connect
+        </div>
+        <div className="btn btn-secondary" type="button" onClick={disconnect}>
+          Disconnect
+        </div>
+        <div className="btn btn-secondary" type="button" onClick={ping}>
+          Ping
+        </div>
+        <div className="btn btn-secondary" type="button" onClick={fetch}>
+          Fetch
+        </div>
+      </div>
+    </Tab>
+    <Tab eventKey="config" title="Configuration">
+      <div><pre>{JSON.stringify(config, null, 2) }</pre></div>      
+    </Tab>
+    <Tab eventKey="debug" title="Debug Commands">
+      <Button onClick={() => handleEncClick(0)}>
+        Increment virtual encoder 1 rev
+      </Button>
+      <Button onClick={() => handleEncClick(1)}>
+        Deccrement virtual encoder 1 rev
+      </Button>
+    </Tab>
+    </Tabs>
   );
 }
 
