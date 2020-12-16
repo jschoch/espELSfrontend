@@ -1,4 +1,5 @@
 import './App.css';
+import Info from './info.js';
 import React, { Component, useState, useEffect } from 'react';
 import {useForm} from 'react-hook-form';
 import DropdownButton from 'react-bootstrap/DropdownButton';
@@ -75,7 +76,7 @@ export default function App() {
     if(data == "jog"){
 
       setShowJog(true);
-      config["m"] = 3;
+      //config["m"] = 3;
       send();
     }
   }
@@ -323,6 +324,7 @@ export default function App() {
       </div>
     </Tab>
     <Tab eventKey="config" title="Configuration">
+      - <Info /> -
       <div><pre>{JSON.stringify(config, null, 2) }</pre></div>      
     </Tab>
     <Tab eventKey="debug" title="Debug Commands">
