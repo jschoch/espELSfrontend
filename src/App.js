@@ -1,4 +1,5 @@
 import './App.css';
+import { encode, decode,decodeAsync } from "@msgpack/msgpack";
 import Info from './info.js';
 import React, { Component, useState, useEffect } from 'react';
 import {useForm} from 'react-hook-form';
@@ -17,6 +18,18 @@ const modes = {
   3: "Debug Ready",
   4: "Running"
 };
+
+var stats = {};
+
+async function decodeFromBlob(blob: Blob): unknown {
+  if (blob.stream) {
+    // Blob#stream(): ReadableStream<Uint8Array> (recommended)
+    return await decodeAsync(blob.stream());
+  } else {
+    // Blob#arrayBuffer(): Promise<ArrayBuffer> (if stream() is not available)
+    return decode(await blob.arrayBuffer());
+  }
+}
 
 var ws = "";
 export default function App() {
@@ -88,6 +101,7 @@ export default function App() {
   const [showJog,setShowJog] = useState(false);
   const [timeout, setTimeout] = useState(250);
   const [dro,setDRO] = useState(0.0);
+  const [newstats,setNewstats] = useState(false);
 
   useEffect(() => {
     if(!connected){
@@ -164,17 +178,29 @@ export default function App() {
             return false;
         };
         ws.onmessage = (message) => {
-          var inconfig = JSON.parse(message.data);
-          console.log("config data", inconfig);
-          if("pmm" in inconfig){
-            setDRO(inconfig["pmm"]);
-            console.log("status update",inconfig);
+          console.log("raw",message);
+          console.log(message.data instanceof Blob);
+          if(message.data instanceof Blob){
+            decodeFromBlob(message.data).then((x) => {
+              setNewstats(!newstats);
+              stats = x;
+              }
+            );;
           }
-          else if("u" in inconfig){
-            if(config["m"] != inconfig["m"]){
-              // do something
+          else{
+            var inconfig = JSON.parse(message.data);
+         
+            console.log("config data", inconfig);
+            if("pmm" in inconfig){
+              setDRO(inconfig["pmm"]);
+              console.log("status update",inconfig);
             }
-            setConfig(inconfig);
+            else if("u" in inconfig){
+              if(config["m"] != inconfig["m"]){
+                // do something
+              }
+              setConfig(inconfig);
+            }
           }
           
           return false;
@@ -324,7 +350,7 @@ export default function App() {
       </div>
     </Tab>
     <Tab eventKey="config" title="Configuration">
-      - <Info /> -
+      - <Info stats={stats} /> -
       <div><pre>{JSON.stringify(config, null, 2) }</pre></div>      
     </Tab>
     <Tab eventKey="debug" title="Debug Commands">
