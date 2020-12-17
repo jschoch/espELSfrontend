@@ -61,6 +61,7 @@ export default function Info(props) {
 <KV k="feeding " v={props.stats.feeding ? "true" : "false"} />
 <KV k="jogging " v={props.stats.jogging? "true" : "false"} />
 <KV k="jog_done " v={props.stats.jog_dong ? 1 : 0} />
+<KV k="Feed to Position" v={props.stats.pos_feed ? "true" : "false"} />
 <KV k="Stop Neg Exceeded?" v={props.stats.sne ? "true" : "false" } />
 <KV k="Stop Pos Exceeded?" v={props.stats.spe ? "true" : "false" } />
         <div className="card-body">
@@ -79,6 +80,8 @@ export default function Info(props) {
           <p className="card-text">
             <KV k="CPU0" v={props.stats.c0} />
             <KV k="CPU1" v={props.stats.c1} />
+            <KV k="pings" v={props.stats.c} />
+            <KV k="factor" v={props.stats.f} />
           </p>
         </div>
       </div>

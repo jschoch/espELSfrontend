@@ -278,6 +278,7 @@ export default function App() {
                      <Form.Control id="jog_mm" name="jog_mm" type="number" 
                       ref={register({ required: true })}
                       inputMode='decimal' step='any' placeholder="1.0" defaultValue="1.0" />
+                
                   </InputGroup.Prepend>
                   <Button type="submit" className="mb-2">
                     Do Jog!
@@ -285,6 +286,7 @@ export default function App() {
                 </InputGroup>
               </Form>
               }
+        {config["m"] == 2 && <div>TODO: make sure spindle is going CCW</div> }
       </div>
       <div className="card-body">
                 <Form inline onSubmit={handleSubmit(onSubmitPitch)} >
