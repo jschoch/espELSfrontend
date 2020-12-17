@@ -10,6 +10,7 @@ import {Form, InputGroup} from 'react-bootstrap';
 import FormControl from 'react-bootstrap/FormControl';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
+import useCookie from "./useCookie";
 
 const modes = {
   0: "Startup",
@@ -19,7 +20,7 @@ const modes = {
   4: "Running"
 };
 
-var stats = {};
+//var stats = {};
 
 async function decodeFromBlob(blob: Blob): unknown {
   if (blob.stream) {
@@ -48,6 +49,11 @@ export default function App() {
     setConfig(c);
     console.log("data",data,c);
     jog();
+  }
+
+  const handleAddrChange = e => {
+    setAddr(e.target.value);
+    updateCookie(e.target.value,1000);
   }
 
   const handleEncClick = data => {
@@ -94,7 +100,9 @@ export default function App() {
     }
   }
   //const [addr,setAddr] = useState("ws://elsWS/test");
-  const [addr,setAddr] = useState("ws://192.168.1.93/test");
+  //const [addr,setAddr] = useState("ws://192.168.1.93/test");
+  const [cookie,updateCookie] = useCookie("url", "ws://192.168.1.93/test");
+  const [addr,setAddr] = useState(cookie);
   const [config,setConfig] = useState({});
   const [connected,setConnected] = useState(false);
   const [wsS,setWSS] = useState();
@@ -102,18 +110,30 @@ export default function App() {
   const [timeout, setTimeout] = useState(250);
   const [dro,setDRO] = useState(0.0);
   const [newstats,setNewstats] = useState(false);
+  const [stats, setStats] = useState({});
+  const [origin,setOrigin] = useState();
 
   useEffect(() => {
     if(!connected){
+      console.log(addr,cookie);
+      if(cookie != addr){
+        
+        setAddr(cookie);
+      }
       connect();
     }
-  });
+  },[connected]);
   function inputUpdate(e){
     const {value } = e.target;
     this.setAddr( value);
   }
   function meclick(e){
-    connect();
+    if(connected){
+      disconnect();
+      connect();
+    }else{
+      connect();
+    }
     console.log("doink");
   }
   function disconnect(){
@@ -142,7 +162,6 @@ export default function App() {
  
   function connect(){
         ws = new WebSocket(addr);
-        let that = this; // cache the this
         var connectInterval;
 
         // websocket onopen event listener
@@ -153,7 +172,7 @@ export default function App() {
 
             setTimeout(500); // reset timer to 250 on open of websocket connection 
             clearTimeout(connectInterval); // clear Interval on on open of websocket connection
-            fetch();
+            //fetch();
         };
 
         // websocket onclose event listener
@@ -178,12 +197,17 @@ export default function App() {
             return false;
         };
         ws.onmessage = (message) => {
-          console.log("raw",message);
-          console.log(message.data instanceof Blob);
+          //console.log("raw",message,message.origin);
+          setOrigin(message.origin);
+          
+          //console.log(message.data instanceof Blob);
           if(message.data instanceof Blob){
             decodeFromBlob(message.data).then((x) => {
               setNewstats(!newstats);
-              stats = x;
+              //console.log("stuff",x);
+              //stats = x;
+              setStats(x);
+              setDRO(x.pmm);
               }
             );;
           }
@@ -191,11 +215,7 @@ export default function App() {
             var inconfig = JSON.parse(message.data);
          
             console.log("config data", inconfig);
-            if("pmm" in inconfig){
-              setDRO(inconfig["pmm"]);
-              console.log("status update",inconfig);
-            }
-            else if("u" in inconfig){
+            if("u" in inconfig){
               if(config["m"] != inconfig["m"]){
                 // do something
               }
@@ -327,11 +347,11 @@ export default function App() {
     </div>
     </Tab>
     <Tab eventKey="net" title="Network">
-      <label for="mdns">MDNS</label>
+      <label for="mdns">MDNS {cookie.url}</label>
       <form>
       <input className="form-control" type="text"
         name="mdns"
-        onChange={e => setAddr(e.target.value)}
+        onChange={handleAddrChange}
         value={addr} />
       </form>
       <div className="btn-group" role="group" >
@@ -348,17 +368,19 @@ export default function App() {
           Fetch
         </div>
       </div>
+      <br /> {origin}
     </Tab>
     <Tab eventKey="config" title="Configuration">
-      - <Info stats={stats} /> -
+      - <Info stats={stats} x={newstats} /> -
       <div><pre>{JSON.stringify(config, null, 2) }</pre></div>      
+      <div><pre>{JSON.stringify(stats, null, 2) }</pre></div>
     </Tab>
     <Tab eventKey="debug" title="Debug Commands">
       <Button onClick={() => handleEncClick(0)}>
-        Increment virtual encoder 1 rev
+        Deccrement virtual encoder 1 rev
       </Button>
       <Button onClick={() => handleEncClick(1)}>
-        Deccrement virtual encoder 1 rev
+        Increment virtual encoder 1 rev
       </Button>
     </Tab>
     </Tabs>
