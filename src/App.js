@@ -123,7 +123,7 @@ export default function App() {
 
       setShowJog(true);
       //config["m"] = 3;
-      send();
+      //send();
     }
   }
   //const [addr,setAddr] = useState("ws://elsWS/test");
@@ -141,6 +141,8 @@ export default function App() {
   const [origin,setOrigin] = useState();
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg,setModalErrorMsg] = useState("not set");
+  const [warnings, setWarnings] = useState([]);
+  const [info, setInfo] = useState([]);
 
   useEffect(() => {
     if(!connected){
@@ -201,7 +203,7 @@ export default function App() {
 
             setTimeout(500); // reset timer to 250 on open of websocket connection 
             clearTimeout(connectInterval); // clear Interval on on open of websocket connection
-            //fetch();
+            fetch();
         };
 
         // websocket onclose event listener
