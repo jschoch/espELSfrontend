@@ -10,6 +10,7 @@ import {Form, InputGroup} from 'react-bootstrap';
 import FormControl from 'react-bootstrap/FormControl';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
+import Modal from 'react-bootstrap/Modal';
 import useCookie from "./useCookie";
 
 const modes = {
@@ -30,6 +31,28 @@ async function decodeFromBlob(blob: Blob): unknown {
     // Blob#arrayBuffer(): Promise<ArrayBuffer> (if stream() is not available)
     return decode(await blob.arrayBuffer());
   }
+}
+
+//function ModalError(props){
+const ModalError = ({showModalError, modalErrorMsg, setShowModalError}) => {
+  return (
+    <>
+
+      <Modal show={showModalError} >
+        <Modal.Header closeButton>
+          <Modal.Title>ERROR!!!</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {modalErrorMsg}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={ () => setShowModalError(false)} >
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
+  );
 }
 
 var ws = "";
@@ -77,7 +100,7 @@ export default function App() {
     send();
   }
 
-  const handleSelect = data => {
+  const handleModeSelect = data => {
     config["m"] = data;
     console.log("select data",data);
     if(config["m"] == 2 || config["m"] == 3){
@@ -85,6 +108,10 @@ export default function App() {
       setShowJog(true);
     }else{
       setShowJog(false);
+    }
+    if(data == 5){
+      setModalErrorMsg("Mode not implemented yet");
+      setShowModalError(true);
     }
   
     send();
@@ -112,6 +139,8 @@ export default function App() {
   const [newstats,setNewstats] = useState(false);
   const [stats, setStats] = useState({});
   const [origin,setOrigin] = useState();
+  const [showModalError, setShowModalError] = useState(false);
+  const [modalErrorMsg,setModalErrorMsg] = useState("not set");
 
   useEffect(() => {
     if(!connected){
@@ -242,6 +271,7 @@ export default function App() {
 
 
   return(
+    <div>
     <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example" 
     onSelect={handleJogTabSelect}
     transition={false}>
@@ -337,7 +367,7 @@ export default function App() {
       alignRight
       title="Select Mode:"
       id="dropdown-menu-align-right"
-      onSelect={handleSelect} >
+      onSelect={handleModeSelect} >
               <Dropdown.Item eventKey="0">Startup Mode</Dropdown.Item>
               <Dropdown.Item eventKey="1">Slave Mode</Dropdown.Item>
               <Dropdown.Item eventKey="2">Slave Jog Mode</Dropdown.Item>
@@ -384,8 +414,24 @@ export default function App() {
       <Button onClick={() => handleEncClick(1)}>
         Increment virtual encoder 1 rev
       </Button>
+      <Button onClick={() => handleEncClick(2)}>
+        Deccrement virtual encoder 1 tick
+      </Button>
+      <Button onClick={() => handleEncClick(3)}>
+        Increment virtual encoder 1 tick
+      </Button>
+
+
+
+
     </Tab>
     </Tabs>
+    <ModalError showModalError={showModalError} 
+        modalErrorMsg={modalErrorMsg} 
+        setShowModalError={setShowModalError}
+  
+    />
+    </div>
   );
 }
 
