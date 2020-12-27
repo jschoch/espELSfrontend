@@ -234,13 +234,22 @@ export default function App() {
           //console.log(message.data instanceof Blob);
           if(message.data instanceof Blob){
             decodeFromBlob(message.data).then((x) => {
-              setNewstats(!newstats);
-              //console.log("stuff",x);
-              //stats = x;
-              setStats(x);
-              setDRO(x.pmm);
+              if("cmd" in x){
+                if(x["cmd"] == "status"){
+                  setNewstats(!newstats);
+                  setStats(x);
+                  setDRO(x.pmm);
+                  }
+                if(x["cmd"] == "log"){
+                  console.log("stuff",x); 
+                  if(x["level"] == 0){
+                    setModalErrorMsg(x["msg"]);
+                    setShowModalError(true);
+                    }
+                  }
+                }
               }
-            );;
+            );
           }
           else{
             var inconfig = JSON.parse(message.data);
