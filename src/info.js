@@ -36,6 +36,7 @@ export default function Info(props) {
 <KV k="Tool Position" v={props.stats.tp} />
 <br />
 <KV k="Target Tool Position" v={props.stats.targetPos} />
+<KV k="Target MM" v={props.stats.targetPosMM} />
 <KV k="Calc Spindle Pos" v={props.stats.calcPos} />
 <br /> 
 <KV k="delta" v={props.stats.delta} />
