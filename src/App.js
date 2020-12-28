@@ -12,6 +12,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Modal from 'react-bootstrap/Modal';
 import useCookie from "./useCookie";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
 
 const modes = {
   0: "Startup",
@@ -68,7 +69,11 @@ export default function App() {
 
   const onSubmitJog = data => {
     var c = config
-    c.jm = data.jog_mm;
+    if(submitButton == 1){
+      c.jm = data.jog_mm;
+    }else{
+      c.jm = Math.abs(data.jog_mm) * -1;
+    }
     setConfig(c);
     console.log("data",data,c);
     jog();
@@ -121,7 +126,7 @@ export default function App() {
     console.log("select tab",data);
     if(data == "jog"){
 
-      setShowJog(true);
+      //setShowJog(true);
       //config["m"] = 3;
       //send();
     }
@@ -134,6 +139,7 @@ export default function App() {
   const [connected,setConnected] = useState(false);
   const [wsS,setWSS] = useState();
   const [showJog,setShowJog] = useState(false);
+  const [showRapid,setShowRapid] = useState(false);
   const [timeout, setTimeout] = useState(250);
   const [dro,setDRO] = useState(0.0);
   const [newstats,setNewstats] = useState(false);
@@ -143,6 +149,7 @@ export default function App() {
   const [modalErrorMsg,setModalErrorMsg] = useState("not set");
   const [warnings, setWarnings] = useState([]);
   const [info, setInfo] = useState([]);
+  const [submitButton,setSubmitButton] = useState(1);
 
   useEffect(() => {
     if(!connected){
@@ -182,7 +189,11 @@ export default function App() {
   function send(){
     var d = {cmd: "send",config: config}
     console.log("ws",config,ws);
-    ws.send(JSON.stringify(d));
+    if(typeof ws.send !== "undefined"){
+      ws.send(JSON.stringify(d));
+    }else{
+      connect();
+    }
   }
 
   function jog(){
@@ -283,7 +294,30 @@ export default function App() {
 
   return(
     <div>
-    <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example" 
+      <div className="card-title">
+          <span class="btn-group">
+          <span>
+            <DropdownButton
+            alignRight
+            title={`Select Mode: ${modes[config.m]}`}
+            id="dropdown-menu-align-right"
+            onSelect={handleModeSelect} >
+                    <Dropdown.Item eventKey="0">Startup Mode</Dropdown.Item>
+                    <Dropdown.Item eventKey="1">Slave Mode</Dropdown.Item>
+                    <Dropdown.Item eventKey="2">Slave Jog Mode</Dropdown.Item>
+                    <Dropdown.Item eventKey="3">Debug Mode</Dropdown.Item>
+                    <Dropdown.Item eventKey="4">Free Jog Mode</Dropdown.Item>
+                    <Dropdown.Item eventKey="5">To and Fro Mode</Dropdown.Item>
+            </DropdownButton>
+          </span>
+          <span>
+            DRO: <span className="badge bg-warning">{dro}</span>
+          </span>
+          </span>
+ 
+      </div>
+  
+    <Tabs defaultActiveKey="home" id="uncontrolled-tab-example" 
     onSelect={handleJogTabSelect}
     transition={false}>
     <Tab eventKey="home" title="Home">
@@ -295,24 +329,19 @@ export default function App() {
           }
       </div>
       <div>
-      Device Mode: {config["m"]}
+        Welcome!  Select a mode to get started.
       </div>
     </Tab>
     <Tab eventKey="jog" title="Jog" >
     <div>
           
       <div className="card-body">
-              <div className="card-title">
-              <span>
-                DRO: <span className="badge bg-warning">{dro}</span>
-              </span>
-              ---
-              <span>
-                Mode: <span className="badge bg-light">{modes[config.m]}</span>
-              </span>
-              </div>
-              { showJog &&
+           { showJog &&
               <Form inline onSubmit={handleSubmit(onSubmitJog)} >
+                <ButtonGroup>
+                <Button type="submit" className="mb-2" value="1" name="dir" onClick={() => setSubmitButton(-1)}>
+                  Jog Z-
+                </Button>
                 <InputGroup className="mb-2 mr-sm-2">
                   <InputGroup.Prepend>
                     <InputGroup.Text>Jog mm:</InputGroup.Text>
@@ -321,29 +350,33 @@ export default function App() {
                       inputMode='decimal' step='any' placeholder="1.0" defaultValue="1.0" />
                 
                   </InputGroup.Prepend>
-                  <Button type="submit" className="mb-2">
-                    Do Jog!
+                  <Button type="submit" className="mb-2" name="dir" value="2" onClick={() => setSubmitButton(1)}>
+                    Jog Z+
                   </Button>
                 </InputGroup>
+                </ButtonGroup>
               </Form>
-              }
+           }
+
         {config["m"] == 2 && <div>TODO: make sure spindle is going CCW</div> }
       </div>
       <div className="card-body">
                 <Form inline onSubmit={handleSubmit(onSubmitPitch)} >
                 <InputGroup className="mb-2 mr-sm-2">
                   <InputGroup.Prepend>
-                    <InputGroup.Text>Pitch:</InputGroup.Text>
+                    <InputGroup.Text>Pitch: {config["pitch"]}</InputGroup.Text>
                      <Form.Control id="pitch" name="pitch" type="number"
                       ref={register({ required: true })}
                       defaultValue="0.1"
                       inputMode='decimal' step='any' placeholder="1.0" />
                   </InputGroup.Prepend>
                   <Button type="submit" className="mb-2">
-                    Update Pitch!
+                    Change Pitch!
                   </Button>
                 </InputGroup>
               </Form>
+             { showRapid && 
+              <div>
                 <form onSubmit={handleSubmit(onSubmitRapid)}>
                 <div className="row row-cols-lg-auto g-3 align-items-center">
                   <div className="col-12">
@@ -352,7 +385,11 @@ export default function App() {
 
                 </div>
                 </form>
-              { showJog &&
+                </div>
+
+              }
+              { showRapid &&
+              <div>
               <Form inline onSubmit={handleSubmit(onSubmitJogScaler)} >
                 <InputGroup className="mb-2 mr-sm-2">
                   <InputGroup.Prepend>
@@ -366,26 +403,21 @@ export default function App() {
                   </Button>
                 </InputGroup>
               </Form>
+              </div>
               }
 
               <p className="card-text">
+                {config["m"] == 0 &&
+                  <h4>
+                  Select a mode to get started!
+                  </h4>
+                }
 
-              ...</p>
+              </p>
 
             </div>
       <div>
-      <DropdownButton
-      alignRight
-      title="Select Mode:"
-      id="dropdown-menu-align-right"
-      onSelect={handleModeSelect} >
-              <Dropdown.Item eventKey="0">Startup Mode</Dropdown.Item>
-              <Dropdown.Item eventKey="1">Slave Mode</Dropdown.Item>
-              <Dropdown.Item eventKey="2">Slave Jog Mode</Dropdown.Item>
-              <Dropdown.Item eventKey="3">Debug Mode</Dropdown.Item>
-              <Dropdown.Item eventKey="4">Free Jog Mode</Dropdown.Item>
-              <Dropdown.Item eventKey="5">To and Fro Mode</Dropdown.Item>
-      </DropdownButton>
+
       </div>
     </div>
     </Tab>
@@ -419,17 +451,19 @@ export default function App() {
       <div><pre>{JSON.stringify(stats, null, 2) }</pre></div>
     </Tab>
     <Tab eventKey="debug" title="Debug Commands">
+      <h2> Fast </h2>
       <Button onClick={() => handleEncClick(0)}>
-        Deccrement virtual encoder 1 rev
+        Decrement virtual encoder 1 rev
       </Button>
       <Button onClick={() => handleEncClick(1)}>
         Increment virtual encoder 1 rev
       </Button>
+      <h2> Slow</h2>
       <Button onClick={() => handleEncClick(2)}>
-        Deccrement virtual encoder 1 tick
+        Increment virtual encoder 1 tick
       </Button>
       <Button onClick={() => handleEncClick(3)}>
-        Increment virtual encoder 1 tick
+        Decrement virtual encoder 1 tick
       </Button>
 
 
