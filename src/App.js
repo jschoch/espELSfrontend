@@ -68,7 +68,9 @@ export default function App() {
     send();
   }
 
-  const onSubmitJog = data => {
+  const onSubmitJog = (data) => {
+    data.preventDefault();
+    data.stopPropagation();
     var c = config
     if(submitButton == 1){
       c.jm = data.jog_mm;
@@ -184,6 +186,11 @@ export default function App() {
 
   function fetch(){
     var d = {cmd: "fetch"};
+    ws.send(JSON.stringify(d));
+  }
+
+  function jogcancel(){
+    var d = {cmd: "jogcancel"};
     ws.send(JSON.stringify(d));
   }
 
@@ -357,21 +364,22 @@ export default function App() {
                 />
               Jogging
             </Button>
-            <Button variant="danger">
+            <Button variant="danger" onClick={jogcancel}>
               Cancel Jog!
             </Button>
             </div>
           }
            { showJog &&
-              <Form inline onSubmit={handleSubmit(onSubmitJog)} >
+              <Form inline onSubmit={onSubmitJog} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
+                <Form.Row>
                 <InputGroup className="mb-2 mr-sm-2">
                 <Button type="submit" className="mb-2 mr-sm-2" 
                   disabled={stats.pos_feed}
                   onClick={() => setSubmitButton(-1)}>
                   Jog Z- 
                 </Button>
-                                  <InputGroup.Prepend>
-                    <InputGroup.Text>Jog mm:</InputGroup.Text>
+                <InputGroup.Prepend className="inputGroup-sizing-sm">
+                    <InputGroup.Text>Incremental<br /> Jog mm:</InputGroup.Text>
                      <Form.Control id="jog_mm" name="jog_mm" type="number" 
                       ref={register({ required: true })}
                       inputMode='decimal' step='any' placeholder="1.0" defaultValue="1.0" />
@@ -383,9 +391,11 @@ export default function App() {
                     Jog Z+
                   </Button>
                 </InputGroup>
+                </Form.Row>
               </Form>
-           }
 
+           }
+          <Button>Absolute Move MM jog here</Button> 
         {config["m"] == 2 && <div>TODO: make sure spindle is going CCW</div> }
       </div>
       <div className="card-body">
@@ -473,12 +483,12 @@ export default function App() {
       </div>
       <br /> {origin}
     </Tab>
-    <Tab eventKey="config" title="Configuration">
+    <Tab eventKey="config" title="Conf">
       - <Info stats={stats} x={newstats} /> -
       <div><pre>{JSON.stringify(config, null, 2) }</pre></div>      
       <div><pre>{JSON.stringify(stats, null, 2) }</pre></div>
     </Tab>
-    <Tab eventKey="debug" title="Debug Commands">
+    <Tab eventKey="debug" title="Debug">
       <h2> Fast </h2>
       <Button onClick={() => handleEncClick(0)}>
         Decrement virtual encoder 1 rev
