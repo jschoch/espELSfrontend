@@ -13,6 +13,7 @@ import Tab from 'react-bootstrap/Tab';
 import Modal from 'react-bootstrap/Modal';
 import useCookie from "./useCookie";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
+import Spinner from 'react-bootstrap/Spinner';
 
 const modes = {
   0: "Startup",
@@ -311,6 +312,13 @@ export default function App() {
             </DropdownButton>
           </span>
           <span>
+            {
+              connected ?
+                  <span class="badge bg-success">C</span>
+                : <span class="badge bg-danger">Not Connected</span>
+            }
+          </span>
+          <span>
             DRO: <span className="badge bg-warning">{dro}</span>
           </span>
           </span>
@@ -335,26 +343,46 @@ export default function App() {
     <Tab eventKey="jog" title="Jog" >
     <div>
           
+              -- {stats["pos_feed"] ? "Feeding" : "Idle"} --
       <div className="card-body">
+          { stats["pos_feed"] &&
+            <div>
+            <Button disabled={stats.pos_feed} >
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              Jogging
+            </Button>
+            <Button variant="danger">
+              Cancel Jog!
+            </Button>
+            </div>
+          }
            { showJog &&
               <Form inline onSubmit={handleSubmit(onSubmitJog)} >
-                <ButtonGroup>
-                <Button type="submit" className="mb-2" value="1" name="dir" onClick={() => setSubmitButton(-1)}>
-                  Jog Z-
-                </Button>
                 <InputGroup className="mb-2 mr-sm-2">
-                  <InputGroup.Prepend>
+                <Button type="submit" className="mb-2 mr-sm-2" 
+                  disabled={stats.pos_feed}
+                  onClick={() => setSubmitButton(-1)}>
+                  Jog Z- 
+                </Button>
+                                  <InputGroup.Prepend>
                     <InputGroup.Text>Jog mm:</InputGroup.Text>
                      <Form.Control id="jog_mm" name="jog_mm" type="number" 
                       ref={register({ required: true })}
                       inputMode='decimal' step='any' placeholder="1.0" defaultValue="1.0" />
                 
                   </InputGroup.Prepend>
-                  <Button type="submit" className="mb-2" name="dir" value="2" onClick={() => setSubmitButton(1)}>
+                  <Button type="submit" className="mb-2" 
+                    disabled={stats.pos_feed}
+                    onClick={() => setSubmitButton(1)}>
                     Jog Z+
                   </Button>
                 </InputGroup>
-                </ButtonGroup>
               </Form>
            }
 
