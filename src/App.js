@@ -69,8 +69,9 @@ export default function App() {
   }
 
   const onSubmitJog = (data) => {
-    data.preventDefault();
-    data.stopPropagation();
+    //data.preventDefault();
+    //data.stopPropagation();
+    //console.log("onsubmit target" ,data.target);
     var c = config
     if(submitButton == 1){
       c.jm = data.jog_mm;
@@ -78,7 +79,7 @@ export default function App() {
       c.jm = Math.abs(data.jog_mm) * -1;
     }
     setConfig(c);
-    console.log("data",data,c);
+    console.log("onSubmitJog data",data,c);
     jog();
   }
 
@@ -369,8 +370,8 @@ export default function App() {
             </Button>
             </div>
           }
-           { showJog &&
-              <Form inline onSubmit={onSubmitJog} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
+           { showJog && !stats["pos_feed"] &&
+              <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
                 <Form.Row>
                 <InputGroup className="mb-2 mr-sm-2">
                 <Button type="submit" className="mb-2 mr-sm-2" 
