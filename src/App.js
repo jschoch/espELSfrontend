@@ -6,7 +6,7 @@ import {useForm} from 'react-hook-form';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
-import {Form, InputGroup} from 'react-bootstrap';
+import {Form, InputGroup,Col,Grid,Row} from 'react-bootstrap';
 import FormControl from 'react-bootstrap/FormControl';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
@@ -71,15 +71,18 @@ export default function App() {
   const onSubmitJog = (data) => {
     var c = config
     c.f = feedingLeft;
+    c.s = syncStart;
     if(submitButton == 1){
       c.jm = data.jog_mm;
       setConfig(c);
       jog();
     }else if(submitButton == -1){
       c.jm = Math.abs(data.jog_mm) * -1;
+      setConfig(c);
+      jog();
     }else if(submitButton == 2){
      setConfig(c);
-     jogAbs(data.jog_mm); 
+     jogAbs(data.jog_abs_mm); 
     }
     console.log("onSubmitJog data",data,c,submitButton);
   }
@@ -160,7 +163,8 @@ export default function App() {
   const [origin,setOrigin] = useState();
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
-  const [feedingLeft, setFeedingLeft] = useState(false);
+  const [feedingLeft, setFeedingLeft] = useState(true);
+  const [syncStart, setSyncStart] = useState(true);
 
 
 
@@ -394,41 +398,64 @@ export default function App() {
             </Button>
             </div>
           }
-           { showJog && !stats["pos_feed"] &&
+          {stats["sw"] &&
+          <div>
+          <Button variant="danger">Waiting for Sync</Button>
+          <Button variant="danger" onClick={jogcancel}>
+              Cancel Jog!
+            </Button>
+          </div>
+          }
+           { showJog && !stats["pos_feed"] && !stats["sw"] &&
             <div>
-              <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
+              <Form inline >
                 <Form.Row>
-                <div className="font-small" name="fucking lots of divs everywhere">
-                  <Form.Group controlId="formBasicCheckbox" >
-                      <Form.Check type="checkbox" label="Feed CCW" 
+                  <Col>
+                      <Form.Check inline type="checkbox" label="Feed CCW" 
                         name="feeding_left" ref={register({required: false})} 
                         id="feeding_left"
                         checked={feedingLeft}
                         onChange ={ () => setFeedingLeft(!feedingLeft)} />
-                    </Form.Group>
-                    <hr/>
-                </div>
+                  </Col>
+                  <Col>
+                      <Form.Check inline type="checkbox" label="Sync Start"
+                        name="feeding_left" ref={register({required: false})}
+                        id="feeding_left"
+                        checked={feedingLeft}
+                        onChange ={ () => setSyncStart(!syncStart)} />
+                  </Col>
+                  
                 </Form.Row>
+              </Form>
+              <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
                 <Form.Row>
                 <span>Incremental</span>
                 <InputGroup className="mb-2 mr-sm-2">
+
+                <Col xs={2}>
                 <Button type="submit" className="mb-2 mr-sm-2" 
                   disabled={stats.pos_feed}
                   onClick={() => setSubmitButton(-1)}>
                   Jog Z- 
                 </Button>
-                <InputGroup.Prepend className="inputGroup-sizing-sm">
-                    <InputGroup.Text>Jog mm:</InputGroup.Text>
+                </Col>
+                <Col xs={8}>
+                <InputGroup.Prepend className="inputGroup-sizing-xs">
+                    <InputGroup.Text>Jog <br />mm:</InputGroup.Text>
                      <Form.Control id="jog_mm" name="jog_mm" type="number" 
                       ref={register({ required: true })}
                       inputMode='decimal' step='any' defaultValue={Math.abs(config.jm)} />
                 
                   </InputGroup.Prepend>
+                 </Col>
+
+                  <Col xs={2}>
                   <Button type="submit" className="mb-2" 
                     disabled={stats.pos_feed}
                     onClick={() => setSubmitButton(1)}>
                     Jog Z+
                   </Button>
+                  </Col>
                 </InputGroup>
                 </Form.Row>
               </Form>
@@ -436,25 +463,31 @@ export default function App() {
 
                 <h5> Absolute </h5>
                <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
+                <Col xs={8}>
                 <InputGroup.Prepend className="inputGroup-sizing-sm">
                     <InputGroup.Text>Position(mm)</InputGroup.Text>
-                     <Form.Control id="jog_mm" name="jog_mm" type="number"
+                     <Form.Control id="jog_abs_mm" name="jog_abs_mm" type="number"
                       ref={register({ required: true })}
                       inputMode='decimal' step='any' defaultValue={Math.abs(config.ja)} />
 
                   </InputGroup.Prepend>
+                </Col>
+                <Col>
                   <Button type="submit" className="mb-2"
                     disabled={stats.pos_feed}
                     onClick={() => setSubmitButton(2)}>
                     Go
                   </Button>
+                </Col>
               </Form>
             </div>
            }
       </div>
       <div className="card-body">
                 <Form inline onSubmit={handleSubmit(onSubmitPitch)} >
+                <Form.Row>
                 <InputGroup className="mb-2 mr-sm-2">
+                  <Col xs={8}>
                   <InputGroup.Prepend>
                     <InputGroup.Text>Pitch: {config["pitch"]}</InputGroup.Text>
                      <Form.Control id="pitch" name="pitch" type="number"
@@ -462,10 +495,15 @@ export default function App() {
                       defaultValue="0.1"
                       inputMode='decimal' step='any' placeholder="1.0" />
                   </InputGroup.Prepend>
+                  </Col>
+
+                  <Col>
                   <Button type="submit" className="mb-2">
                     Change Pitch!
                   </Button>
+                  </Col>
                 </InputGroup>
+                </Form.Row>
               </Form>
              { showRapid && 
               <div>

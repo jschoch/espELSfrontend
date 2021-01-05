@@ -66,6 +66,7 @@ export default function Info(props) {
 <KV k="Stop Neg Exceeded?" v={props.stats.sne ? "true" : "false" } />
 <KV k="Stop Pos Exceeded?" v={props.stats.spe ? "true" : "false" } />
 <KV k="Feeding_dir" v={props.stats.fd ? "true" : "false" } />
+<KV k="Waiting for Sync" v={props.stats.sw ? "true":"false"} />
         <div className="card-body">
           <p className="card-text">
             Card content
