@@ -69,18 +69,19 @@ export default function App() {
   }
 
   const onSubmitJog = (data) => {
-    //data.preventDefault();
-    //data.stopPropagation();
-    //console.log("onsubmit target" ,data.target);
     var c = config
+    c.f = feedingLeft;
     if(submitButton == 1){
       c.jm = data.jog_mm;
-    }else{
+      setConfig(c);
+      jog();
+    }else if(submitButton == -1){
       c.jm = Math.abs(data.jog_mm) * -1;
+    }else if(submitButton == 2){
+     setConfig(c);
+     jogAbs(data.jog_mm); 
     }
-    setConfig(c);
-    console.log("onSubmitJog data",data,c);
-    jog();
+    console.log("onSubmitJog data",data,c,submitButton);
   }
 
   const handleAddrChange = e => {
@@ -110,20 +111,27 @@ export default function App() {
   }
 
   const handleModeSelect = data => {
-    config["m"] = data;
+    var c = config
+    c.m = data;
+    setConfig(c);
     console.log("select data",data);
-    if(config["m"] == 2 || config["m"] == 3){
-      //show jog control
-      setShowJog(true);
-    }else{
-      setShowJog(false);
-    }
     if(data == 5){
       setModalErrorMsg("Mode not implemented yet");
       setShowModalError(true);
     }
-  
     send();
+  }
+
+  const handleView = (m) => {
+    if(m != undefined){
+      console.log("hanlde view",config["m"],m);
+      if(m == 2 || m == 3){
+        //show jog control
+        setShowJog(true);
+      }else{
+        setShowJog(false);
+      }
+    }
   }
 
   const handleJogTabSelect = data => {
@@ -134,6 +142,7 @@ export default function App() {
       //config["m"] = 3;
       //send();
     }
+    //handleView(config.m);
   }
   //const [addr,setAddr] = useState("ws://elsWS/test");
   //const [addr,setAddr] = useState("ws://192.168.1.93/test");
@@ -150,10 +159,16 @@ export default function App() {
   const [stats, setStats] = useState({});
   const [origin,setOrigin] = useState();
   const [showModalError, setShowModalError] = useState(false);
-  const [modalErrorMsg,setModalErrorMsg] = useState("not set");
+  const [modalErrorMsg, setModalErrorMsg] = useState("not set");
+  const [feedingLeft, setFeedingLeft] = useState(false);
+
+
+
+
   const [warnings, setWarnings] = useState([]);
   const [info, setInfo] = useState([]);
   const [submitButton,setSubmitButton] = useState(1);
+
 
   useEffect(() => {
     if(!connected){
@@ -165,6 +180,7 @@ export default function App() {
       connect();
     }
   },[connected]);
+
   function inputUpdate(e){
     const {value } = e.target;
     this.setAddr( value);
@@ -199,6 +215,7 @@ export default function App() {
     var d = {cmd: "send",config: config}
     console.log("ws",config,ws);
     if(typeof ws.send !== "undefined"){
+      console.log("sending");
       ws.send(JSON.stringify(d));
     }else{
       connect();
@@ -207,6 +224,13 @@ export default function App() {
 
   function jog(){
     var d = {cmd: "jog",config: config}
+    console.log("ws",config,ws);
+    ws.send(JSON.stringify(d));
+  }
+
+  function jogAbs(pos){
+    var d = {cmd: "jogAbs",config: config}
+    d.config.ja = pos;
     console.log("ws",config,ws);
     ws.send(JSON.stringify(d));
   }
@@ -274,12 +298,11 @@ export default function App() {
           else{
             var inconfig = JSON.parse(message.data);
          
-            console.log("config data", inconfig);
+            console.log("got message", inconfig);
             if("u" in inconfig){
-              if(config["m"] != inconfig["m"]){
-                // do something
-              }
+              console.log("updating config",inconfig);
               setConfig(inconfig);
+              handleView(inconfig["m"]);
             }
           }
           
@@ -327,7 +350,7 @@ export default function App() {
             }
           </span>
           <span>
-            DRO: <span className="badge bg-warning">{dro}</span>
+            DRO: <span className="badge bg-warning">{dro.toFixed(4)}</span>
           </span>
           </span>
  
@@ -363,7 +386,8 @@ export default function App() {
                   role="status"
                   aria-hidden="true"
                 />
-              Jogging
+              {stats.fd && (stats.sp - stats.pmm).toFixed(4)}
+              {!stats.fd && (stats.pmm - stats.sn).toFixed(4)}
             </Button>
             <Button variant="danger" onClick={jogcancel}>
               Cancel Jog!
@@ -371,8 +395,22 @@ export default function App() {
             </div>
           }
            { showJog && !stats["pos_feed"] &&
+            <div>
               <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
                 <Form.Row>
+                <div className="font-small" name="fucking lots of divs everywhere">
+                  <Form.Group controlId="formBasicCheckbox" >
+                      <Form.Check type="checkbox" label="Feed CCW" 
+                        name="feeding_left" ref={register({required: false})} 
+                        id="feeding_left"
+                        checked={feedingLeft}
+                        onChange ={ () => setFeedingLeft(!feedingLeft)} />
+                    </Form.Group>
+                    <hr/>
+                </div>
+                </Form.Row>
+                <Form.Row>
+                <span>Incremental</span>
                 <InputGroup className="mb-2 mr-sm-2">
                 <Button type="submit" className="mb-2 mr-sm-2" 
                   disabled={stats.pos_feed}
@@ -380,10 +418,10 @@ export default function App() {
                   Jog Z- 
                 </Button>
                 <InputGroup.Prepend className="inputGroup-sizing-sm">
-                    <InputGroup.Text>Incremental<br /> Jog mm:</InputGroup.Text>
+                    <InputGroup.Text>Jog mm:</InputGroup.Text>
                      <Form.Control id="jog_mm" name="jog_mm" type="number" 
                       ref={register({ required: true })}
-                      inputMode='decimal' step='any' placeholder="1.0" defaultValue="1.0" />
+                      inputMode='decimal' step='any' defaultValue={Math.abs(config.jm)} />
                 
                   </InputGroup.Prepend>
                   <Button type="submit" className="mb-2" 
@@ -395,9 +433,24 @@ export default function App() {
                 </Form.Row>
               </Form>
 
+
+                <h5> Absolute </h5>
+               <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
+                <InputGroup.Prepend className="inputGroup-sizing-sm">
+                    <InputGroup.Text>Position(mm)</InputGroup.Text>
+                     <Form.Control id="jog_mm" name="jog_mm" type="number"
+                      ref={register({ required: true })}
+                      inputMode='decimal' step='any' defaultValue={Math.abs(config.ja)} />
+
+                  </InputGroup.Prepend>
+                  <Button type="submit" className="mb-2"
+                    disabled={stats.pos_feed}
+                    onClick={() => setSubmitButton(2)}>
+                    Go
+                  </Button>
+              </Form>
+            </div>
            }
-          <Button>Absolute Move MM jog here</Button> 
-        {config["m"] == 2 && <div>TODO: make sure spindle is going CCW</div> }
       </div>
       <div className="card-body">
                 <Form inline onSubmit={handleSubmit(onSubmitPitch)} >
