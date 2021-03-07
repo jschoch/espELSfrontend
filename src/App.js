@@ -202,6 +202,7 @@ export default function App() {
   const [showRapid,setShowRapid] = useState(false);
   const [timeout, setTimeout] = useState(250);
   const [dro,setDRO] = useState(0.0);
+  const [rpm,setRPM] = useState(0);
   const [newstats,setNewstats] = useState(false);
   const [stats, setStats] = useState({});
   const [origin,setOrigin] = useState();
@@ -332,6 +333,7 @@ export default function App() {
                   setNewstats(!newstats);
                   setStats(x);
                   setDRO(x.pmm);
+                  setRPM(x.rpm);
                   }
                 if(x["cmd"] == "log"){
                   console.log("stuff",x); 
@@ -396,6 +398,7 @@ export default function App() {
           </span>
           <span>
             DRO: <span className="badge bg-warning">{dro.toFixed(4)}</span>
+            RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
           </span>
           </span>
  
