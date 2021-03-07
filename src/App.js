@@ -14,13 +14,24 @@ import Modal from 'react-bootstrap/Modal';
 import useCookie from "./useCookie";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Spinner from 'react-bootstrap/Spinner';
+import Card from 'react-bootstrap/Card';
+import ListGroup from 'react-bootstrap/ListGroup';
 
+/*
 const modes = {
   0: "Startup",
   1: "Slave Ready",
   2: "Slave Jog Ready",
   3: "Debug Ready",
   4: "Running"
+};
+*/
+const modes= {
+ 0: "Startup",
+ 1: "",
+ 2: "Slave Jogging",
+ 3: "",
+ 4: ""
 };
 
 //var stats = {};
@@ -60,6 +71,14 @@ const ModalError = ({showModalError, modalErrorMsg, setShowModalError}) => {
 var ws = "";
 export default function App() {
   const { register, handleSubmit, watch, errors } = useForm();
+
+  const passes = () => {
+    let p = Math.ceil(Math.pow(((config.pitch * 0.614) / firstThreadDepth),2));
+    if(Number.isInteger(p)){
+      return p;  
+    }else{ return 0}
+  }
+
   const onSubmitPitch = data => {
     var c = config
     c.pitch = data.pitch
@@ -125,6 +144,31 @@ export default function App() {
     send();
   }
 
+  function makeThreadTable(rec_passes,first){
+    var cards = [];
+    var thread_depth = (config.pitch * 0.614);
+    var t = first;
+    var feed = 0;
+    for (var i = 1; i <= (rec_passes); i++){
+        if(i == 1){
+          feed = first;
+        }else{
+          feed = (thread_depth/Math.sqrt(rec_passes-1)) * Math.sqrt(i-1);
+        }
+        cards.push(<ListGroup.Item>
+                                  pass: {i} _
+                                  offset = { (config.pitch / passes())*i} _
+                                  Incremental Feed = 
+                                     <span> {feed - t} <b> Total Feed: {feed} </b>
+                                      </span>
+                        </ListGroup.Item>)
+        t = feed;
+    } 
+    //render(){
+      return <div>{cards}</div>
+      //}
+  }
+
   const handleView = (m) => {
     if(m != undefined){
       console.log("hanlde view",config["m"],m);
@@ -165,6 +209,7 @@ export default function App() {
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
   const [feedingLeft, setFeedingLeft] = useState(true);
   const [syncStart, setSyncStart] = useState(true);
+  const [firstThreadDepth, setFirstThreadDepth] = useState(0.3);
 
 
 
@@ -339,11 +384,7 @@ export default function App() {
             id="dropdown-menu-align-right"
             onSelect={handleModeSelect} >
                     <Dropdown.Item eventKey="0">Startup Mode</Dropdown.Item>
-                    <Dropdown.Item eventKey="1">Slave Mode</Dropdown.Item>
                     <Dropdown.Item eventKey="2">Slave Jog Mode</Dropdown.Item>
-                    <Dropdown.Item eventKey="3">Debug Mode</Dropdown.Item>
-                    <Dropdown.Item eventKey="4">Free Jog Mode</Dropdown.Item>
-                    <Dropdown.Item eventKey="5">To and Fro Mode</Dropdown.Item>
             </DropdownButton>
           </span>
           <span>
@@ -459,8 +500,28 @@ export default function App() {
                 </InputGroup>
                 </Form.Row>
               </Form>
+              <h5> Offset </h5>
+               <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
+                <Col xs={8}>
+                <InputGroup.Prepend className="inputGroup-sizing-sm">
+                    <InputGroup.Text>Threading Passes</InputGroup.Text>
+                     <Form.Control id="thread_offset_mm" name="thread_offset_mm" type="number"
+                      ref={register({ required: true })}
+                      inputMode='decimal' step='any' defaultValue={ passes()} />
 
-
+                 </InputGroup.Prepend>
+                   "offset per pass" { config.pitch / Math.pow(((config.pitch * 0.614) / firstThreadDepth),2) }
+                  
+                </Col>
+                <Col>
+                  <Button type="submit" className="mb-2"
+                    disabled={stats.pos_feed}
+                    onClick={() => setSubmitButton(2)}>
+                    Go
+                  </Button>
+                </Col>
+              </Form>
+ 
                 <h5> Absolute </h5>
                <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
                 <Col xs={8}>
@@ -505,6 +566,19 @@ export default function App() {
                 </InputGroup>
                 </Form.Row>
               </Form>
+              <div>
+                Thread Depth: { config.pitch * 0.614 } Recommended Passes: { passes()}
+                  Initial Offset: {firstThreadDepth} Offset per pass {config.pitch / passes()}
+                <Card style={{ width: '18rem' }}>
+                  <ListGroup variant="flush">
+                    {
+                      makeThreadTable(passes(),firstThreadDepth)
+                    }
+                  </ListGroup>
+                </Card>
+                
+                
+              </div>
              { showRapid && 
               <div>
                 <form onSubmit={handleSubmit(onSubmitRapid)}>
