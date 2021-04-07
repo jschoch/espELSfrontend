@@ -4,10 +4,13 @@ uses react and websockets to make awesome
 
 Todo:
 
-1. [x] fix ws reconnections
-2. [] virtual control buttons
-3. [] send messages, maybe all logging to webUI
-4. [] mode specific run screens
+ [x] fix ws reconnections
+ [] Make pure threading view
+ [] when beginning threading store the staring point somewhere, calculate delta when moving offets
+ [] Add angle DRO
+ [] virtual control buttons
+ [] send messages, maybe all logging to webUI
+ [] mode specific run screens
 
 Fix: 
 

@@ -102,6 +102,20 @@ export default function App() {
     }else if(submitButton == 2){
      setConfig(c);
      jogAbs(data.jog_abs_mm); 
+    }else if(submitButton == 3){
+      // move Z- for thread offset
+      setThreadOffset(config.pitch / passes());
+      c.jm = (threadOffset * -1) ;
+      setConfig(c);
+      jog();
+      console.log("Z- btn",threadOffset,c.jm);
+      
+    }else if(submitButton == 4){
+      // move Z_ for thread offset
+      c.jm = threadOffset;
+      setConfig(c);
+      jog();
+      console.log("Z+ btn",config.pitch / passes());
     }
     console.log("onSubmitJog data",data,c,submitButton);
   }
@@ -218,6 +232,7 @@ export default function App() {
   const [warnings, setWarnings] = useState([]);
   const [info, setInfo] = useState([]);
   const [submitButton,setSubmitButton] = useState(1);
+  const [threadOffset, setThreadOffset] = useState(0.0);
 
 
   useEffect(() => {
@@ -513,17 +528,24 @@ export default function App() {
                       inputMode='decimal' step='any' defaultValue={ passes()} />
 
                  </InputGroup.Prepend>
-                   "offset per pass" { config.pitch / Math.pow(((config.pitch * 0.614) / firstThreadDepth),2) }
+                   "offset per pass" { config.pitch / passes() }
                   
                 </Col>
+                </Form>
+                <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
                 <Col>
                   <Button type="submit" className="mb-2"
                     disabled={stats.pos_feed}
-                    onClick={() => setSubmitButton(2)}>
-                    Go
+                    onClick={() => setSubmitButton(3)}>
+                    Move Offset Z-
+                  </Button>
+                  <Button type="submit" className="mb-2"
+                    disabled={stats.pos_feed}
+                    onClick={() => setSubmitButton(4)}>
+                    Move Offset Z+
                   </Button>
                 </Col>
-              </Form>
+                </Form>
  
                 <h5> Absolute </h5>
                <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
