@@ -6,12 +6,14 @@ uses react and websockets to make awesome
 
 Todo:
 
- [x] fix ws reconnections
+ [] Add better landing page and prompt to set mode
+ [] fix ws reconnections
+ [] maybe don't have giant single file with code and UI everywhere
  [] Make pure threading view
  [x] when beginning threading store the staring point somewhere, calculate delta when moving offets
  [] Add angle DRO
  [] virtual control buttons
- [] send messages, maybe all logging to webUI
+ [] implement warning/info flash logging to webUI
  [] mode specific run screens
 
 Fix: 
