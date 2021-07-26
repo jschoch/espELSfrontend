@@ -16,6 +16,8 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Spinner from 'react-bootstrap/Spinner';
 import Card from 'react-bootstrap/Card';
 import ListGroup from 'react-bootstrap/ListGroup';
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 
 /*
 const modes = {
@@ -79,7 +81,7 @@ export default function App() {
     }else{ return 0}
   }
 
-  const onSubmitPitch = data => {
+  const onSubmitPitch = (data) => {
     var c = config
     c.pitch = data.pitch
     setConfig(c);
@@ -87,7 +89,7 @@ export default function App() {
     send();
   }
 
-  const onSubmitNvConfig = data => {
+  const onSubmitNvConfig = (data) => {
     console.log("submit nvdata",data);
     delete data.pitch;
     sendNvConfig(data);
@@ -105,9 +107,6 @@ export default function App() {
       c.jm = Math.abs(data.jog_mm) * -1;
       setConfig(c);
       jog();
-    }else if(submitButton == 2){
-     setConfig(c);
-     jogAbs(data.jog_abs_mm); 
     }else if(submitButton == 3){
       // move Z- for thread offset
       setThreadOffset(config.pitch / passes());
@@ -124,6 +123,19 @@ export default function App() {
       console.log("Z+ btn",config.pitch / passes());
     }
     console.log("onSubmitJog data",data,c,submitButton);
+  }
+
+  const onSubmitAbsJog = (data) => {
+    c.f = feedingLeft;
+    c.s = syncStart;
+    var c = config;
+    jogAbs(data.jog_abs_mm);  
+  }
+
+  const handleResetNvConfig = (data) => {
+    console.log("resetting config");
+    var d = {cmd: "resetNvConfig"};
+    ws.send(JSON.stringify(d));
   }
 
   const handleAddrChange = e => {
@@ -571,7 +583,7 @@ export default function App() {
                 </Form>
  
                 <h5> Absolute </h5>
-               <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
+               <Form inline onSubmit={handleSubmit(onSubmitAbsJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
                 <Col xs={8}>
                 <InputGroup.Prepend className="inputGroup-sizing-sm">
                     <InputGroup.Text>Position(mm)</InputGroup.Text>
@@ -629,14 +641,14 @@ export default function App() {
               </div>
              { showRapid && 
               <div>
-                <form onSubmit={handleSubmit(onSubmitRapid)}>
+                <Form onSubmit={handleSubmit(onSubmitRapid)}>
                 <div className="row row-cols-lg-auto g-3 align-items-center">
                   <div className="col-12">
                    <RangeSlider name="Rapid" defaultValue={config.rapid} register={register} /> 
                   </div>
 
                 </div>
-                </form>
+                </Form>
                 </div>
 
               }
@@ -718,11 +730,12 @@ export default function App() {
                         
                     </InputGroup.Prepend>
                     <InputGroup.Prepend>
-                      <InputGroup.Text>Motor Steps {nvConfig["motor_steps"]}</InputGroup.Text>
-                      <Form.Control id="motor_steps" name="motor_steps" type="number"
+                      <InputGroup.Text>Micro Steps {nvConfig["microsteps"]}</InputGroup.Text>
+                      <button type="button" className="btn btn-secondary" data-toggle="tooltip" title="this is the microstepping mutliplier 1,2,4,8,16 etc">?</button>
+                      <Form.Control id="microsteps" name="microsteps" type="number"
                         ref={register({ required: true })}
-                        defaultValue={nvConfig["motor_steps"]}
-                        inputMode='decimal' step='any' placeholder={nvConfig["motor_steps"]} />
+                        defaultValue={nvConfig["microsteps"]}
+                        inputMode='decimal' step='any' placeholder={nvConfig["microsteps"]} />
                         
                     </InputGroup.Prepend>
                     <InputGroup.Prepend>
@@ -743,9 +756,9 @@ export default function App() {
                   </InputGroup>
                   </Form.Row>
                 </Form>
-                <Form >
+                <Form onSubmit={handleSubmit(handleResetNvConfig)}>
                 <Button type="submit" className="mb-2">
-                      Reset Config to defaults(not implemented).
+                      Reset Config to defaults.
                     </Button>
                 </Form>
           </div>
