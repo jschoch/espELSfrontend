@@ -87,6 +87,12 @@ export default function App() {
     send();
   }
 
+  const onSubmitNvConfig = data => {
+    console.log("submit nvdata",data);
+    delete data.pitch;
+    sendNvConfig(data);
+  }
+
   const onSubmitJog = (data) => {
     var c = config
     c.f = feedingLeft;
@@ -102,6 +108,20 @@ export default function App() {
     }else if(submitButton == 2){
      setConfig(c);
      jogAbs(data.jog_abs_mm); 
+    }else if(submitButton == 3){
+      // move Z- for thread offset
+      setThreadOffset(config.pitch / passes());
+      c.jm = (threadOffset * -1) ;
+      setConfig(c);
+      jog();
+      console.log("Z- btn",threadOffset,c.jm);
+      
+    }else if(submitButton == 4){
+      // move Z_ for thread offset
+      c.jm = threadOffset;
+      setConfig(c);
+      jog();
+      console.log("Z+ btn",config.pitch / passes());
     }
     console.log("onSubmitJog data",data,c,submitButton);
   }
@@ -183,13 +203,16 @@ export default function App() {
 
   const handleJogTabSelect = data => {
     console.log("select tab",data);
-    if(data == "jog"){
-
-      //setShowJog(true);
-      //config["m"] = 3;
-      //send();
+    if(data == "jog_tab"){
+      // What was this for?
+    }else if(data == "config_tab"){
+      console.log("config_tab selectyed");
+      //var d = {cmd: "getNvConfig"};
+      //ws.send(JSON.stringify(d));
+      
+      // TODO fix this pesky ws object and reconnections
+      getNvConfig();
     }
-    //handleView(config.m);
   }
   //const [addr,setAddr] = useState("ws://elsWS/test");
   //const [addr,setAddr] = useState("ws://192.168.1.93/test");
@@ -205,6 +228,7 @@ export default function App() {
   const [rpm,setRPM] = useState(0);
   const [newstats,setNewstats] = useState(false);
   const [stats, setStats] = useState({});
+  const [nvConfig,setNvConfig] = useState({});
   const [origin,setOrigin] = useState();
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
@@ -218,6 +242,7 @@ export default function App() {
   const [warnings, setWarnings] = useState([]);
   const [info, setInfo] = useState([]);
   const [submitButton,setSubmitButton] = useState(1);
+  const [threadOffset, setThreadOffset] = useState(0.0);
 
 
   useEffect(() => {
@@ -254,6 +279,15 @@ export default function App() {
   function fetch(){
     var d = {cmd: "fetch"};
     ws.send(JSON.stringify(d));
+  }
+
+  function getNvConfig(){
+    var d = {cmd: "getNvConfig"};
+    ws.send(JSON.stringify(d));
+  }
+  function sendNvConfig(data){
+    data["cmd"] = "setNvConfig";
+    ws.send(JSON.stringify(data));
   }
 
   function jogcancel(){
@@ -335,7 +369,11 @@ export default function App() {
                   setDRO(x.pmm);
                   setRPM(x.rpm);
                   }
-                if(x["cmd"] == "log"){
+                else if(x["cmd"] == "nvConfig"){
+                  console.log("got nv configuration",x);
+                  setNvConfig(x);
+                  }
+                else if(x["cmd"] == "log"){
                   console.log("stuff",x); 
                   if(x["level"] == 0){
                     setModalErrorMsg(x["msg"]);
@@ -407,7 +445,7 @@ export default function App() {
     <Tabs defaultActiveKey="home" id="uncontrolled-tab-example" 
     onSelect={handleJogTabSelect}
     transition={false}>
-    <Tab eventKey="home" title="Home">
+    <Tab eventKey="home_tab" title="Home">
       <div> 
         Connection Status: {
           connected ? 
@@ -419,7 +457,7 @@ export default function App() {
         Welcome!  Select a mode to get started.
       </div>
     </Tab>
-    <Tab eventKey="jog" title="Jog" >
+    <Tab eventKey="jog_tab" title="Jog" >
     <div>
           
               -- {stats["pos_feed"] ? "Feeding" : "Idle"} --
@@ -513,17 +551,24 @@ export default function App() {
                       inputMode='decimal' step='any' defaultValue={ passes()} />
 
                  </InputGroup.Prepend>
-                   "offset per pass" { config.pitch / Math.pow(((config.pitch * 0.614) / firstThreadDepth),2) }
+                   "offset per pass" { config.pitch / passes() }
                   
                 </Col>
+                </Form>
+                <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
                 <Col>
                   <Button type="submit" className="mb-2"
                     disabled={stats.pos_feed}
-                    onClick={() => setSubmitButton(2)}>
-                    Go
+                    onClick={() => setSubmitButton(3)}>
+                    Move Offset Z-
+                  </Button>
+                  <Button type="submit" className="mb-2"
+                    disabled={stats.pos_feed}
+                    onClick={() => setSubmitButton(4)}>
+                    Move Offset Z+
                   </Button>
                 </Col>
-              </Form>
+                </Form>
  
                 <h5> Absolute </h5>
                <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
@@ -628,7 +673,7 @@ export default function App() {
       </div>
     </div>
     </Tab>
-    <Tab eventKey="net" title="Network">
+    <Tab eventKey="net_tab" title="Network">
       <label for="mdns">MDNS {cookie.url}</label>
       <form>
       <input className="form-control" type="text"
@@ -652,12 +697,67 @@ export default function App() {
       </div>
       <br /> {origin}
     </Tab>
-    <Tab eventKey="config" title="Conf">
+    <Tab eventKey="config_tab" title="Conf">
+      <div className="row">
+      <div className="col-md-8">
+        <div className="card">
+          <div className="card-header">
+            NV Config
+          </div>
+          <div className="card-body">
+          <Form inline onSubmit={handleSubmit(onSubmitNvConfig)} >
+                  <Form.Row>
+                  <InputGroup className="mb-2 mr-sm-2">
+                    <Col xs={8}>
+                    <InputGroup.Prepend>
+                      <InputGroup.Text>Lead Screw Pitch {nvConfig["lead_screw_pitch"]}</InputGroup.Text>
+                      <Form.Control id="lead_screw_pitch" name="lead_screw_pitch" type="number"
+                        ref={register({ required: true })}
+                        defaultValue={nvConfig["lead_screw_pitch"]}
+                        inputMode='decimal' step='any' placeholder={nvConfig["lead_screw_pitch"]} />
+                        
+                    </InputGroup.Prepend>
+                    <InputGroup.Prepend>
+                      <InputGroup.Text>Motor Steps {nvConfig["motor_steps"]}</InputGroup.Text>
+                      <Form.Control id="motor_steps" name="motor_steps" type="number"
+                        ref={register({ required: true })}
+                        defaultValue={nvConfig["motor_steps"]}
+                        inputMode='decimal' step='any' placeholder={nvConfig["motor_steps"]} />
+                        
+                    </InputGroup.Prepend>
+                    <InputGroup.Prepend>
+                      <InputGroup.Text>Spindle Encoder Resolution (CPR) {nvConfig["spindle_encoder_resolution"]}</InputGroup.Text>
+                      <Form.Control id="spindle_encoder_resolution" name="spindle_encoder_resolution" type="number"
+                        ref={register({ required: true })}
+                        defaultValue={nvConfig["spindle_encoder_resolution"]}
+                        inputMode='decimal' step='any' placeholder={nvConfig["spindle_encoder_resolution"]} />
+                        
+                    </InputGroup.Prepend>
+                    </Col>
+
+                    <Col>
+                    <Button type="submit" className="mb-2">
+                      Save Config! 
+                    </Button>
+                    </Col>
+                  </InputGroup>
+                  </Form.Row>
+                </Form>
+                <Form >
+                <Button type="submit" className="mb-2">
+                      Reset Config to defaults(not implemented).
+                    </Button>
+                </Form>
+          </div>
+        </div>
+      </div>
+    </div>
       - <Info stats={stats} x={newstats} /> -
       <div><pre>{JSON.stringify(config, null, 2) }</pre></div>      
       <div><pre>{JSON.stringify(stats, null, 2) }</pre></div>
+      <div><pre>{JSON.stringify(nvConfig,null,2) }</pre></div>
     </Tab>
-    <Tab eventKey="debug" title="Debug">
+    <Tab eventKey="debug_tab" title="Debug">
       <h2> Fast </h2>
       <Button onClick={() => handleEncClick(0)}>
         Decrement virtual encoder 1 rev
