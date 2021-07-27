@@ -28,13 +28,14 @@ export default function JogUI({config,me,ws}){
         c.jm = distance;
         var d = {cmd: "jog",config: config}
         console.log("jog ws",d,ws);
-        //ws.send(JSON.stringify(d));
+        ws.send(JSON.stringify(d));
       }
       function rapid(config,distance){
         var c = config;
         c.jm = distance;
         var d = {cmd: "rapid",config: config}
         console.log("rapid ws",d,ws);
+        ws.send(JSON.stringify(d));
       }
 
     const handleJogClick = (data) => {
