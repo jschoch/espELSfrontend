@@ -1,6 +1,8 @@
 import './App.css';
 import { encode, decode,decodeAsync } from "@msgpack/msgpack";
 import Info from './info.js';
+import ModeSel from './Mode.js';
+import JogUI from './JogUI.js';
 import React, { Component, useState, useEffect } from 'react';
 import {useForm} from 'react-hook-form';
 import DropdownButton from 'react-bootstrap/DropdownButton';
@@ -430,16 +432,9 @@ export default function App() {
       <div className="card-title">
           <span class="btn-group">
           <span>
-            <DropdownButton
-            alignRight
-            title={`Select Mode: ${modes[config.m]}`}
-            id="dropdown-menu-align-right"
-            onSelect={handleModeSelect} >
-                    <Dropdown.Item eventKey="0">Startup Mode</Dropdown.Item>
-                    <Dropdown.Item eventKey="2">Slave Jog Mode</Dropdown.Item>
-            </DropdownButton>
+           <ModeSel handleModeSelect={handleModeSelect} modes={modes} config={config}></ModeSel> 
           </span>
-          <span>
+          <span style={{ marginLeft: 5}}>
             {
               connected ?
                   <span class="badge bg-success">C</span>
@@ -466,7 +461,17 @@ export default function App() {
           }
       </div>
       <div>
-        Welcome!  Select a mode to get started.
+        <p>
+         Welcome!  Select a mode to get started.
+         <ModeSel handleModeSelect={handleModeSelect} modes={modes} config={config}></ModeSel>
+         </p>
+      </div>
+    </Tab>
+    <Tab eventKey="jog2_tab" title="New Jog">
+      <div>
+        <div className="card-body">
+            <JogUI></JogUI>
+        </div>
       </div>
     </Tab>
     <Tab eventKey="jog_tab" title="Jog" >

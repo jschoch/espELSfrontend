@@ -8,6 +8,7 @@ Todo:
 
  [] Add better landing page and prompt to set mode
  [] fix ws reconnections
+ [] add rapid back with adjustable speed/pitch
  [] maybe don't have giant single file with code and UI everywhere
  [] Make pure threading view
  [x] when beginning threading store the staring point somewhere, calculate delta when moving offets
