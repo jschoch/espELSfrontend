@@ -250,6 +250,8 @@ export default function App() {
   const [syncStart, setSyncStart] = useState(true);
   const [firstThreadDepth, setFirstThreadDepth] = useState(0.3);
 
+  const me = {setModalErrorMsg: setModalErrorMsg,setShowModalError: setShowModalError};
+
 
 
 
@@ -470,7 +472,7 @@ export default function App() {
     <Tab eventKey="jog2_tab" title="New Jog">
       <div>
         <div className="card-body">
-            <JogUI></JogUI>
+            <JogUI config={config} me={me}></JogUI>
         </div>
       </div>
     </Tab>

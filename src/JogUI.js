@@ -8,13 +8,55 @@ import { ArrowBarLeft, ArrowLeft, ArrowRight,ArrowBarRight } from 'react-bootstr
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import ModalJog from './ModalJogSettings.js';
+import Tabs from 'react-bootstrap/Tabs';
+import Tab from 'react-bootstrap/Tab';
 
-export default function ModeSel(props){
+export default function JogUI({config,me}){
     const [enRL,setEnRL] = useState(true);
     const [enRR,setEnRR] = useState(true);
     const [showModalJog,setShowModalJog] = useState(false);
+
+    // detect first run to ensure we validate pitch
+    const [first_run, set_first_run] = useState(true);
+
+    const handleJogClick = (data) => {
+        console.log("Left Jog Clicked", data,jog_mm);
+        if(jog_mm == 0){
+            console.log("unf");
+            me.setModalErrorMsg("Can't Jog 0 mm");
+            me.setShowModalError(true);
+        }else{
+            if(data.target.id == "rrapid"){
+                console.log("right rapid");
+            }else if(data.target.id == "lrapid"){
+                console.log("left rapid");
+            }
+            else if(data.target.id == "rjog"){
+                console.log("right",jog_mm);
+            }else{
+                console.log("left",jog_mm);
+            }
+
+        }
+    }
+
+    // set this to "u" for undefined so we can ensure it was actually set by the operator
+    const [jog_mm, set_jog_mm] = useState(0);
     return(
         <div>
+            <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example" className="mb-3">
+                <Tab eventKey="jog" title="Jog">
+            <Row>
+                <Col>
+                <span>
+                Pitch: {config.pitch} {(!enRL || !enRR) &&
+                    <span>
+                        Rapid Pitch: {config.rapid}
+                    </span>
+                   }
+                </span>
+                </Col>
+            </Row>
           <Row>
               <Col>
               
@@ -39,8 +81,10 @@ export default function ModeSel(props){
       placeholder="Distance to Jog"
       aria-label="Recipient's username"
       aria-describedby="basic-addon2"
+      value={jog_mm}
+      onChange={e => set_jog_mm(e.target.value)}
     />
-    <InputGroup.Text id="notsure">(mm)</InputGroup.Text>
+    <InputGroup.Text id="notsure">(mm) Jog Distance</InputGroup.Text>
   </InputGroup>
               </Col>
           
@@ -48,9 +92,12 @@ export default function ModeSel(props){
           <Row>
              <Col xs={5} >
              <span>
-                <button type="button" className="btn btn-outline-danger spaceBtn " disabled={enRL}>
+                <button type="button" className="btn btn-outline-danger spaceBtn " disabled={enRL} id="lrapid" onClick={handleJogClick}>
                     <ArrowBarLeft />|<br />Rapid</button>
-                <button type="button" className="btn btn-outline-dark spaceBtn"><ArrowBarLeft /><br/>Jog</button>
+                <button type="button" className="btn btn-outline-dark spaceBtn" id="ljog" onClick={handleJogClick}> 
+                    <ArrowBarLeft /><br/>
+                    Jog
+                </button>
             </span>
              </Col> 
 
@@ -58,8 +105,10 @@ export default function ModeSel(props){
                  
              </Col>
              <Col xs={5}>
-                <button type="button" className="btn btn-outline-dark spaceBtn"><ArrowBarRight/><br />Jog</button>
-                <button type="button" className="btn btn-outline-danger spaceBtn " disabled={enRR}>|<ArrowBarRight/><br />Rapid</button> 
+                <button type="button" className="btn btn-outline-dark spaceBtn" id="rjog" onClick={handleJogClick}>
+                    <ArrowBarRight/><br />Jog</button>
+                <button type="button" className="btn btn-outline-danger spaceBtn " disabled={enRR} id="rrapid" onClick={handleJogClick}>
+                    |<ArrowBarRight/><br />Rapid</button> 
 
              </Col>
                    </Row>
@@ -67,8 +116,15 @@ export default function ModeSel(props){
             <button className="btn btn-danger btn-block" type="button" size="lg"
                 onClick={() => {setShowModalJog(!showModalJog)}}>Jog Settings</button>
            </div>
-           <ModalJog show={showModalJog} setShow={setShowModalJog}></ModalJog>
+           <ModalJog config={config} show={showModalJog} setShow={setShowModalJog}></ModalJog>
 
+
+                </Tab>
+                <Tab eventKey="bounce" title="Bounce">
+                    <Button variant="dark" className="btn-block" > Bounce Settings</Button>
+                   <Button disabled className="btn-block"> Run Bounce </Button> 
+                </Tab>
+            </Tabs>
         </div>
    )
 }

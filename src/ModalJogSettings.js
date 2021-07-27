@@ -4,22 +4,32 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import FormControl from 'react-bootstrap/FormControl';
+import InputGroup from 'react-bootstrap/InputGroup';
 
-export default function ModalJog(props){
-    const handleClose = () => props.setShow(false);
-    const handleShow = () => props.setShow(true);
+export default function ModalJog({config,show, setShow, jogPitch, setJogPitch}){
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
     return(
 
 
 
-<Modal show={props.show} onHide={handleClose}>
+<Modal show={show} onHide={handleClose}>
   <Modal.Header closeButton>
     <Modal.Title>Jog Settings</Modal.Title>
   </Modal.Header>
 
   <Modal.Body>
-    Rapid Pitch: 1
-    Jog Pitch: .1
+    <InputGroup size="sm" className="mb-3">
+    <InputGroup.Text id="rapidPitch">Rapid Pitch</InputGroup.Text>
+    <FormControl placeholder={config.rapid} aria-label="Small" aria-describedby="rapidPitch" />
+  </InputGroup>
+
+  <InputGroup size="sm" className="mb-3">
+    <InputGroup.Text id="jogPitch">Jog Pitch</InputGroup.Text>
+    <FormControl placeholder={config.pitch} aria-label="Small" aria-describedby="inputGroup-sizing-sm" />
+  </InputGroup>
+
   </Modal.Body>
 
   <Modal.Footer>
