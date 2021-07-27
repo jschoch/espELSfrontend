@@ -7,8 +7,19 @@ import Col from "react-bootstrap/Col";
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 
-export default function ModalJog({config,show, setShow, jogPitch, setJogPitch}){
-    const handleClose = () => setShow(false);
+
+
+export default function ModalJog({config,set_config,show, setShow }){
+    const [jogPitch, setJogPitch] = useState(config.pitch);
+    const [rapidPitch, set_rapidPitch] = useState(0.5);
+    const handleClose = () => {
+        var c = config;
+        c.pitch = jogPitch;
+        c.rapid = rapidPitch;
+        console.log("pitch, rapid",jogPitch,rapidPitch);
+        set_config(c);
+        setShow(false);
+    }
     const handleShow = () => setShow(true);
     return(
 
@@ -22,12 +33,16 @@ export default function ModalJog({config,show, setShow, jogPitch, setJogPitch}){
   <Modal.Body>
     <InputGroup size="sm" className="mb-3">
     <InputGroup.Text id="rapidPitch">Rapid Pitch</InputGroup.Text>
-    <FormControl placeholder={config.rapid} aria-label="Small" aria-describedby="rapidPitch" />
+    <FormControl placeholder={config.rapid} aria-label="Small" aria-describedby="rapidPitch" 
+         value={rapidPitch} onChange={(e) => set_rapidPitch(e.target.value)}
+    />
   </InputGroup>
 
   <InputGroup size="sm" className="mb-3">
-    <InputGroup.Text id="jogPitch">Jog Pitch</InputGroup.Text>
-    <FormControl placeholder={config.pitch} aria-label="Small" aria-describedby="inputGroup-sizing-sm" />
+    <InputGroup.Text id="jogPitch" >Jog Pitch</InputGroup.Text>
+    <FormControl placeholder={config.pitch} aria-label="Small" aria-describedby="inputGroup-sizing-sm"
+        value={jogPitch} onChange={(e) => setJogPitch(e.target.value)} 
+    />
   </InputGroup>
 
   </Modal.Body>

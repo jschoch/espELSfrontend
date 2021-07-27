@@ -472,7 +472,7 @@ export default function App() {
     <Tab eventKey="jog2_tab" title="New Jog">
       <div>
         <div className="card-body">
-            <JogUI config={config} me={me}></JogUI>
+            <JogUI config={config} me={me} ws={ws}></JogUI>
         </div>
       </div>
     </Tab>

@@ -11,13 +11,31 @@ import ModalJog from './ModalJogSettings.js';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 
-export default function JogUI({config,me}){
+
+
+
+export default function JogUI({config,me,ws}){
     const [enRL,setEnRL] = useState(true);
     const [enRR,setEnRR] = useState(true);
     const [showModalJog,setShowModalJog] = useState(false);
+    const [jogconfig, set_jogconfig] = useState({pitch: 0.1,rapid: config.rapid});
 
     // detect first run to ensure we validate pitch
     const [first_run, set_first_run] = useState(true);
+
+    function jog(config,distance){
+        var c = config;
+        c.jm = distance;
+        var d = {cmd: "jog",config: config}
+        console.log("jog ws",d,ws);
+        //ws.send(JSON.stringify(d));
+      }
+      function rapid(config,distance){
+        var c = config;
+        c.jm = distance;
+        var d = {cmd: "rapid",config: config}
+        console.log("rapid ws",d,ws);
+      }
 
     const handleJogClick = (data) => {
         console.log("Left Jog Clicked", data,jog_mm);
@@ -28,15 +46,18 @@ export default function JogUI({config,me}){
         }else{
             if(data.target.id == "rrapid"){
                 console.log("right rapid");
+                rapid(jogconfig,Math.abs(jog_mm));
             }else if(data.target.id == "lrapid"){
                 console.log("left rapid");
+                rapid(jogconfig,Math.abs(jog_mm) * -1);
             }
-            else if(data.target.id == "rjog"){
-                console.log("right",jog_mm);
+            else if(data.target.id == "ljog"){
+                //console.log("left",jog_mm);
+                jog(jogconfig,Math.abs(jog_mm) * -1);
             }else{
-                console.log("left",jog_mm);
+                jog(jogconfig,Math.abs(jog_mm));
+                //console.log("right",jog_mm);
             }
-
         }
     }
 
@@ -49,9 +70,9 @@ export default function JogUI({config,me}){
             <Row>
                 <Col>
                 <span>
-                Pitch: {config.pitch} {(!enRL || !enRR) &&
+                Pitch: {jogconfig.pitch} {(!enRL || !enRR) &&
                     <span>
-                        Rapid Pitch: {config.rapid}
+                        Rapid Pitch: {jogconfig.rapid}
                     </span>
                    }
                 </span>
@@ -116,7 +137,7 @@ export default function JogUI({config,me}){
             <button className="btn btn-danger btn-block" type="button" size="lg"
                 onClick={() => {setShowModalJog(!showModalJog)}}>Jog Settings</button>
            </div>
-           <ModalJog config={config} show={showModalJog} setShow={setShowModalJog}></ModalJog>
+           <ModalJog config={jogconfig} set_config={set_jogconfig} show={showModalJog} setShow={setShowModalJog}></ModalJog>
 
 
                 </Tab>
