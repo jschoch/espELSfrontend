@@ -3,6 +3,7 @@ import { encode, decode,decodeAsync } from "@msgpack/msgpack";
 import Info from './info.js';
 import ModeSel from './Mode.js';
 import JogUI from './JogUI.js';
+import Debug from './Debug.js';
 import React, { Component, useState, useEffect } from 'react';
 import {useForm} from 'react-hook-form';
 import DropdownButton from 'react-bootstrap/DropdownButton';
@@ -71,6 +72,23 @@ const ModalError = ({showModalError, modalErrorMsg, setShowModalError}) => {
     </>
   );
 }
+const RangeSlider = (props) => {
+
+  const [rangeval, setRangeval] = useState(props.defaultValue);
+
+  return (
+    <div>
+      <input type="range" className="custom-range" min=".5" max="5" 
+       step="0.1"
+       defaultValue={props.defaultValue}
+       onChange={(event) => setRangeval(event.target.value)} />
+      <span>{props.name}: {rangeval}</span>
+      <span className="col-12">
+        <input className="btn btn-primary" type="submit" value={`Update ${props.name}`} />
+      </span>
+    </div>
+  );
+};
 
 var ws = "";
 export default function App() {
@@ -153,6 +171,8 @@ export default function App() {
 
   const onSubmitRapid = data => {
     var c = config
+    c.f = feedingLeft;
+    c.s = syncStart;
     c.rapid = data.rapid
     setConfig(c);
     console.log("range submit data",data);
@@ -249,6 +269,7 @@ export default function App() {
   const [feedingLeft, setFeedingLeft] = useState(true);
   const [syncStart, setSyncStart] = useState(true);
   const [firstThreadDepth, setFirstThreadDepth] = useState(0.3);
+  const [encSpeed, set_encSpeed] = useState(0);
 
   const me = {setModalErrorMsg: setModalErrorMsg,setShowModalError: setShowModalError};
 
@@ -271,6 +292,16 @@ export default function App() {
       connect();
     }
   },[connected]);
+
+  function updateEncSpeed(val){
+    set_encSpeed(val);
+    // send to controller
+    var c = config;
+    c.encSpeed = val;
+    var d = {cmd: "updateEncSpeed",config: c}
+    console.log("ws",c,ws);
+    ws.send(JSON.stringify(d));
+  }
 
   function inputUpdate(e){
     const {value } = e.target;
@@ -778,20 +809,7 @@ export default function App() {
       <div><pre>{JSON.stringify(nvConfig,null,2) }</pre></div>
     </Tab>
     <Tab eventKey="debug_tab" title="Debug">
-      <h2> Fast </h2>
-      <Button onClick={() => handleEncClick(0)}>
-        Decrement virtual encoder 1 rev
-      </Button>
-      <Button onClick={() => handleEncClick(1)}>
-        Increment virtual encoder 1 rev
-      </Button>
-      <h2> Slow</h2>
-      <Button onClick={() => handleEncClick(2)}>
-        Increment virtual encoder 1 tick
-      </Button>
-      <Button onClick={() => handleEncClick(3)}>
-        Decrement virtual encoder 1 tick
-      </Button>
+      <Debug handleEncClick={handleEncClick} encSpeed={encSpeed} updateEncSpeed={updateEncSpeed}></Debug>
 
 
 
@@ -804,23 +822,4 @@ export default function App() {
   
     />
     </div>
-  );
-}
-
-const RangeSlider = (props) => {
-
-  const [rangeval, setRangeval] = useState(props.defaultValue);
-
-  return (
-    <div>
-      <input type="range" className="custom-range" min=".5" max="5" 
-       step="0.1"
-       defaultValue={props.defaultValue}
-       onChange={(event) => setRangeval(event.target.value)} />
-      <span>{props.name}: {rangeval}</span>
-      <span className="col-12">
-        <input className="btn btn-primary" type="submit" value={`Update ${props.name}`} />
-      </span>
-    </div>
-  );
-};
+  )};

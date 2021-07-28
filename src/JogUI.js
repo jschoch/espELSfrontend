@@ -19,21 +19,29 @@ export default function JogUI({config,me,ws}){
     const [enRR,setEnRR] = useState(true);
     const [showModalJog,setShowModalJog] = useState(false);
     const [jogconfig, set_jogconfig] = useState({pitch: 0.1,rapid: config.rapid});
+    const [feedingLeft,set_feedingLeft] = useState(true);
+    const [syncStart, set_syncStart] = useState(true);
 
     // detect first run to ensure we validate pitch
     const [first_run, set_first_run] = useState(true);
 
     function jog(config,distance){
         var c = config;
+        // TODO: add these to the UI
+        c.f = feedingLeft;
+        c.s = syncStart;
+
         c.jm = distance;
-        var d = {cmd: "jog",config: config}
+        var d = {cmd: "jog",config: c}
         console.log("jog ws",d,ws);
         ws.send(JSON.stringify(d));
       }
       function rapid(config,distance){
         var c = config;
+        c.f = feedingLeft;
+        c.s = syncStart;
         c.jm = distance;
-        var d = {cmd: "rapid",config: config}
+        var d = {cmd: "rapid",config: c}
         console.log("rapid ws",d,ws);
         ws.send(JSON.stringify(d));
       }
@@ -104,6 +112,7 @@ export default function JogUI({config,me,ws}){
       aria-label="Recipient's username"
       aria-describedby="basic-addon2"
       value={jog_mm}
+      inputMode='decimal' step='any'
       onChange={e => set_jog_mm(e.target.value)}
     />
     <InputGroup.Text id="notsure">(mm) Jog Distance</InputGroup.Text>
