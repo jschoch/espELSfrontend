@@ -296,10 +296,10 @@ export default function App() {
   function updateEncSpeed(val){
     set_encSpeed(val);
     // send to controller
-    var c = config;
+    var c = {};
     c.encSpeed = val;
     var d = {cmd: "updateEncSpeed",config: c}
-    console.log("ws",c,ws);
+    console.log("ws",d,ws);
     ws.send(JSON.stringify(d));
   }
 
