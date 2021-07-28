@@ -34,7 +34,7 @@ export default function ModalJog({config,set_config,show, setShow }){
     <InputGroup size="sm" className="mb-3">
     <InputGroup.Text id="rapidPitch">Rapid Pitch</InputGroup.Text>
     <FormControl placeholder={config.rapid} aria-label="Small" aria-describedby="rapidPitch" 
-        inputMode='decimal' step='any'
+        inputMode='decimal' step='any' type="number"
          value={rapidPitch} onChange={(e) => set_rapidPitch(e.target.value)}
     />
   </InputGroup>
@@ -42,7 +42,7 @@ export default function ModalJog({config,set_config,show, setShow }){
   <InputGroup size="sm" className="mb-3">
     <InputGroup.Text id="jogPitch" >Jog Pitch</InputGroup.Text>
     <FormControl placeholder={config.pitch} aria-label="Small" aria-describedby="inputGroup-sizing-sm"
-        inputMode='decimal' step='any'
+        inputMode='decimal' step='any' type="number"
         value={jogPitch} onChange={(e) => setJogPitch(e.target.value)} 
     />
   </InputGroup>

@@ -25,8 +25,16 @@ export default function Feeding({stats,jogcancel}){
                   role="status"
                   aria-hidden="true"
                 />
-              {stats.fd && (stats.sp - stats.pmm).toFixed(4)}
-              {!stats.fd && (stats.pmm - stats.sn).toFixed(4)}
+              {stats.fd && 
+                <span>
+                    Distance to Go: {(stats.sp - stats.pmm).toFixed(4)}
+                </span>}
+              {!stats.fd && 
+                <span>
+                Distance to Go: {(stats.pmm - stats.sn).toFixed(4)}
+                </span>
+                
+                }
             </Button>
             <Button variant="danger" onClick={jogcancel}>
               Cancel Jog!

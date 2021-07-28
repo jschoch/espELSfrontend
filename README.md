@@ -7,7 +7,8 @@ uses react and websockets to make awesome
 Todo:
 
  - [] make Jog tab on "new jog" ui default
- - [] lock UI on rapid move
+ - [] convert all json to msgpack
+ - [x] lock UI on rapid move
  - [] add UI lock to "new jog" ui
  - [] Add better landing page and prompt to set mode
  - [] fix ws reconnections

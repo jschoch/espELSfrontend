@@ -147,9 +147,10 @@ export default function App() {
   }
 
   const onSubmitAbsJog = (data) => {
+    var c = config;
     c.f = feedingLeft;
     c.s = syncStart;
-    var c = config;
+    
     jogAbs(data.jog_abs_mm);  
   }
 
@@ -504,7 +505,15 @@ export default function App() {
     <Tab eventKey="jog2_tab" title="New Jog">
       <div>
         <div className="card-body">
+            { config["m"] == 0 &&
+            <div>
+
+              Select a mode above
+            </div>
+            }
+            { config["m"] != 0 && 
             <JogUI config={config} me={me} ws={ws} stats={stats} jogcancel={jogcancel}></JogUI>
+            }
         </div>
       </div>
     </Tab>
@@ -675,7 +684,8 @@ export default function App() {
                     <InputGroup.Text>Jog Scaler</InputGroup.Text>
                      <Form.Control id="sc" name="sc" type="number"
                       ref={register({ required: true })}
-                      defaultValue="0.5"                                                                                                      inputMode='decimal' step='any' placeholder="1.0" />
+                      defaultValue="0.5"                                                                                                      
+                      inputMode='decimal' step='any' placeholder="1.0" />
                   </InputGroup.Prepend>
                   <Button type="submit" className="mb-2">
                     Update Jog Scaler Hack!

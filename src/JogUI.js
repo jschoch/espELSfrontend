@@ -24,6 +24,8 @@ export default function JogUI({config,me,ws,stats,jogcancel}){
     const [syncStart, set_syncStart] = useState(true);
     const [showJog, set_showJog] = useState(true);
 
+    const colW = 5;
+
     // detect first run to ensure we validate pitch
     const [first_run, set_first_run] = useState(true);
 
@@ -116,7 +118,7 @@ export default function JogUI({config,me,ws,stats,jogcancel}){
                 aria-label="Distance to Jog"
                 aria-describedby="basic-addon2"
                 value={jog_mm}
-                inputMode='decimal' step='any'
+                inputMode='decimal' step='any' type="number"
                 onChange={e => set_jog_mm(e.target.value)}
                 />
                 <InputGroup.Text id="notsure">(mm) Jog Distance</InputGroup.Text>
@@ -125,7 +127,7 @@ export default function JogUI({config,me,ws,stats,jogcancel}){
           
           </Row>
             <Row>
-             <Col xs={5} >
+             <Col xs={6} >
              <span>
                 <button type="button" className="btn btn-outline-danger spaceBtn " disabled={enRL} id="lrapid" onClick={handleJogClick}>
                     <ArrowBarLeft />|<br />Rapid</button>
@@ -134,12 +136,9 @@ export default function JogUI({config,me,ws,stats,jogcancel}){
                     Jog
                 </button>
             </span>
-             </Col> 
-
-             <Col xs={2}>
                  
              </Col>
-             <Col xs={5}>
+             <Col xs='auto'>
                 <button type="button" className="btn btn-outline-dark spaceBtn" id="rjog" onClick={handleJogClick}>
                     <ArrowBarRight/><br />Jog</button>
                 <button type="button" className="btn btn-outline-danger spaceBtn " disabled={enRR} id="rrapid" onClick={handleJogClick}>
