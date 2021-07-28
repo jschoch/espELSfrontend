@@ -10,17 +10,19 @@ import Col from "react-bootstrap/Col";
 import ModalJog from './ModalJogSettings.js';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
+import Feeding from './Feeding.js';
 
 
 
 
-export default function JogUI({config,me,ws}){
+export default function JogUI({config,me,ws,stats,jogcancel}){
     const [enRL,setEnRL] = useState(true);
     const [enRR,setEnRR] = useState(true);
     const [showModalJog,setShowModalJog] = useState(false);
     const [jogconfig, set_jogconfig] = useState({pitch: 0.1,rapid: config.rapid});
     const [feedingLeft,set_feedingLeft] = useState(true);
     const [syncStart, set_syncStart] = useState(true);
+    const [showJog, set_showJog] = useState(true);
 
     // detect first run to ensure we validate pitch
     const [first_run, set_first_run] = useState(true);
@@ -74,8 +76,10 @@ export default function JogUI({config,me,ws}){
     const [jog_mm, set_jog_mm] = useState(0);
     return(
         <div>
-            <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example" className="mb-3">
+            <Tabs defaultActiveKey="jog" id="uncontrolled-tab-example" className="mb-3">
                 <Tab eventKey="jog" title="Jog">
+                { showJog && !stats["pos_feed"] && !stats["sw"] &&
+            <div>
             <Row>
                 <Col>
                 <span>
@@ -87,7 +91,7 @@ export default function JogUI({config,me,ws}){
                 </span>
                 </Col>
             </Row>
-          <Row>
+            <Row>
               <Col>
               
               <input type="checkbox" className="btn-check" id="btn-check-outlined" autocomplete="off"
@@ -104,23 +108,23 @@ export default function JogUI({config,me,ws}){
                 <label className="btn btn-outline-primary" for="btn-en-rapidright">Enable Rapid Right</label>
                 </Col>
           </Row>
-          <Row>
+            <Row>
               <Col>
               <InputGroup className="mb-3">
-    <FormControl
-      placeholder="Distance to Jog"
-      aria-label="Recipient's username"
-      aria-describedby="basic-addon2"
-      value={jog_mm}
-      inputMode='decimal' step='any'
-      onChange={e => set_jog_mm(e.target.value)}
-    />
-    <InputGroup.Text id="notsure">(mm) Jog Distance</InputGroup.Text>
-  </InputGroup>
+                <FormControl
+                placeholder="Distance to Jog"
+                aria-label="Distance to Jog"
+                aria-describedby="basic-addon2"
+                value={jog_mm}
+                inputMode='decimal' step='any'
+                onChange={e => set_jog_mm(e.target.value)}
+                />
+                <InputGroup.Text id="notsure">(mm) Jog Distance</InputGroup.Text>
+            </InputGroup>
               </Col>
           
           </Row>
-          <Row>
+            <Row>
              <Col xs={5} >
              <span>
                 <button type="button" className="btn btn-outline-danger spaceBtn " disabled={enRL} id="lrapid" onClick={handleJogClick}>
@@ -143,11 +147,18 @@ export default function JogUI({config,me,ws}){
 
              </Col>
                    </Row>
-          <div class="d-grid gap-1">
-            <button className="btn btn-danger btn-block" type="button" size="lg"
-                onClick={() => {setShowModalJog(!showModalJog)}}>Jog Settings</button>
+                
+            <Row>
+                <button className="btn btn-danger btn-block" type="button" size="lg"
+                  onClick={() => {setShowModalJog(!showModalJog)}}>Jog Settings</button>
+                <ModalJog config={jogconfig} set_config={set_jogconfig} show={showModalJog} setShow={setShowModalJog}></ModalJog>
+           </Row>
            </div>
-           <ModalJog config={jogconfig} set_config={set_jogconfig} show={showModalJog} setShow={setShowModalJog}></ModalJog>
+            }
+           <Row>
+            <Feeding stats={stats} jogcancel={jogcancel}></Feeding>
+                
+            </Row>
 
 
                 </Tab>

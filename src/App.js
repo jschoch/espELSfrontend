@@ -4,6 +4,7 @@ import Info from './info.js';
 import ModeSel from './Mode.js';
 import JogUI from './JogUI.js';
 import Debug from './Debug.js';
+import Feeding from './Feeding.js';
 import React, { Component, useState, useEffect } from 'react';
 import {useForm} from 'react-hook-form';
 import DropdownButton from 'react-bootstrap/DropdownButton';
@@ -503,41 +504,17 @@ export default function App() {
     <Tab eventKey="jog2_tab" title="New Jog">
       <div>
         <div className="card-body">
-            <JogUI config={config} me={me} ws={ws}></JogUI>
+            <JogUI config={config} me={me} ws={ws} stats={stats} jogcancel={jogcancel}></JogUI>
         </div>
       </div>
     </Tab>
     <Tab eventKey="jog_tab" title="Jog" >
     <div>
-          
-              -- {stats["pos_feed"] ? "Feeding" : "Idle"} --
       <div className="card-body">
           { stats["pos_feed"] &&
-            <div>
-            <Button disabled={stats.pos_feed} >
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                />
-              {stats.fd && (stats.sp - stats.pmm).toFixed(4)}
-              {!stats.fd && (stats.pmm - stats.sn).toFixed(4)}
-            </Button>
-            <Button variant="danger" onClick={jogcancel}>
-              Cancel Jog!
-            </Button>
-            </div>
+            <Feeding stats={stats} jogcancel={jogcancel}></Feeding> 
           }
-          {stats["sw"] &&
-          <div>
-          <Button variant="danger">Waiting for Sync</Button>
-          <Button variant="danger" onClick={jogcancel}>
-              Cancel Jog!
-            </Button>
-          </div>
-          }
+          
            { showJog && !stats["pos_feed"] && !stats["sw"] &&
             <div>
               <Form inline >
@@ -551,9 +528,9 @@ export default function App() {
                   </Col>
                   <Col>
                       <Form.Check inline type="checkbox" label="Sync Start"
-                        name="feeding_left" ref={register({required: false})}
-                        id="feeding_left"
-                        checked={feedingLeft}
+                        name="syncStart" ref={register({required: false})}
+                        id="syncStart"
+                        checked={syncStart}
                         onChange ={ () => setSyncStart(!syncStart)} />
                   </Col>
                   
