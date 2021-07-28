@@ -50,26 +50,29 @@ export default function JogUI({config,me,ws,stats,jogcancel}){
         ws.send(JSON.stringify(d));
       }
 
-    const handleJogClick = (data) => {
-        console.log("Left Jog Clicked", data,jog_mm);
+    const handleJogClick = (id) => {
+        console.log("Jog or Rapid Clicked", id,jog_mm);
         if(jog_mm == 0){
             console.log("unf");
             me.setModalErrorMsg("Can't Jog 0 mm");
             me.setShowModalError(true);
         }else{
-            if(data.target.id == "rrapid"){
+            //var id = data.target.getAttribute(“id”);
+            if(id == "rrapid"){
                 console.log("right rapid");
                 rapid(jogconfig,Math.abs(jog_mm));
-            }else if(data.target.id == "lrapid"){
+            }else if(id == "lrapid"){
                 console.log("left rapid");
                 rapid(jogconfig,Math.abs(jog_mm) * -1);
             }
-            else if(data.target.id == "ljog"){
+            else if(id == "ljog"){
                 //console.log("left",jog_mm);
                 jog(jogconfig,Math.abs(jog_mm) * -1);
-            }else{
+            }else if(id == "rjog"){
                 jog(jogconfig,Math.abs(jog_mm));
                 //console.log("right",jog_mm);
+            }else{
+                console.log("WTF",id)
             }
         }
     }
@@ -129,9 +132,11 @@ export default function JogUI({config,me,ws,stats,jogcancel}){
             <Row>
              <Col xs={6} >
              <span>
-                <button type="button" className="btn btn-outline-danger spaceBtn " disabled={enRL} id="lrapid" onClick={handleJogClick}>
+                <button type="button" className="btn btn-outline-danger spaceBtn " disabled={enRL} id="lrapid" 
+                    onClick={() => handleJogClick("lrapid")}>
                     <ArrowBarLeft />|<br />Rapid</button>
-                <button type="button" className="btn btn-outline-dark spaceBtn" id="ljog" onClick={handleJogClick}> 
+                <button type="button" className="btn btn-outline-dark spaceBtn" id="ljog" 
+                    onClick={() => handleJogClick("ljog")}> 
                     <ArrowBarLeft /><br/>
                     Jog
                 </button>
@@ -139,9 +144,11 @@ export default function JogUI({config,me,ws,stats,jogcancel}){
                  
              </Col>
              <Col xs='auto'>
-                <button type="button" className="btn btn-outline-dark spaceBtn" id="rjog" onClick={handleJogClick}>
+                <button type="button" className="btn btn-outline-dark spaceBtn" id="rjog" 
+                    onClick={() => handleJogClick("rjog")}>
                     <ArrowBarRight/><br />Jog</button>
-                <button type="button" className="btn btn-outline-danger spaceBtn " disabled={enRR} id="rrapid" onClick={handleJogClick}>
+                <button type="button" className="btn btn-outline-danger spaceBtn " disabled={enRR} id="rrapid" 
+                    onClick={() => handleJogClick("rrapid")}>
                     |<ArrowBarRight/><br />Rapid</button> 
 
              </Col>
