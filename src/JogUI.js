@@ -11,6 +11,7 @@ import ModalJog from './ModalJogSettings.js';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Feeding from './Feeding.js';
+import Bounce from './Bounce.js';
 
 
 
@@ -169,8 +170,7 @@ export default function JogUI({config,me,ws,stats,jogcancel}){
 
                 </Tab>
                 <Tab eventKey="bounce" title="Bounce">
-                    <Button variant="dark" className="btn-block" > Bounce Settings</Button>
-                   <Button disabled className="btn-block"> Run Bounce </Button> 
+                   <Bounce ws={ws}></Bounce>
                 </Tab>
             </Tabs>
         </div>
