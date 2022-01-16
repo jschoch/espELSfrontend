@@ -34,6 +34,7 @@ export default function Info(props) {
           <p className="card-text">
 
           <KV k="Encoder" v={props.stats.encoderPos} />
+          <KV k="Encoder revolutions" v={props.stats.encoderPos / 2400} />
           <KV k="Tool Position" v={props.stats.tp} />
           <br />
           <KV k="Target Tool Position" v={props.stats.targetPos} />
@@ -62,6 +63,7 @@ export default function Info(props) {
 
         <KV k="feeding " v={props.stats.feeding ? "true" : "false"} />
         <KV k="jogging " v={props.stats.jogging? "true" : "false"} />
+        <KV k="rapiding " v={props.stats.rap? "true" : "false"} />
         <KV k="jog_done " v={props.stats.jog_dong ? 1 : 0} />
         <KV k="Feed to Position" v={props.stats.pos_feed ? "true" : "false"} />
         <KV k="Stop Neg Exceeded?" v={props.stats.sne ? "true" : "false" } />

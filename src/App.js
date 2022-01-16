@@ -1,6 +1,10 @@
 import './App.css';
 import { encode, decode,decodeAsync } from "@msgpack/msgpack";
 import Info from './info.js';
+import ModeSel from './Mode.js';
+import JogUI from './JogUI.js';
+import Debug from './Debug.js';
+import Feeding from './Feeding.js';
 import React, { Component, useState, useEffect } from 'react';
 import {useForm} from 'react-hook-form';
 import DropdownButton from 'react-bootstrap/DropdownButton';
@@ -18,6 +22,7 @@ import Card from 'react-bootstrap/Card';
 import ListGroup from 'react-bootstrap/ListGroup';
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import Rev from './Rev.js';
 
 /*
 const modes = {
@@ -69,6 +74,23 @@ const ModalError = ({showModalError, modalErrorMsg, setShowModalError}) => {
     </>
   );
 }
+const RangeSlider = (props) => {
+
+  const [rangeval, setRangeval] = useState(props.defaultValue);
+
+  return (
+    <div>
+      <input type="range" className="custom-range" min=".5" max="5" 
+       step="0.1"
+       defaultValue={props.defaultValue}
+       onChange={(event) => setRangeval(event.target.value)} />
+      <span>{props.name}: {rangeval}</span>
+      <span className="col-12">
+        <input className="btn btn-primary" type="submit" value={`Update ${props.name}`} />
+      </span>
+    </div>
+  );
+};
 
 var ws = "";
 export default function App() {
@@ -126,9 +148,10 @@ export default function App() {
   }
 
   const onSubmitAbsJog = (data) => {
+    var c = config;
     c.f = feedingLeft;
     c.s = syncStart;
-    var c = config;
+    
     jogAbs(data.jog_abs_mm);  
   }
 
@@ -151,6 +174,8 @@ export default function App() {
 
   const onSubmitRapid = data => {
     var c = config
+    c.f = feedingLeft;
+    c.s = syncStart;
     c.rapid = data.rapid
     setConfig(c);
     console.log("range submit data",data);
@@ -247,6 +272,9 @@ export default function App() {
   const [feedingLeft, setFeedingLeft] = useState(true);
   const [syncStart, setSyncStart] = useState(true);
   const [firstThreadDepth, setFirstThreadDepth] = useState(0.3);
+  const [encSpeed, set_encSpeed] = useState(0);
+
+  const me = {setModalErrorMsg: setModalErrorMsg,setShowModalError: setShowModalError};
 
 
 
@@ -267,6 +295,16 @@ export default function App() {
       connect();
     }
   },[connected]);
+
+  function updateEncSpeed(val){
+    set_encSpeed(val);
+    // send to controller
+    var c = {};
+    c.encSpeed = val;
+    var d = {cmd: "updateEncSpeed",config: c}
+    console.log("ws",d,ws);
+    ws.send(JSON.stringify(d));
+  }
 
   function inputUpdate(e){
     const {value } = e.target;
@@ -430,16 +468,9 @@ export default function App() {
       <div className="card-title">
           <span class="btn-group">
           <span>
-            <DropdownButton
-            alignRight
-            title={`Select Mode: ${modes[config.m]}`}
-            id="dropdown-menu-align-right"
-            onSelect={handleModeSelect} >
-                    <Dropdown.Item eventKey="0">Startup Mode</Dropdown.Item>
-                    <Dropdown.Item eventKey="2">Slave Jog Mode</Dropdown.Item>
-            </DropdownButton>
+           <ModeSel handleModeSelect={handleModeSelect} modes={modes} config={config}></ModeSel> 
           </span>
-          <span>
+          <span style={{ marginLeft: 5}}>
             {
               connected ?
                   <span class="badge bg-success">C</span>
@@ -449,6 +480,7 @@ export default function App() {
           <span>
             DRO: <span className="badge bg-warning">{dro.toFixed(4)}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
+            <Rev config={config} me={me} ws={ws} stats={stats} />
           </span>
           </span>
  
@@ -466,40 +498,34 @@ export default function App() {
           }
       </div>
       <div>
-        Welcome!  Select a mode to get started.
+        <p>
+         Welcome!  Select a mode to get started.
+         <ModeSel handleModeSelect={handleModeSelect} modes={modes} config={config}></ModeSel>
+         </p>
+      </div>
+    </Tab>
+    <Tab eventKey="jog2_tab" title="New Jog">
+      <div>
+        <div className="card-body">
+            { config["m"] == 0 &&
+            <div>
+
+              Select a mode above
+            </div>
+            }
+            { config["m"] != 0 && 
+            <JogUI config={config} me={me} ws={ws} stats={stats} jogcancel={jogcancel}></JogUI>
+            }
+        </div>
       </div>
     </Tab>
     <Tab eventKey="jog_tab" title="Jog" >
     <div>
-          
-              -- {stats["pos_feed"] ? "Feeding" : "Idle"} --
       <div className="card-body">
           { stats["pos_feed"] &&
-            <div>
-            <Button disabled={stats.pos_feed} >
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                />
-              {stats.fd && (stats.sp - stats.pmm).toFixed(4)}
-              {!stats.fd && (stats.pmm - stats.sn).toFixed(4)}
-            </Button>
-            <Button variant="danger" onClick={jogcancel}>
-              Cancel Jog!
-            </Button>
-            </div>
+            <Feeding stats={stats} jogcancel={jogcancel}></Feeding> 
           }
-          {stats["sw"] &&
-          <div>
-          <Button variant="danger">Waiting for Sync</Button>
-          <Button variant="danger" onClick={jogcancel}>
-              Cancel Jog!
-            </Button>
-          </div>
-          }
+          
            { showJog && !stats["pos_feed"] && !stats["sw"] &&
             <div>
               <Form inline >
@@ -513,9 +539,9 @@ export default function App() {
                   </Col>
                   <Col>
                       <Form.Check inline type="checkbox" label="Sync Start"
-                        name="feeding_left" ref={register({required: false})}
-                        id="feeding_left"
-                        checked={feedingLeft}
+                        name="syncStart" ref={register({required: false})}
+                        id="syncStart"
+                        checked={syncStart}
                         onChange ={ () => setSyncStart(!syncStart)} />
                   </Col>
                   
@@ -660,7 +686,8 @@ export default function App() {
                     <InputGroup.Text>Jog Scaler</InputGroup.Text>
                      <Form.Control id="sc" name="sc" type="number"
                       ref={register({ required: true })}
-                      defaultValue="0.5"                                                                                                      inputMode='decimal' step='any' placeholder="1.0" />
+                      defaultValue="0.5"                                                                                                      
+                      inputMode='decimal' step='any' placeholder="1.0" />
                   </InputGroup.Prepend>
                   <Button type="submit" className="mb-2">
                     Update Jog Scaler Hack!
@@ -771,20 +798,7 @@ export default function App() {
       <div><pre>{JSON.stringify(nvConfig,null,2) }</pre></div>
     </Tab>
     <Tab eventKey="debug_tab" title="Debug">
-      <h2> Fast </h2>
-      <Button onClick={() => handleEncClick(0)}>
-        Decrement virtual encoder 1 rev
-      </Button>
-      <Button onClick={() => handleEncClick(1)}>
-        Increment virtual encoder 1 rev
-      </Button>
-      <h2> Slow</h2>
-      <Button onClick={() => handleEncClick(2)}>
-        Increment virtual encoder 1 tick
-      </Button>
-      <Button onClick={() => handleEncClick(3)}>
-        Decrement virtual encoder 1 tick
-      </Button>
+      <Debug handleEncClick={handleEncClick} encSpeed={encSpeed} updateEncSpeed={updateEncSpeed}></Debug>
 
 
 
@@ -797,23 +811,4 @@ export default function App() {
   
     />
     </div>
-  );
-}
-
-const RangeSlider = (props) => {
-
-  const [rangeval, setRangeval] = useState(props.defaultValue);
-
-  return (
-    <div>
-      <input type="range" className="custom-range" min=".5" max="5" 
-       step="0.1"
-       defaultValue={props.defaultValue}
-       onChange={(event) => setRangeval(event.target.value)} />
-      <span>{props.name}: {rangeval}</span>
-      <span className="col-12">
-        <input className="btn btn-primary" type="submit" value={`Update ${props.name}`} />
-      </span>
-    </div>
-  );
-};
+  )};
