@@ -34,6 +34,7 @@ export default function Info(props) {
           <p className="card-text">
 
           <KV k="Encoder" v={props.stats.encoderPos} />
+          <KV k="Encoder revolutions" v={props.stats.encoderPos / 2400} />
           <KV k="Tool Position" v={props.stats.tp} />
           <br />
           <KV k="Target Tool Position" v={props.stats.targetPos} />

@@ -22,6 +22,7 @@ import Card from 'react-bootstrap/Card';
 import ListGroup from 'react-bootstrap/ListGroup';
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import Rev from './Rev.js';
 
 /*
 const modes = {
@@ -479,6 +480,7 @@ export default function App() {
           <span>
             DRO: <span className="badge bg-warning">{dro.toFixed(4)}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
+            <Rev config={config} me={me} ws={ws} stats={stats} />
           </span>
           </span>
  
