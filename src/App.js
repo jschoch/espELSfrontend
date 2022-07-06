@@ -23,6 +23,7 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import Rev from './Rev.js';
+import Hobbing from './hobbing.js';
 
 /*
 const modes = {
@@ -38,7 +39,9 @@ const modes= {
  1: "",
  2: "Slave Jogging",
  3: "",
- 4: ""
+ 4: "",
+ 9: "Hob Ready",
+ 10: "Hob Running"
 };
 
 //var stats = {};
@@ -412,6 +415,13 @@ export default function App() {
           //console.log(message.data instanceof Blob);
           if(message.data instanceof Blob){
             decodeFromBlob(message.data).then((x) => {
+              //console.log("got blob",x);
+              if("u" in x){
+                console.log("got u");
+                console.log("updating config",x);
+                setConfig(x);
+                handleView(x["m"]);
+              }
               if("cmd" in x){
                 if(x["cmd"] == "status"){
                   setNewstats(!newstats);
@@ -435,6 +445,7 @@ export default function App() {
             );
           }
           else{
+            console.log("this should not happen anymore");
             var inconfig = JSON.parse(message.data);
          
             console.log("got message", inconfig);
@@ -796,6 +807,9 @@ export default function App() {
       <div><pre>{JSON.stringify(config, null, 2) }</pre></div>      
       <div><pre>{JSON.stringify(stats, null, 2) }</pre></div>
       <div><pre>{JSON.stringify(nvConfig,null,2) }</pre></div>
+    </Tab>
+    <Tab eventKey="hob_tab" title="Hobbing">
+      <Hobbing config={config} setConfig={setConfig} me={me} ws={ws} stats={stats} jogcancel={jogcancel}></Hobbing>
     </Tab>
     <Tab eventKey="debug_tab" title="Debug">
       <Debug handleEncClick={handleEncClick} encSpeed={encSpeed} updateEncSpeed={updateEncSpeed}></Debug>
