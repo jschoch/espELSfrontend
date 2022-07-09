@@ -35,6 +35,7 @@ export default function JogUI({config,me,ws,stats,jogcancel}){
         // TODO: add these to the UI
         c.f = feedingLeft;
         c.s = syncStart;
+        c.pitch = jogconfig.pitch;
 
         c.jm = distance;
         var d = {cmd: "jog",config: c}
