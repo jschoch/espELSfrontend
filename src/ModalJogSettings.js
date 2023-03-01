@@ -9,15 +9,19 @@ import InputGroup from 'react-bootstrap/InputGroup';
 
 
 
-export default function ModalJog({config,set_config,show, setShow }){
-    const [jogPitch, setJogPitch] = useState(config.pitch);
+export default function ModalJog({config,setConfig,jogconfig,set_jogconfig,show, setShow }){
+    const [jogPitch, setJogPitch] = useState(jogconfig.pitch);
     const [rapidPitch, set_rapidPitch] = useState(0.5);
     const handleClose = () => {
         var c = config;
         c.pitch = jogPitch;
         c.rapid = rapidPitch;
+        setConfig(c)
         console.log("pitch, rapid",jogPitch,rapidPitch);
-        set_config(c);
+        var jc = jogconfig;
+        jogconfig.pitch = jogPitch;
+        jogconfig.rapid = rapidPitch;
+        set_jogconfig(jc);
         setShow(false);
     }
     const handleShow = () => setShow(true);

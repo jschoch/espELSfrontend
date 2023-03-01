@@ -25,6 +25,10 @@ import Tooltip from "react-bootstrap/Tooltip";
 import Rev from './Rev.js';
 import Hobbing from './hobbing.js';
 
+
+// TODO: refactor, why so many modes unused here?
+//  original intent was to map modes to the YASM states in the firmware
+
 const modes= {
  0: "Startup",
  1: "",
@@ -122,6 +126,7 @@ export default function App() {
       jog();
     }else if(submitButton == 3){
       // move Z- for thread offset
+      // TODO: move this threading offset stuff to a new tab and make a component dedicated to threading
       setThreadOffset(config.pitch / passes());
       c.jm = (threadOffset * -1) ;
       setConfig(c);
@@ -130,6 +135,7 @@ export default function App() {
       
     }else if(submitButton == 4){
       // move Z_ for thread offset
+      // TODO: move this too
       c.jm = threadOffset;
       setConfig(c);
       jog();
@@ -139,6 +145,9 @@ export default function App() {
   }
 
   const onSubmitAbsJog = (data) => {
+    // TODO: consider making this a component and also having it in "new jog"
+    //
+    console.log("jogAbs submit clicked",data)
     var c = config;
     c.f = feedingLeft;
     c.s = syncStart;
@@ -192,6 +201,7 @@ export default function App() {
     sendConfig();
   }
 
+  // TODO: read up on const function literals vs functions and pick one
   function makeThreadTable(rec_passes,first){
     var cards = [];
     var thread_depth = (config.pitch * 0.614);
@@ -203,7 +213,7 @@ export default function App() {
         }else{
           feed = (thread_depth/Math.sqrt(rec_passes-1)) * Math.sqrt(i-1);
         }
-        cards.push(<ListGroup.Item>
+        cards.push(<ListGroup.Item key={i}>
                       pass: {i} _
                       offset = { (config.pitch / passes())*i} _
                       Incremental Feed = 
@@ -242,7 +252,6 @@ export default function App() {
   const [addr,setAddr] = useState(cookie);
   const [config,setConfig] = useState({});
   const [connected,setConnected] = useState(false);
-  //const [wsS,setWSS] = useState();
   const [showJog,setShowJog] = useState(false);
   const [showRapid,setShowRapid] = useState(false);
   const [timeout, setTimeout] = useState(250);
@@ -270,6 +279,7 @@ export default function App() {
   const [threadOffset, setThreadOffset] = useState(0.0);
 
 
+  // I believe this sets the network address in a cookie so it can be reused on page refresh
   useEffect(() => {
     if(!connected){
       console.log(addr,cookie);
@@ -332,18 +342,18 @@ export default function App() {
   }
 
   function sendConfig(){
-    //console.log("this was changed for hobbing test, need to update lathe firmware");
     var d = {cmd: "sendConfig",config: config}
-    //var d= {cmd: "send", config: config};
     console.log("ws",config,ws);
     if(typeof ws.send !== "undefined"){
       console.log("sending");
       ws.send(JSON.stringify(d));
     }else{
+      // TODO: WTF? popup an error or something
       connect();
     }
   }
 
+  // TODO: can you put this in a util lib and just pass the config vs having it here and bubbling it down 
   function jog(){
     var d = {cmd: "jog",config: config}
     console.log("ws",config,ws);
@@ -351,9 +361,10 @@ export default function App() {
   }
 
   function jogAbs(pos){
+    console.log("jogAbs pos",pos)
     var d = {cmd: "jogAbs",config: config}
     d.config.ja = pos;
-    console.log("ws",config,ws);
+    console.log("ws",d,config,ws);
     ws.send(JSON.stringify(d));
   }
  
@@ -401,6 +412,7 @@ export default function App() {
           
           //console.log(message.data instanceof Blob);
           if(message.data instanceof Blob){
+            // TODO: double check all msgs are using msgpack here and in firmware
             decodeFromBlob(message.data).then((x) => {
               //console.log("got blob",x);
               
@@ -450,10 +462,8 @@ export default function App() {
     
   function ping(){
     console.log("sending: ")
-    //this.state.ws.send({f: this.state.runs});
     var d = {cmd: "ping",runs: {}};
     ws.send(JSON.stringify(d));
-    //this.state.ws.send({f: 1.0});
   }
   
    
@@ -462,18 +472,19 @@ export default function App() {
     };
 
 
+    // TODO: refactor this mess 
   return(
     <div>
       <div className="card-title">
-          <span class="btn-group">
+          <span className="btn-group">
           <span>
            <ModeSel handleModeSelect={handleModeSelect} modes={modes} config={config}></ModeSel> 
           </span>
           <span style={{ marginLeft: 5}}>
             {
               connected ?
-                  <span class="badge bg-success">C</span>
-                : <span class="badge bg-danger">Not Connected</span>
+                  <span className="badge bg-success">C</span>
+                : <span className="badge bg-danger">Not Connected</span>
             }
           </span>
           <span>
@@ -492,15 +503,15 @@ export default function App() {
       <div> 
         Connection Status: {
           connected ? 
-              <span class="badge bg-success">"True"</span>
-            : <span class="badge bg-danger">"False"</span>
+              <span className="badge bg-success">"True"</span>
+            : <span className="badge bg-danger">"False"</span>
           }
       </div>
       <div>
-        <p>
+        <span>
          Welcome!  Select a mode to get started.
          <ModeSel handleModeSelect={handleModeSelect} modes={modes} config={config}></ModeSel>
-         </p>
+         </span>
       </div>
     </Tab>
     <Tab eventKey="jog2_tab" title="New Jog">
@@ -513,7 +524,7 @@ export default function App() {
             </div>
             }
             { config["m"] != 0 && 
-            <JogUI config={config} me={me} ws={ws} stats={stats} jogcancel={jogcancel} sendConfig={sendConfig}></JogUI>
+            <JogUI config={config} setConfig={setConfig} me={me} ws={ws} stats={stats} jogcancel={jogcancel} sendConfig={sendConfig}></JogUI>
             }
         </div>
       </div>
@@ -696,14 +707,14 @@ export default function App() {
               </div>
               }
 
-              <p className="card-text">
+              <span className="card-text">
                 {config["m"] == 0 &&
                   <h4>
                   Select a mode to get started!
                   </h4>
                 }
 
-              </p>
+              </span>
 
             </div>
       <div>
@@ -712,7 +723,7 @@ export default function App() {
     </div>
     </Tab>
     <Tab eventKey="net_tab" title="Network">
-      <label for="mdns">MDNS {cookie.url}</label>
+      <label htmlFor="mdns">MDNS {cookie.url}</label>
       <form>
       <input className="form-control" type="text"
         name="mdns"

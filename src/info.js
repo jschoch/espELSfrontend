@@ -83,12 +83,12 @@ export default function Info(props) {
           perf
         </h5>
         <div className="card-body">
-          <p className="card-text">
+          <span className="card-text">
             <KV k="CPU0" v={props.stats.c0} />
             <KV k="CPU1" v={props.stats.c1} />
             <KV k="pings" v={props.stats.c} />
             <KV k="factor" v={props.stats.f} />
-          </p>
+          </span>
         </div>
       </div>
     </div>
