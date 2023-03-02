@@ -248,7 +248,7 @@ export default function App() {
       getNvConfig();
     }
   }
-  const [cookie,updateCookie] = useCookie("url", "ws://192.168.1.93/test");
+  const [cookie,updateCookie] = useCookie("url", "ws://192.168.1.93/els");
   const [addr,setAddr] = useState(cookie);
   const [config,setConfig] = useState({});
   const [connected,setConnected] = useState(false);
