@@ -12,8 +12,11 @@ export default function ModeSel(props){
             title={`Selected Mode: ${props.modes[props.config.m]}`}
             id="dropdown-menu-align-right"
             onSelect={props.handleModeSelect} >
+
                     <Dropdown.Item eventKey="0">Startup Mode</Dropdown.Item>
                     <Dropdown.Item eventKey="2">Slave Jog Mode</Dropdown.Item>
+                    <Dropdown.Item eventKey="9">Hobbing Mode</Dropdown.Item>
+
             </DropdownButton>
           </span>
     )

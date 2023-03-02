@@ -16,7 +16,7 @@ import Bounce from './Bounce.js';
 
 
 
-export default function JogUI({config,me,ws,stats,jogcancel}){
+export default function JogUI({config,setConfig,me,ws,stats,jogcancel,sendConfig}){
     const [enRL,setEnRL] = useState(true);
     const [enRR,setEnRR] = useState(true);
     const [showModalJog,setShowModalJog] = useState(false);
@@ -31,10 +31,17 @@ export default function JogUI({config,me,ws,stats,jogcancel}){
     const [first_run, set_first_run] = useState(true);
 
     function jog(config,distance){
+        /*
+
+            WHy?  it seems you want to set jog pitch and rapid pitch differently in "new jog" vs "old jog" but why?
+            Seems like heavy refactor is needed
+
+        */
         var c = config;
         // TODO: add these to the UI
         c.f = feedingLeft;
         c.s = syncStart;
+        c.pitch = jogconfig.pitch;
 
         c.jm = distance;
         var d = {cmd: "jog",config: c}
@@ -100,18 +107,18 @@ export default function JogUI({config,me,ws,stats,jogcancel}){
             <Row>
               <Col>
               
-              <input type="checkbox" className="btn-check" id="btn-check-outlined" autocomplete="off"
+              <input type="checkbox" className="btn-check" id="btn-check-outlined" autoComplete="off"
                 onClick={() => {setEnRL(!enRL)}}
                 />
-            <label className="btn btn-outline-primary" for="btn-check-outlined">Enable Rapid Left</label>
+            <label className="btn btn-outline-primary" htmlFor="btn-check-outlined">Enable Rapid Left</label>
 
 
               </Col>
               <Col>
-                        <input type="checkbox" className="btn-check" id="btn-en-rapidright" autocomplete="off" 
+                        <input type="checkbox" className="btn-check" id="btn-en-rapidright" autoComplete="off" 
                 onClick={() => {setEnRR(!enRR)}}
                 />
-                <label className="btn btn-outline-primary" for="btn-en-rapidright">Enable Rapid Right</label>
+                <label className="btn btn-outline-primary" htmlFor="btn-en-rapidright">Enable Rapid Right</label>
                 </Col>
           </Row>
             <Row>
@@ -158,7 +165,7 @@ export default function JogUI({config,me,ws,stats,jogcancel}){
             <Row>
                 <button className="btn btn-danger btn-block" type="button" size="lg"
                   onClick={() => {setShowModalJog(!showModalJog)}}>Jog Settings</button>
-                <ModalJog config={jogconfig} set_config={set_jogconfig} show={showModalJog} setShow={setShowModalJog}></ModalJog>
+                <ModalJog config={config} setConfig={setConfig} jogconfig={jogconfig} set_jogconfig={set_jogconfig} show={showModalJog} setShow={setShowModalJog}></ModalJog>
            </Row>
            </div>
             }

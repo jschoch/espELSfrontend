@@ -33,20 +33,18 @@ export default function Info(props) {
         <div className="card-body">
           <p className="card-text">
 
-          <KV k="Encoder" v={props.stats.encoderPos} />
-          <KV k="Encoder revolutions" v={props.stats.encoderPos / 2400} />
-          <KV k="Tool Position" v={props.stats.tp} />
+          <KV k="Encoder Pulses" v={props.stats.encoderPos} />
+          <KV k="Encoder revolutions" v={(props.stats.encoderPos / 2400).toFixed(2)} />
+          <KV k="Tool Position (in steps)" v={props.stats.tp} />
           <br />
           <KV k="Target Tool Position" v={props.stats.targetPos} />
-          <KV k="Target MM" v={props.stats.targetPosMM} />
-          <KV k="Calc Spindle Pos" v={props.stats.calcPos} />
+          <KV k="Target MM" v={props.stats.targetPosMM.toFixed(4)} />
           <br /> 
           <KV k="delta" v={props.stats.delta} />
-          <KV k="Pos Stop" v={props.stats.sp} />
+          <KV k="Pos Stop" v={props.stats.sp.toFixed(4)} />
 
-          <KV k="Neg Stop" v={props.stats.sn} />
-          <KV k="exDelta" v={props.stats.xd} />
-          <KV k="DRO" v={props.stats.pmm} />
+          <KV k="Neg Stop" v={props.stats.sn.toFixed(4)} />
+          <KV k="DRO" v={props.stats.pmm.toFixed(4)} />
           <KV k="DRO Pulses" v={props.stats.p} />
 
 
@@ -64,10 +62,7 @@ export default function Info(props) {
         <KV k="feeding " v={props.stats.feeding ? "true" : "false"} />
         <KV k="jogging " v={props.stats.jogging? "true" : "false"} />
         <KV k="rapiding " v={props.stats.rap? "true" : "false"} />
-        <KV k="jog_done " v={props.stats.jog_dong ? 1 : 0} />
         <KV k="Feed to Position" v={props.stats.pos_feed ? "true" : "false"} />
-        <KV k="Stop Neg Exceeded?" v={props.stats.sne ? "true" : "false" } />
-        <KV k="Stop Pos Exceeded?" v={props.stats.spe ? "true" : "false" } />
         <KV k="Feeding_dir" v={props.stats.fd ? "true" : "false" } />
         <KV k="Waiting for Sync" v={props.stats.sw ? "true":"false"} />
         <div className="card-body">
@@ -83,12 +78,12 @@ export default function Info(props) {
           perf
         </h5>
         <div className="card-body">
-          <p className="card-text">
+          <span className="card-text">
             <KV k="CPU0" v={props.stats.c0} />
             <KV k="CPU1" v={props.stats.c1} />
             <KV k="pings" v={props.stats.c} />
             <KV k="factor" v={props.stats.f} />
-          </p>
+          </span>
         </div>
       </div>
     </div>

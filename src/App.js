@@ -23,37 +23,32 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import Rev from './Rev.js';
+import Hobbing from './hobbing.js';
 
-/*
-const modes = {
-  0: "Startup",
-  1: "Slave Ready",
-  2: "Slave Jog Ready",
-  3: "Debug Ready",
-  4: "Running"
-};
-*/
+
+// TODO: refactor, why so many modes unused here?
+//  original intent was to map modes to the YASM states in the firmware
+
 const modes= {
  0: "Startup",
  1: "",
  2: "Slave Jogging",
  3: "",
- 4: ""
+ 4: "",
+ 9: "Hob Ready",
+ 10: "Hob Running",
+ 11: "Hob Stop"
 };
 
-//var stats = {};
 
 async function decodeFromBlob(blob: Blob): unknown {
   if (blob.stream) {
-    // Blob#stream(): ReadableStream<Uint8Array> (recommended)
     return await decodeAsync(blob.stream());
   } else {
-    // Blob#arrayBuffer(): Promise<ArrayBuffer> (if stream() is not available)
     return decode(await blob.arrayBuffer());
   }
 }
 
-//function ModalError(props){
 const ModalError = ({showModalError, modalErrorMsg, setShowModalError}) => {
   return (
     <>
@@ -108,7 +103,7 @@ export default function App() {
     c.pitch = data.pitch
     setConfig(c);
     console.log("data",data);
-    send();
+    sendConfig();
   }
 
   const onSubmitNvConfig = (data) => {
@@ -131,6 +126,7 @@ export default function App() {
       jog();
     }else if(submitButton == 3){
       // move Z- for thread offset
+      // TODO: move this threading offset stuff to a new tab and make a component dedicated to threading
       setThreadOffset(config.pitch / passes());
       c.jm = (threadOffset * -1) ;
       setConfig(c);
@@ -139,6 +135,7 @@ export default function App() {
       
     }else if(submitButton == 4){
       // move Z_ for thread offset
+      // TODO: move this too
       c.jm = threadOffset;
       setConfig(c);
       jog();
@@ -148,6 +145,9 @@ export default function App() {
   }
 
   const onSubmitAbsJog = (data) => {
+    // TODO: consider making this a component and also having it in "new jog"
+    //
+    console.log("jogAbs submit clicked",data)
     var c = config;
     c.f = feedingLeft;
     c.s = syncStart;
@@ -179,14 +179,14 @@ export default function App() {
     c.rapid = data.rapid
     setConfig(c);
     console.log("range submit data",data);
-    send();
+    sendConfig();
   }
   const onSubmitJogScaler = data => {
     var c = config
     c.sc = data.sc
     setConfig(c);
     console.log("Jog Scaler submit data",data);
-    send();
+    sendConfig();
   }
 
   const handleModeSelect = data => {
@@ -198,9 +198,10 @@ export default function App() {
       setModalErrorMsg("Mode not implemented yet");
       setShowModalError(true);
     }
-    send();
+    sendConfig();
   }
 
+  // TODO: read up on const function literals vs functions and pick one
   function makeThreadTable(rec_passes,first){
     var cards = [];
     var thread_depth = (config.pitch * 0.614);
@@ -212,28 +213,28 @@ export default function App() {
         }else{
           feed = (thread_depth/Math.sqrt(rec_passes-1)) * Math.sqrt(i-1);
         }
-        cards.push(<ListGroup.Item>
-                                  pass: {i} _
-                                  offset = { (config.pitch / passes())*i} _
-                                  Incremental Feed = 
-                                     <span> {feed - t} <b> Total Feed: {feed} </b>
-                                      </span>
-                        </ListGroup.Item>)
+        cards.push(<ListGroup.Item key={i}>
+                      pass: {i} _
+                      offset = { (config.pitch / passes())*i} _
+                      Incremental Feed = 
+                      <span> {feed - t} <b> Total Feed: {feed} </b>
+                      </span>
+                    </ListGroup.Item>)
         t = feed;
     } 
-    //render(){
-      return <div>{cards}</div>
-      //}
+    return <div>{cards}</div>
   }
 
   const handleView = (m) => {
     if(m != undefined){
-      console.log("hanlde view",config["m"],m);
+      console.log("hanlde view: ",m);
       if(m == 2 || m == 3){
-        //show jog control
         setShowJog(true);
       }else{
         setShowJog(false);
+      }
+      if(m == 9 || m == 10 || m == 11){
+        console.log("set hobbing enabled")
       }
     }
   }
@@ -244,20 +245,13 @@ export default function App() {
       // What was this for?
     }else if(data == "config_tab"){
       console.log("config_tab selectyed");
-      //var d = {cmd: "getNvConfig"};
-      //ws.send(JSON.stringify(d));
-      
-      // TODO fix this pesky ws object and reconnections
       getNvConfig();
     }
   }
-  //const [addr,setAddr] = useState("ws://elsWS/test");
-  //const [addr,setAddr] = useState("ws://192.168.1.93/test");
-  const [cookie,updateCookie] = useCookie("url", "ws://192.168.1.93/test");
+  const [cookie,updateCookie] = useCookie("url", "ws://192.168.1.93/els");
   const [addr,setAddr] = useState(cookie);
   const [config,setConfig] = useState({});
   const [connected,setConnected] = useState(false);
-  const [wsS,setWSS] = useState();
   const [showJog,setShowJog] = useState(false);
   const [showRapid,setShowRapid] = useState(false);
   const [timeout, setTimeout] = useState(250);
@@ -280,11 +274,12 @@ export default function App() {
 
 
   const [warnings, setWarnings] = useState([]);
-  const [info, setInfo] = useState([]);
+  const [logs, setLogs] = useState([]);
   const [submitButton,setSubmitButton] = useState(1);
   const [threadOffset, setThreadOffset] = useState(0.0);
 
 
+  // I believe this sets the network address in a cookie so it can be reused on page refresh
   useEffect(() => {
     if(!connected){
       console.log(addr,cookie);
@@ -298,7 +293,6 @@ export default function App() {
 
   function updateEncSpeed(val){
     set_encSpeed(val);
-    // send to controller
     var c = {};
     c.encSpeed = val;
     var d = {cmd: "updateEncSpeed",config: c}
@@ -306,11 +300,7 @@ export default function App() {
     ws.send(JSON.stringify(d));
   }
 
-  function inputUpdate(e){
-    const {value } = e.target;
-    this.setAddr( value);
-  }
-  function meclick(e){
+  function connect_click(e){
     if(connected){
       disconnect();
       connect();
@@ -321,14 +311,20 @@ export default function App() {
   }
   function disconnect(){
     console.log("WS: ",ws);
-    ws.close();
+    if(ws !== null && ws != "" && ws.readyState === 1){
+      ws.close();
+    }
     setConnected(false);
-    console.log(ws.readyState);
   }
 
   function fetch(){
     var d = {cmd: "fetch"};
-    ws.send(JSON.stringify(d));
+    if(ws.readyState === 1){
+      ws.send(JSON.stringify(d));
+    }else{
+      setTimeout(fetch,500);
+    }
+    
   }
 
   function getNvConfig(){
@@ -345,17 +341,19 @@ export default function App() {
     ws.send(JSON.stringify(d));
   }
 
-  function send(){
-    var d = {cmd: "send",config: config}
+  function sendConfig(){
+    var d = {cmd: "sendConfig",config: config}
     console.log("ws",config,ws);
     if(typeof ws.send !== "undefined"){
       console.log("sending");
       ws.send(JSON.stringify(d));
     }else{
+      // TODO: WTF? popup an error or something
       connect();
     }
   }
 
+  // TODO: can you put this in a util lib and just pass the config vs having it here and bubbling it down 
   function jog(){
     var d = {cmd: "jog",config: config}
     console.log("ws",config,ws);
@@ -363,9 +361,10 @@ export default function App() {
   }
 
   function jogAbs(pos){
+    console.log("jogAbs pos",pos)
     var d = {cmd: "jogAbs",config: config}
     d.config.ja = pos;
-    console.log("ws",config,ws);
+    console.log("ws",d,config,ws);
     ws.send(JSON.stringify(d));
   }
  
@@ -386,6 +385,7 @@ export default function App() {
 
         // websocket onclose event listener
         ws.onclose = e => {
+            setConnected(false);
             console.log(
                 `Socket is closed. Reconnect will be attempted`,
                 e.reason
@@ -403,6 +403,7 @@ export default function App() {
             );
 
             ws.close();
+            setConnected(false);
             return false;
         };
         ws.onmessage = (message) => {
@@ -411,7 +412,10 @@ export default function App() {
           
           //console.log(message.data instanceof Blob);
           if(message.data instanceof Blob){
+            // TODO: double check all msgs are using msgpack here and in firmware
             decodeFromBlob(message.data).then((x) => {
+              //console.log("got blob",x);
+              
               if("cmd" in x){
                 if(x["cmd"] == "status"){
                   setNewstats(!newstats);
@@ -431,15 +435,22 @@ export default function App() {
                     }
                   }
                 }
+              if("u" in x){
+                console.log("updating config",x);
+                setConfig(x);
+                handleView(x["m"]);
               }
+              }
+
             );
           }
           else{
+            console.log("this should not happen anymore");
             var inconfig = JSON.parse(message.data);
          
             console.log("got message", inconfig);
             if("u" in inconfig){
-              console.log("updating config",inconfig);
+              console.log("bad updating config",inconfig);
               setConfig(inconfig);
               handleView(inconfig["m"]);
             }
@@ -451,10 +462,8 @@ export default function App() {
     
   function ping(){
     console.log("sending: ")
-    //this.state.ws.send({f: this.state.runs});
     var d = {cmd: "ping",runs: {}};
     ws.send(JSON.stringify(d));
-    //this.state.ws.send({f: 1.0});
   }
   
    
@@ -463,18 +472,19 @@ export default function App() {
     };
 
 
+    // TODO: refactor this mess 
   return(
     <div>
       <div className="card-title">
-          <span class="btn-group">
+          <span className="btn-group">
           <span>
            <ModeSel handleModeSelect={handleModeSelect} modes={modes} config={config}></ModeSel> 
           </span>
           <span style={{ marginLeft: 5}}>
             {
               connected ?
-                  <span class="badge bg-success">C</span>
-                : <span class="badge bg-danger">Not Connected</span>
+                  <span className="badge bg-success">C</span>
+                : <span className="badge bg-danger">Not Connected</span>
             }
           </span>
           <span>
@@ -493,15 +503,15 @@ export default function App() {
       <div> 
         Connection Status: {
           connected ? 
-              <span class="badge bg-success">"True"</span>
-            : <span class="badge bg-danger">"False"</span>
+              <span className="badge bg-success">"True"</span>
+            : <span className="badge bg-danger">"False"</span>
           }
       </div>
       <div>
-        <p>
+        <span>
          Welcome!  Select a mode to get started.
          <ModeSel handleModeSelect={handleModeSelect} modes={modes} config={config}></ModeSel>
-         </p>
+         </span>
       </div>
     </Tab>
     <Tab eventKey="jog2_tab" title="New Jog">
@@ -514,7 +524,7 @@ export default function App() {
             </div>
             }
             { config["m"] != 0 && 
-            <JogUI config={config} me={me} ws={ws} stats={stats} jogcancel={jogcancel}></JogUI>
+            <JogUI config={config} setConfig={setConfig} me={me} ws={ws} stats={stats} jogcancel={jogcancel} sendConfig={sendConfig}></JogUI>
             }
         </div>
       </div>
@@ -697,14 +707,14 @@ export default function App() {
               </div>
               }
 
-              <p className="card-text">
+              <span className="card-text">
                 {config["m"] == 0 &&
                   <h4>
                   Select a mode to get started!
                   </h4>
                 }
 
-              </p>
+              </span>
 
             </div>
       <div>
@@ -713,7 +723,7 @@ export default function App() {
     </div>
     </Tab>
     <Tab eventKey="net_tab" title="Network">
-      <label for="mdns">MDNS {cookie.url}</label>
+      <label htmlFor="mdns">MDNS {cookie.url}</label>
       <form>
       <input className="form-control" type="text"
         name="mdns"
@@ -721,7 +731,7 @@ export default function App() {
         value={addr} />
       </form>
       <div className="btn-group" role="group" >
-        <div className="btn btn-primary" type="button" onClick={meclick}>
+        <div className="btn btn-primary" type="button" onClick={connect_click}>
           Connect
         </div>
         <div className="btn btn-secondary" type="button" onClick={disconnect}>
@@ -796,6 +806,9 @@ export default function App() {
       <div><pre>{JSON.stringify(config, null, 2) }</pre></div>      
       <div><pre>{JSON.stringify(stats, null, 2) }</pre></div>
       <div><pre>{JSON.stringify(nvConfig,null,2) }</pre></div>
+    </Tab>
+    <Tab eventKey="hob_tab" title="Hobbing">
+      <Hobbing config={config} setConfig={setConfig} me={me} ws={ws} stats={stats} jogcancel={jogcancel}></Hobbing>
     </Tab>
     <Tab eventKey="debug_tab" title="Debug">
       <Debug handleEncClick={handleEncClick} encSpeed={encSpeed} updateEncSpeed={updateEncSpeed}></Debug>
