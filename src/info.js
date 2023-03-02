@@ -22,8 +22,8 @@ export default function Info(props) {
 
   return (
 <div className="container-fluid">
-  <pre>{/* JSON.stringify(props, null, 2) */}</pre>
-  
+ <pre>{/* JSON.stringify(props, null, 2) */}</pre>
+ { props.stats.encoderPos  &&  // check stats has values first
   <div className="row">
     <div className="col-md-3">
       <div className="card">
@@ -88,6 +88,7 @@ export default function Info(props) {
       </div>
     </div>
   </div>
+ }
 </div>
 );
 
