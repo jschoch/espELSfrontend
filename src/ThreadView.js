@@ -20,7 +20,6 @@ export default function ThreadView({config,stats}) {
 
   const passes = () => {
     let p = Math.ceil(Math.pow(((config.pitch * 0.614) / firstThreadDepth),2));
-    console.log("passes", p,config.pitch, firstThreadDepth)
     if(Number.isInteger(p)){
       return p;  
     }else{ return 0}
