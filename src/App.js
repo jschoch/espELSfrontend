@@ -1,6 +1,7 @@
 import './App.css';
 import { encode, decode,decodeAsync } from "@msgpack/msgpack";
 import Info from './info.js';
+import ThreadView from "./ThreadView.js";
 import ModeSel from './Mode.js';
 import JogUI from './JogUI.js';
 import Debug from './Debug.js';
@@ -18,7 +19,7 @@ import Modal from 'react-bootstrap/Modal';
 import useCookie from "./useCookie";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Spinner from 'react-bootstrap/Spinner';
-import Card from 'react-bootstrap/Card';
+
 import ListGroup from 'react-bootstrap/ListGroup';
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
@@ -91,13 +92,7 @@ var ws = "";
 export default function App() {
   const { register, handleSubmit, watch, errors } = useForm();
 
-  const passes = () => {
-    let p = Math.ceil(Math.pow(((config.pitch * 0.614) / firstThreadDepth),2));
-    if(Number.isInteger(p)){
-      return p;  
-    }else{ return 0}
-  }
-
+  
   const onSubmitPitch = (data) => {
     var c = config
     c.pitch = data.pitch
@@ -127,19 +122,17 @@ export default function App() {
     }else if(submitButton == 3){
       // move Z- for thread offset
       // TODO: move this threading offset stuff to a new tab and make a component dedicated to threading
+      /*
       setThreadOffset(config.pitch / passes());
       c.jm = (threadOffset * -1) ;
       setConfig(c);
       jog();
-      console.log("Z- btn",threadOffset,c.jm);
+      */
+      console.log("MOVED TO ThreadView!!!!  Z- btn");
       
     }else if(submitButton == 4){
-      // move Z_ for thread offset
       // TODO: move this too
-      c.jm = threadOffset;
-      setConfig(c);
-      jog();
-      console.log("Z+ btn",config.pitch / passes());
+      
     }
     console.log("onSubmitJog data",data,c,submitButton);
   }
@@ -202,29 +195,7 @@ export default function App() {
   }
 
   // TODO: read up on const function literals vs functions and pick one
-  function makeThreadTable(rec_passes,first){
-    var cards = [];
-    var thread_depth = (config.pitch * 0.614);
-    var t = first;
-    var feed = 0;
-    for (var i = 1; i <= (rec_passes); i++){
-        if(i == 1){
-          feed = first;
-        }else{
-          feed = (thread_depth/Math.sqrt(rec_passes-1)) * Math.sqrt(i-1);
-        }
-        cards.push(<ListGroup.Item key={i}>
-                      pass: {i} _
-                      offset = { (config.pitch / passes())*i} _
-                      Incremental Feed = 
-                      <span> {feed - t} <b> Total Feed: {feed} </b>
-                      </span>
-                    </ListGroup.Item>)
-        t = feed;
-    } 
-    return <div>{cards}</div>
-  }
-
+  
   const handleView = (m) => {
     if(m != undefined){
       console.log("hanlde view: ",m);
@@ -259,13 +230,13 @@ export default function App() {
   const [rpm,setRPM] = useState(0);
   const [newstats,setNewstats] = useState(false);
   const [stats, setStats] = useState({});
-  const [nvConfig,setNvConfig] = useState({});
+  const [nvConfig,setNvConfig] = useState({error: true});
   const [origin,setOrigin] = useState();
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
   const [feedingLeft, setFeedingLeft] = useState(true);
   const [syncStart, setSyncStart] = useState(true);
-  const [firstThreadDepth, setFirstThreadDepth] = useState(0.3);
+  
   const [encSpeed, set_encSpeed] = useState(0);
 
   const me = {setModalErrorMsg: setModalErrorMsg,setShowModalError: setShowModalError};
@@ -416,18 +387,23 @@ export default function App() {
             decodeFromBlob(message.data).then((x) => {
               //console.log("got blob",x);
               
-              if("cmd" in x){
-                if(x["cmd"] == "status"){
+              if("t" in x){
+                if(x["t"] == "status"){
                   setNewstats(!newstats);
                   setStats(x);
                   setDRO(x.pmm);
                   setRPM(x.rpm);
                   }
-                else if(x["cmd"] == "nvConfig"){
+                else if(x["t"] == "nvConfig"){
                   console.log("got nv configuration",x);
                   setNvConfig(x);
                   }
-                else if(x["cmd"] == "log"){
+                else if(x["t"] == "state"){
+                  console.log("updating config",x);
+                  setConfig(x);
+                  handleView(x["m"]);
+                }
+                else if(x["t"] == "log"){
                   console.log("stuff",x); 
                   if(x["level"] == 0){
                     setModalErrorMsg(x["msg"]);
@@ -435,11 +411,6 @@ export default function App() {
                     }
                   }
                 }
-              if("u" in x){
-                console.log("updating config",x);
-                setConfig(x);
-                handleView(x["m"]);
-              }
               }
 
             );
@@ -449,11 +420,6 @@ export default function App() {
             var inconfig = JSON.parse(message.data);
          
             console.log("got message", inconfig);
-            if("u" in inconfig){
-              console.log("bad updating config",inconfig);
-              setConfig(inconfig);
-              handleView(inconfig["m"]);
-            }
           }
           
           return false;
@@ -589,34 +555,7 @@ export default function App() {
                 </InputGroup>
                 </Form.Row>
               </Form>
-              <h5> Offset </h5>
-               <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
-                <Col xs={8}>
-                <InputGroup.Prepend className="inputGroup-sizing-sm">
-                    <InputGroup.Text>Threading Passes</InputGroup.Text>
-                     <Form.Control id="thread_offset_mm" name="thread_offset_mm" type="number"
-                      ref={register({ required: true })}
-                      inputMode='decimal' step='any' defaultValue={ passes()} />
-
-                 </InputGroup.Prepend>
-                   "offset per pass" { config.pitch / passes() }
-                  
-                </Col>
-                </Form>
-                <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
-                <Col>
-                  <Button type="submit" className="mb-2"
-                    disabled={stats.pos_feed}
-                    onClick={() => setSubmitButton(3)}>
-                    Move Offset Z-
-                  </Button>
-                  <Button type="submit" className="mb-2"
-                    disabled={stats.pos_feed}
-                    onClick={() => setSubmitButton(4)}>
-                    Move Offset Z+
-                  </Button>
-                </Col>
-                </Form>
+              
  
                 <h5> Absolute </h5>
                <Form inline onSubmit={handleSubmit(onSubmitAbsJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
@@ -662,19 +601,7 @@ export default function App() {
                 </InputGroup>
                 </Form.Row>
               </Form>
-              <div>
-                Thread Depth: { config.pitch * 0.614 } Recommended Passes: { passes()}
-                  Initial Offset: {firstThreadDepth} Offset per pass {config.pitch / passes()}
-                <Card style={{ width: '18rem' }}>
-                  <ListGroup variant="flush">
-                    {
-                      makeThreadTable(passes(),firstThreadDepth)
-                    }
-                  </ListGroup>
-                </Card>
-                
-                
-              </div>
+              
              { showRapid && 
               <div>
                 <Form onSubmit={handleSubmit(onSubmitRapid)}>
@@ -746,6 +673,9 @@ export default function App() {
       </div>
       <br /> {origin}
     </Tab>
+    <Tab eventKey="thread_tab" title="Thread">
+                <ThreadView config={config} stats={stats} />
+    </Tab>
     <Tab eventKey="config_tab" title="Conf">
       <div className="row">
       <div className="col-md-8">
@@ -802,10 +732,10 @@ export default function App() {
         </div>
       </div>
     </div>
-      - <Info stats={stats} x={newstats} /> -
-      <div><pre>{JSON.stringify(config, null, 2) }</pre></div>      
-      <div><pre>{JSON.stringify(stats, null, 2) }</pre></div>
-      <div><pre>{JSON.stringify(nvConfig,null,2) }</pre></div>
+    <div>
+      - <Info stats={stats} x={newstats} config={config} nvConfig={nvConfig} /> -
+      </div>
+      
     </Tab>
     <Tab eventKey="hob_tab" title="Hobbing">
       <Hobbing config={config} setConfig={setConfig} me={me} ws={ws} stats={stats} jogcancel={jogcancel}></Hobbing>

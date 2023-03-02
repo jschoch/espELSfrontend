@@ -24,6 +24,7 @@ export default function Info(props) {
 <div className="container-fluid">
  <pre>{/* JSON.stringify(props, null, 2) */}</pre>
  { props.stats.encoderPos  &&  // check stats has values first
+ <div>
   <div className="row">
     <div className="col-md-3">
       <div className="card">
@@ -37,6 +38,7 @@ export default function Info(props) {
           <KV k="Encoder revolutions" v={(props.stats.encoderPos / 2400).toFixed(2)} />
           <KV k="Tool Position (in steps)" v={props.stats.tp} />
           <br />
+          { /* yuck <!--  need to add debug stats here
           <KV k="Target Tool Position" v={props.stats.targetPos} />
           <KV k="Target MM" v={props.stats.targetPosMM.toFixed(4)} />
           <br /> 
@@ -44,6 +46,8 @@ export default function Info(props) {
           <KV k="Pos Stop" v={props.stats.sp.toFixed(4)} />
 
           <KV k="Neg Stop" v={props.stats.sn.toFixed(4)} />
+          */
+  }
           <KV k="DRO" v={props.stats.pmm.toFixed(4)} />
           <KV k="DRO Pulses" v={props.stats.p} />
 
@@ -88,6 +92,12 @@ export default function Info(props) {
       </div>
     </div>
   </div>
+  <div className="row">
+      <div>raw config<pre>{JSON.stringify(props.config, null, 2) }</pre></div>      
+      <div>raw stats<pre>{JSON.stringify(props.stats, null, 2) }</pre></div>
+      <div>raw nvConfig<pre>{JSON.stringify(props.nvConfig,null,2) }</pre></div>
+  </div>
+ </div>
  }
 </div>
 );
