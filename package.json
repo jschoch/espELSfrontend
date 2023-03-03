@@ -2,7 +2,18 @@
   "name": "els_frontend",
   "version": "0.1.0",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jschoch/espELSfrontend.git"
+  },
   "dependencies": {
+    "@capacitor-community/electron": "^4.1.2",
+    "@capacitor/android": "4.7.0",
+    "@capacitor/app": "4.1.1",
+    "@capacitor/core": "4.7.0",
+    "@capacitor/haptics": "4.1.0",
+    "@capacitor/keyboard": "4.1.1",
+    "@capacitor/status-bar": "4.1.1",
     "@msgpack/msgpack": "^2.3.0",
     "@testing-library/jest-dom": "^5.11.6",
     "@testing-library/react": "^11.2.2",
@@ -20,7 +31,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "ionic:build": "npm run build",
+    "ionic:serve": "npm run start"
   },
   "eslintConfig": {
     "extends": [
@@ -39,5 +52,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@capacitor/cli": "4.7.0",
+    "espELS": "file:electron"
   }
 }
