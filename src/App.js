@@ -6,6 +6,7 @@ import ModeSel from './Mode.js';
 import JogUI from './JogUI.js';
 import Debug from './Debug.js';
 import Feeding from './Feeding.js';
+import EspWS from './espWS.js';
 import React, { Component, useState, useEffect } from 'react';
 import {useForm} from 'react-hook-form';
 import DropdownButton from 'react-bootstrap/DropdownButton';
@@ -16,7 +17,7 @@ import FormControl from 'react-bootstrap/FormControl';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Modal from 'react-bootstrap/Modal';
-import useCookie from "./useCookie";
+
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Spinner from 'react-bootstrap/Spinner';
 
@@ -42,13 +43,7 @@ const modes= {
 };
 
 
-async function decodeFromBlob(blob: Blob): unknown {
-  if (blob.stream) {
-    return await decodeAsync(blob.stream());
-  } else {
-    return decode(await blob.arrayBuffer());
-  }
-}
+
 
 const ModalError = ({showModalError, modalErrorMsg, setShowModalError}) => {
   return (
@@ -154,10 +149,7 @@ export default function App() {
     ws.send(JSON.stringify(d));
   }
 
-  const handleAddrChange = e => {
-    setAddr(e.target.value);
-    updateCookie(e.target.value,1000);
-  }
+  
 
   const handleEncClick = data => {
     console.log("debug click",data);
@@ -219,10 +211,10 @@ export default function App() {
       getNvConfig();
     }
   }
-  const [cookie,updateCookie] = useCookie("url", "ws://192.168.1.93/els");
-  const [addr,setAddr] = useState(cookie);
-  const [config,setConfig] = useState({});
-  const [connected,setConnected] = useState(false);
+  const vsn = "0.0.2";
+  
+  const [config,setConfig] = useState({vsn: vsn});
+  const [connected,set_connected] = useState(false);
   const [showJog,setShowJog] = useState(false);
   const [showRapid,setShowRapid] = useState(false);
   const [timeout, setTimeout] = useState(250);
@@ -248,19 +240,10 @@ export default function App() {
   const [logs, setLogs] = useState([]);
   const [submitButton,setSubmitButton] = useState(1);
   const [threadOffset, setThreadOffset] = useState(0.0);
+  // espWS setup
+  const [msg,set_msg] = useState(null);
 
-
-  // I believe this sets the network address in a cookie so it can be reused on page refresh
-  useEffect(() => {
-    if(!connected){
-      console.log(addr,cookie);
-      if(cookie != addr){
-        
-        setAddr(cookie);
-      }
-      connect();
-    }
-  },[connected]);
+  
 
   function updateEncSpeed(val){
     set_encSpeed(val);
@@ -271,22 +254,6 @@ export default function App() {
     ws.send(JSON.stringify(d));
   }
 
-  function connect_click(e){
-    if(connected){
-      disconnect();
-      connect();
-    }else{
-      connect();
-    }
-    console.log("doink");
-  }
-  function disconnect(){
-    console.log("WS: ",ws);
-    if(ws !== null && ws != "" && ws.readyState === 1){
-      ws.close();
-    }
-    setConnected(false);
-  }
 
   function fetch(){
     var d = {cmd: "fetch"};
@@ -320,7 +287,8 @@ export default function App() {
       ws.send(JSON.stringify(d));
     }else{
       // TODO: WTF? popup an error or something
-      connect();
+      //connect();
+      console.log("not connected");
     }
   }
 
@@ -339,92 +307,7 @@ export default function App() {
     ws.send(JSON.stringify(d));
   }
  
-  function connect(){
-        ws = new WebSocket(addr);
-        var connectInterval;
-
-        // websocket onopen event listener
-        ws.onopen = () => {
-            console.log("connected websocket main component");
-
-            setConnected(true);
-
-            setTimeout(500); // reset timer to 250 on open of websocket connection 
-            clearTimeout(connectInterval); // clear Interval on on open of websocket connection
-            fetch();
-        };
-
-        // websocket onclose event listener
-        ws.onclose = e => {
-            setConnected(false);
-            console.log(
-                `Socket is closed. Reconnect will be attempted`,
-                e.reason
-            );
-
-            connectInterval = setTimeout(check, Math.min(10000, timeout)); //call check function after timeout
-        };
-
-        // websocket onerror event listener
-        ws.onerror = err => {
-            console.error(
-                "Socket encountered error: ",
-                err.message,
-                "Closing socket"
-            );
-
-            ws.close();
-            setConnected(false);
-            return false;
-        };
-        ws.onmessage = (message) => {
-          //console.log("raw",message,message.origin);
-          setOrigin(message.origin);
-          
-          //console.log(message.data instanceof Blob);
-          if(message.data instanceof Blob){
-            // TODO: double check all msgs are using msgpack here and in firmware
-            decodeFromBlob(message.data).then((x) => {
-              //console.log("got blob",x);
-              
-              if("t" in x){
-                if(x["t"] == "status"){
-                  setNewstats(!newstats);
-                  setStats(x);
-                  setDRO(x.pmm);
-                  setRPM(x.rpm);
-                  }
-                else if(x["t"] == "nvConfig"){
-                  console.log("got nv configuration",x);
-                  setNvConfig(x);
-                  }
-                else if(x["t"] == "state"){
-                  console.log("updating config",x);
-                  setConfig(x);
-                  handleView(x["m"]);
-                }
-                else if(x["t"] == "log"){
-                  console.log("stuff",x); 
-                  if(x["level"] == 0){
-                    setModalErrorMsg(x["msg"]);
-                    setShowModalError(true);
-                    }
-                  }
-                }
-              }
-
-            );
-          }
-          else{
-            console.log("this should not happen anymore");
-            var inconfig = JSON.parse(message.data);
-         
-            console.log("got message", inconfig);
-          }
-          
-          return false;
-        }
-    };
+  
     
   function ping(){
     console.log("sending: ")
@@ -432,10 +315,12 @@ export default function App() {
     ws.send(JSON.stringify(d));
   }
   
-   
-  function check(){
-        if (!ws || ws.readyState === WebSocket.CLOSED) connect(); //check if websocket instance is closed, if so call `connect` function.
-    };
+  useEffect(() => {
+    console.log("moar",msg);
+    if (msg === null) return;
+    if(msg.cmd === "foo"){
+    }
+  },[msg,set_msg]); 
 
 
     // TODO: refactor this mess 
@@ -650,28 +535,8 @@ export default function App() {
     </div>
     </Tab>
     <Tab eventKey="net_tab" title="Network">
-      <label htmlFor="mdns">MDNS {cookie.url}</label>
-      <form>
-      <input className="form-control" type="text"
-        name="mdns"
-        onChange={handleAddrChange}
-        value={addr} />
-      </form>
-      <div className="btn-group" role="group" >
-        <div className="btn btn-primary" type="button" onClick={connect_click}>
-          Connect
-        </div>
-        <div className="btn btn-secondary" type="button" onClick={disconnect}>
-          Disconnect
-        </div>
-        <div className="btn btn-secondary" type="button" onClick={ping}>
-          Ping
-        </div>
-        <div className="btn btn-secondary" type="button" onClick={fetch}>
-          Fetch
-        </div>
-      </div>
-      <br /> {origin}
+      <EspWS msg={msg} set_msg={set_msg} connected={connected} set_connected={set_connected} config={config}  />
+      
     </Tab>
     <Tab eventKey="thread_tab" title="Thread">
                 <ThreadView config={config} stats={stats} />

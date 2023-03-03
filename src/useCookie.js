@@ -5,6 +5,7 @@ const getItem = key =>
     const item = currentCookie.split("=");
     const storedKey = item[0];
     const storedValue = item[1];
+    console.log("getItem ran, please",item);
 
     return key === storedKey ? decodeURIComponent(storedValue) : total;
   }, "");
@@ -16,6 +17,7 @@ const setItem = (key, value, numberOfDays) => {
   now.setTime(now.getTime() + numberOfDays * 60 * 60 * 24 * 1000);
 
   document.cookie = `${key}=${value}; expires=${now.toUTCString()}; path=/`;
+  console.log("cookie set: ", key,value,numberOfDays);
 };
 
 /**
