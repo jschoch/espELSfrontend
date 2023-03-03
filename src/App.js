@@ -114,20 +114,6 @@ export default function App() {
       c.jm = Math.abs(data.jog_mm) * -1;
       setConfig(c);
       jog();
-    }else if(submitButton == 3){
-      // move Z- for thread offset
-      // TODO: move this threading offset stuff to a new tab and make a component dedicated to threading
-      /*
-      setThreadOffset(config.pitch / passes());
-      c.jm = (threadOffset * -1) ;
-      setConfig(c);
-      jog();
-      */
-      console.log("MOVED TO ThreadView!!!!  Z- btn");
-      
-    }else if(submitButton == 4){
-      // TODO: move this too
-      
     }
     console.log("onSubmitJog data",data,c,submitButton);
   }
@@ -151,11 +137,7 @@ export default function App() {
 
   
 
-  const handleEncClick = data => {
-    console.log("debug click",data);
-    var d = {cmd: "debug",dir: data};
-    ws.send(JSON.stringify(d));
-  }
+  
 
   const onSubmitRapid = data => {
     var c = config
@@ -211,6 +193,7 @@ export default function App() {
       getNvConfig();
     }
   }
+  
   const vsn = "0.0.2";
   
   const [config,setConfig] = useState({vsn: vsn});
@@ -220,7 +203,6 @@ export default function App() {
   const [timeout, setTimeout] = useState(250);
   const [dro,setDRO] = useState(0.0);
   const [rpm,setRPM] = useState(0);
-  const [newstats,setNewstats] = useState(false);
   const [stats, setStats] = useState({});
   const [nvConfig,setNvConfig] = useState({error: true});
   const [origin,setOrigin] = useState();
@@ -229,7 +211,7 @@ export default function App() {
   const [feedingLeft, setFeedingLeft] = useState(true);
   const [syncStart, setSyncStart] = useState(true);
   
-  const [encSpeed, set_encSpeed] = useState(0);
+  
 
   const me = {setModalErrorMsg: setModalErrorMsg,setShowModalError: setShowModalError};
 
@@ -242,28 +224,13 @@ export default function App() {
   const [threadOffset, setThreadOffset] = useState(0.0);
   // espWS setup
   const [msg,set_msg] = useState(null);
+  const set_ws = (inws) => {
+    ws = inws.current;
+  }
 
   
 
-  function updateEncSpeed(val){
-    set_encSpeed(val);
-    var c = {};
-    c.encSpeed = val;
-    var d = {cmd: "updateEncSpeed",config: c}
-    console.log("ws",d,ws);
-    ws.send(JSON.stringify(d));
-  }
-
-
-  function fetch(){
-    var d = {cmd: "fetch"};
-    if(ws.readyState === 1){
-      ws.send(JSON.stringify(d));
-    }else{
-      setTimeout(fetch,500);
-    }
-    
-  }
+  
 
   function getNvConfig(){
     var d = {cmd: "getNvConfig"};
@@ -307,19 +274,34 @@ export default function App() {
     ws.send(JSON.stringify(d));
   }
  
-  
-    
-  function ping(){
-    console.log("sending: ")
-    var d = {cmd: "ping",runs: {}};
-    ws.send(JSON.stringify(d));
-  }
-  
+  // all the msg handling goes here 
   useEffect(() => {
     console.log("moar",msg);
     if (msg === null) return;
-    if(msg.cmd === "foo"){
-    }
+    if("t" in msg){
+      if(msg["t"] == "status"){
+        setStats(msg);
+        setDRO(msg.pmm);
+        setRPM(msg.rpm);
+        }
+      else if(msg["t"] == "nvConfig"){
+        console.log("got nv configuration",msg);
+        setNvConfig(msg);
+        }
+      else if(msg["t"] == "state"){
+        console.log("updating config",msg);
+        setConfig(msg);
+        handleView(msg["m"]);
+      }
+      else if(msg["t"] == "log"){
+        console.log("stuff",msg); 
+        if(msg["level"] == 0){
+          setModalErrorMsg(msg["msg"]);
+          setShowModalError(true);
+          }
+        }
+      }
+    //}
   },[msg,set_msg]); 
 
 
@@ -535,7 +517,7 @@ export default function App() {
     </div>
     </Tab>
     <Tab eventKey="net_tab" title="Network">
-      <EspWS msg={msg} set_msg={set_msg} connected={connected} set_connected={set_connected} config={config}  />
+      <EspWS set_ws={set_ws} msg={msg} set_msg={set_msg} connected={connected} set_connected={set_connected} config={config}  />
       
     </Tab>
     <Tab eventKey="thread_tab" title="Thread">
@@ -598,7 +580,7 @@ export default function App() {
       </div>
     </div>
     <div>
-      - <Info stats={stats} x={newstats} config={config} nvConfig={nvConfig} /> -
+      - <Info stats={stats} config={config} nvConfig={nvConfig} /> -
       </div>
       
     </Tab>
@@ -606,7 +588,7 @@ export default function App() {
       <Hobbing config={config} setConfig={setConfig} me={me} ws={ws} stats={stats} jogcancel={jogcancel}></Hobbing>
     </Tab>
     <Tab eventKey="debug_tab" title="Debug">
-      <Debug handleEncClick={handleEncClick} encSpeed={encSpeed} updateEncSpeed={updateEncSpeed}></Debug>
+      <Debug ws={ws} ></Debug>
 
 
 

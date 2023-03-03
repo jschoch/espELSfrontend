@@ -7,7 +7,7 @@ import useCookie from "./useCookie";
 
 var default_ws_url = "ws://192.168.100.100/els";
 
-export default function EspWS({msg,set_msg,connected, set_connected, config}){
+export default function EspWS({set_ws,msg,set_msg,connected, set_connected, config}){
     //const [ws_connected,set_ws_connected] = useState(false);
     const ws = useRef(null);
     const [client_configured,set_client_configured] = useState(false);
@@ -32,7 +32,13 @@ export default function EspWS({msg,set_msg,connected, set_connected, config}){
         if(ws_url === default_ws_url || ws_url == undefined){
             return;
         }
+        if(ws_url == 'undefined' || ws_url == 0 || typeof(ws_url) == "undefined"){
+            console.log("javasscript is the worst",ws_url, cookie)
+            return;
+        }
+
         ws.current = new WebSocket(ws_url);
+        set_ws(ws);
         
         ws.current.onopen = () => {
             console.log("ws opened"); ws.current.binaryType = 'blob'; set_connected(true);

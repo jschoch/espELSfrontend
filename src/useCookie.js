@@ -5,7 +5,7 @@ const getItem = key =>
     const item = currentCookie.split("=");
     const storedKey = item[0];
     const storedValue = item[1];
-    console.log("getItem ran, please",item);
+    //console.log("getItem ran, please",item);
 
     return key === storedKey ? decodeURIComponent(storedValue) : total;
   }, "");

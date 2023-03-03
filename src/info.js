@@ -8,12 +8,14 @@ var magic = true;
 const KV = (props) => {
   const {k,v} = props;
   return (
+
 <span className="margin-left">
 <Button variant="primary margin-left">
   {k}<Badge variant="light">{v}</Badge>
   <span className="sr-only">unread messages</span>
 </Button>
 </span>
+
   );
 };
 
@@ -22,8 +24,13 @@ export default function Info(props) {
 
   return (
 <div className="container-fluid">
- <pre>{/* JSON.stringify(props, null, 2) */}</pre>
- { props.stats.encoderPos  &&  // check stats has values first
+ <pre>
+    {
+    /* 
+    JSON.stringify(props, null, 2) 
+    */
+    }</pre>
+ { props.stats.t&&  // check stats has values first
  <div>
   <div className="row">
     <div className="col-md-3">
