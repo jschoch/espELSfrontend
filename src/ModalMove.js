@@ -9,19 +9,16 @@ import InputGroup from 'react-bootstrap/InputGroup';
 
 
 
-export default function ModalJog({config,setConfig,jogconfig,set_jogconfig,show, setShow }){
-    const [jogPitch, setJogPitch] = useState(jogconfig.pitch);
+export default function ModalMove({config,setConfig,moveConfig,set_moveConfig,show, setShow }){
+    const [movePitch, set_movePitch] = useState(moveConfig.pitch);
     const [rapidPitch, set_rapidPitch] = useState(0.5);
     const handleClose = () => {
         var c = config;
-        c.pitch = jogPitch;
+        c.pitch = movePitch;
         c.rapid = rapidPitch;
         setConfig(c)
-        console.log("pitch, rapid",jogPitch,rapidPitch);
-        var jc = jogconfig;
-        jogconfig.pitch = jogPitch;
-        jogconfig.rapid = rapidPitch;
-        set_jogconfig(jc);
+        console.log("pitch, rapid",movePitch,rapidPitch);
+        set_moveConfig(c);
         setShow(false);
     }
     const handleShow = () => setShow(true);
@@ -31,7 +28,7 @@ export default function ModalJog({config,setConfig,jogconfig,set_jogconfig,show,
 
 <Modal show={show} onHide={handleClose}>
   <Modal.Header closeButton>
-    <Modal.Title>Jog Settings</Modal.Title>
+    <Modal.Title>Move Settings</Modal.Title>
   </Modal.Header>
 
   <Modal.Body>
@@ -44,10 +41,10 @@ export default function ModalJog({config,setConfig,jogconfig,set_jogconfig,show,
   </InputGroup>
 
   <InputGroup size="sm" className="mb-3">
-    <InputGroup.Text id="jogPitch" >Jog Pitch</InputGroup.Text>
+    <InputGroup.Text id="movePitch" >Move Pitch</InputGroup.Text>
     <FormControl placeholder={config.pitch} aria-label="Small" aria-describedby="inputGroup-sizing-sm"
         inputMode='decimal' step='any' type="number"
-        value={jogPitch} onChange={(e) => setJogPitch(e.target.value)} 
+        value={movePitch} onChange={(e) => set_movePitch(e.target.value)} 
     />
   </InputGroup>
 

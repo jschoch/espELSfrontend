@@ -7,7 +7,7 @@ import useCookie from "./useCookie";
 
 var default_ws_url = "ws://192.168.100.100/els";
 
-export default function EspWS({set_ws,msg,set_msg,connected, set_connected, config}){
+export default function EspWS({msg,set_msg,connected, set_connected, config}){
     //const [ws_connected,set_ws_connected] = useState(false);
     const ws = useRef(null);
     const [client_configured,set_client_configured] = useState(false);
@@ -15,6 +15,7 @@ export default function EspWS({set_ws,msg,set_msg,connected, set_connected, conf
     //const [ws_url,set_ws_url] = useState("ws://192.168.1.41/");
     const [ws_url,set_ws_url] = useState(cookie);
     const [clients, set_clients] = useState([]);
+    const [waitingToReconnect, setWaitingToReconnect] = useState(null);
 
     async function decodeFromBlob(blob: Blob): unknown {
         if (blob.stream) {
@@ -37,32 +38,54 @@ export default function EspWS({set_ws,msg,set_msg,connected, set_connected, conf
             return;
         }
 
-        ws.current = new WebSocket(ws_url);
-        set_ws(ws);
-        
-        ws.current.onopen = () => {
-            console.log("ws opened"); ws.current.binaryType = 'blob'; set_connected(true);
-            var outmsg = {cmd: "helo",vsn: config.vsn};
-            ws.current.send(JSON.stringify(outmsg));
-        }
-        ws.current.onclose = () => {
-            console.log("ws closed, trying to reconnect");
-            set_connected( false);
+        if(ws.current && ws.current.readyState == 3){
+            console.log("lalalallalalala");
+        } 
+       
+        if(!ws.current || ws.current.borked){
             ws.current = new WebSocket(ws_url);
-        }
-        ws.current.onmessage = message => {
-            if(message.data instanceof Blob){
-                decodeFromBlob(message.data).then((x) => {
-                    set_msg(x);
-                });
+            // maybe this is better?
+            window.wsclient = ws.current;
+
+            ws.current.onopen = () => {
+                console.log("ws opened"); ws.current.binaryType = 'blob'; set_connected(true);
+                var outmsg = {cmd: "helo",vsn: config.vsn};
+                ws.current.send(JSON.stringify(outmsg));
             }
-        };
-        const wsCurrent = ws.current;
+            ws.current.onclose = () => {
+                set_connected( false);
+                if(waitingToReconnect) {
+                    console.log("r.");
+                    return;
+                }
+                if(ws.current){
+                    console.log("server closed ws , trying to reconnect");
+                }else{
+                    console.log("ws closed by unmount");
+                    return;
+                }
+                console.log("setting timeout to reconnect, why doesn't this fucking work!!!!");
+                setWaitingToReconnect(true);
+                setTimeout( () => {
+                    console.log("boom",ws.current);
+                    setWaitingToReconnect(null);
+                    ws.current.borked = true;
+                    alert("reconnection is broken refresh asshole");
+                } , 1000);
+            }
+            ws.current.onmessage = message => {
+                if(message.data instanceof Blob){
+                    decodeFromBlob(message.data).then((x) => {
+                        set_msg(x);
+                    });
+                }
+            };
+        }
 
         return () => {
             ws.current.close();
         }
-    },[ws_url]);
+    },[ws_url,ws]);
 
     return (
         <div id="espWS">

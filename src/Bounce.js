@@ -1,13 +1,14 @@
 
-import React, { Component, useState, useEffect } from 'react';
+import React, {  useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import {send} from './util.js';
+import Moving from './Moving.js';
 
-export default function Bounce({ws}){
+export default function Bounce({stats}){
     const [jog_mm,set_jog_mm] = useState(0);
     const [jog_pitch, set_jog_pitch] = useState(0.1);
     const [rapid_pitch, set_rapid_pitch] = useState(1);
@@ -15,13 +16,15 @@ export default function Bounce({ws}){
     function bounce(distance){
         var c = {jog_mm: jog_mm,rapid: rapid_pitch,pitch: jog_pitch,f: true};
         var d = {cmd: "bounce",config: c}
-        console.log("jog ws",d,ws);
-        //ws.send(JSON.stringify(d));
-        send(d,ws);
+        send(d);
     }
 
   return(
     <div>
+      {
+          // hides controls when pos_feeding is true
+           !stats["pos_feed"] && !stats["sw"] && 
+           <div>
       <Button variant="dark" className="btn-block" > Bounce Settings</Button>
       <Row>
           <Col>
@@ -69,6 +72,12 @@ export default function Bounce({ws}){
           </Col>
           </Row>
       <Button className="btn-block" onClick={() => bounce()}>Run Bounce</Button>
+      </div>
+      }
+      <Row>
+                    <Moving stats={stats} />
+                        
+                    </Row>
     </div>
     )
 }

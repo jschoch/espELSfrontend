@@ -36,9 +36,10 @@ import {send} from './util.js';
 const modes= {
  0: "Startup",
  1: "",
- 2: "Slave Jogging",
+ 2: "MoveSyncMode",
  3: "",
  4: "",
+ 6: "Bounce",
  9: "Hob Ready",
  10: "Hob Running",
  11: "Hob Stop"
@@ -85,7 +86,6 @@ const RangeSlider = (props) => {
   );
 };
 
-var ws = "";
 export default function App() {
   const { register, handleSubmit, watch, errors } = useForm();
 
@@ -104,51 +104,20 @@ export default function App() {
     sendNvConfig(data);
   }
 
-  const onSubmitJog = (data) => {
-    var c = config
-    c.f = feedingLeft;
-    c.s = syncStart;
-    if(submitButton == 1){
-      c.jm = data.jog_mm;
-      setConfig(c);
-      jog();
-    }else if(submitButton == -1){
-      c.jm = Math.abs(data.jog_mm) * -1;
-      setConfig(c);
-      jog();
-    }
-    console.log("onSubmitJog data",data,c,submitButton);
-  }
-
+  
   
   const handleResetNvConfig = (data) => {
     console.log("resetting config");
     var d = {cmd: "resetNvConfig"};
     //ws.send(JSON.stringify(d));
-    send(d,ws);
+    send(d);
   }
 
   
 
   
 
-  const onSubmitRapid = data => {
-    var c = config
-    c.f = feedingLeft;
-    c.s = syncStart;
-    c.rapid = data.rapid
-    setConfig(c);
-    console.log("range submit data",data);
-    sendConfig();
-  }
-  const onSubmitJogScaler = data => {
-    var c = config
-    c.sc = data.sc
-    setConfig(c);
-    console.log("Jog Scaler submit data",data);
-    sendConfig();
-  }
-
+  
   const handleModeSelect = data => {
     var c = config
     c.m = data;
@@ -167,9 +136,9 @@ export default function App() {
     if(m != undefined){
       console.log("hanlde view: ",m);
       if(m == 2 || m == 3){
-        setShowJog(true);
+        setShowMove(true);
       }else{
-        setShowJog(false);
+        setShowMove(false);
       }
       if(m == 9 || m == 10 || m == 11){
         console.log("set hobbing enabled")
@@ -177,21 +146,13 @@ export default function App() {
     }
   }
 
-  const handleJogTabSelect = data => {
-    console.log("select tab",data);
-    if(data == "jog_tab"){
-      // What was this for?
-    }else if(data == "config_tab"){
-      console.log("config_tab selectyed");
-      getNvConfig();
-    }
-  }
   
-  const vsn = "0.0.2";
+  
+  const vsn = "0.0.3";
   
   const [config,setConfig] = useState({vsn: vsn});
   const [connected,set_connected] = useState(false);
-  const [showJog,setShowJog] = useState(false);
+  const [showMove,setShowMove] = useState(false);
   const [showRapid,setShowRapid] = useState(false);
   const [timeout, setTimeout] = useState(250);
   const [dro,setDRO] = useState(0.0);
@@ -217,9 +178,6 @@ export default function App() {
   const [threadOffset, setThreadOffset] = useState(0.0);
   // espWS setup
   const [msg,set_msg] = useState(null);
-  const set_ws = (inws) => {
-    ws = inws.current;
-  }
 
   
 
@@ -228,36 +186,28 @@ export default function App() {
   function getNvConfig(){
     var d = {cmd: "getNvConfig"};
     //ws.send(JSON.stringify(d));
-    send(d,ws);
+    send(d);
   }
   function sendNvConfig(data){
     data["cmd"] = "setNvConfig";
     //ws.send(JSON.stringify(data));
-    send(data,ws);
+    send(data);
   }
 
  
 
   function sendConfig(){
     var d = {cmd: "sendConfig",config: config}
-    console.log("ws",config,ws);
-    if(typeof ws.send !== "undefined"){
-      console.log("sending");
-      //ws.send(JSON.stringify(d));
-      send(d,ws);
-    }else{
-      // TODO: WTF? popup an error or something
-      //connect();
-      console.log("not connected");
-    }
+    send(d);
   }
 
-  // TODO: can you put this in a util lib and just pass the config vs having it here and bubbling it down 
-  function jog(){
-    var d = {cmd: "jog",config: config}
-    console.log("ws",config,ws);
-    //ws.send(JSON.stringify(d));
-    send(d,ws);
+ 
+  const handleTabSelect = data => {
+    console.log("select tab",data);
+    if(data == "config_tab"){
+      console.log("config_tab selectyed");
+      getNvConfig();
+    }
   }
 
   
@@ -311,14 +261,14 @@ export default function App() {
           <span>
             DRO: <span className="badge bg-warning">{dro.toFixed(4)}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
-            <Rev config={config} me={me} ws={ws} stats={stats} />
+            <Rev stats={stats} />
           </span>
           </span>
  
       </div>
   
     <Tabs defaultActiveKey="home" id="uncontrolled-tab-example" 
-    onSelect={handleJogTabSelect}
+    onSelect={handleTabSelect}
     transition={false}>
     <Tab eventKey="home_tab" title="Home">
       <div> 
@@ -335,7 +285,7 @@ export default function App() {
          </span>
       </div>
     </Tab>
-    <Tab eventKey="jog2_tab" title="New Jog">
+    <Tab eventKey="moveSync_tab" title="MoveSync">
       <div>
         <div className="card-body">
             { config["m"] == 0 &&
@@ -347,153 +297,15 @@ export default function App() {
             { config["m"] != 0 && 
             <MoveSyncUI 
               config={config} setConfig={setConfig} me={me} 
-              ws={ws} stats={stats} sendConfig={sendConfig}
+              stats={stats} sendConfig={sendConfig}
               />
             }
         </div>
       </div>
     </Tab>
-    <Tab eventKey="jog_tab" title="Jog" >
-    <div>
-      <div className="card-body">
-          { stats["pos_feed"] &&
-            <Moving stats={stats} ws={ws} />
-          }
-          
-           { showJog && !stats["pos_feed"] && !stats["sw"] &&
-            <div>
-              { /*  TODO: add this stuff back in but refactor it
-              <Form inline >
-                <Form.Row>
-                  <Col>
-                      <Form.Check inline type="checkbox" label="Feed CCW" 
-                        name="feeding_left" ref={register({required: false})} 
-                        id="feeding_left"
-                        checked={feedingLeft}
-                        onChange ={ () => setFeedingLeft(!feedingLeft)} />
-                  </Col>
-                  <Col>
-                      <Form.Check inline type="checkbox" label="Sync Start"
-                        name="syncStart" ref={register({required: false})}
-                        id="syncStart"
-                        checked={syncStart}
-                        onChange ={ () => setSyncStart(!syncStart)} />
-                  </Col>
-                  
-                </Form.Row>
-              </Form>
-              <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
-                <Form.Row>
-                <span>Incremental</span>
-                <InputGroup className="mb-2 mr-sm-2">
-
-                <Col xs={2}>
-                <Button type="submit" className="mb-2 mr-sm-2" 
-                  disabled={stats.pos_feed}
-                  onClick={() => setSubmitButton(-1)}>
-                  Jog Z- 
-                </Button>
-                </Col>
-                <Col xs={8}>
-                <InputGroup.Prepend className="inputGroup-sizing-xs">
-                    <InputGroup.Text>Jog <br />mm:</InputGroup.Text>
-                     <Form.Control id="jog_mm" name="jog_mm" type="number" 
-                      ref={register({ required: true })}
-                      inputMode='decimal' step='any' defaultValue={Math.abs(config.jm)} />
-                
-                  </InputGroup.Prepend>
-                 </Col>
-
-                  <Col xs={2}>
-                  <Button type="submit" className="mb-2" 
-                    disabled={stats.pos_feed}
-                    onClick={() => setSubmitButton(1)}>
-                    Jog Z+
-                  </Button>
-                  </Col>
-                </InputGroup>
-                </Form.Row>
-              </Form>
-              */
-              }
-              
- 
-              <MoveSyncAbs config={config} stats={stats} ws={ws} /> 
-            </div>
-           }
-      </div>
-      <div className="card-body">
-                <Form inline onSubmit={handleSubmit(onSubmitPitch)} >
-                <Form.Row>
-                <InputGroup className="mb-2 mr-sm-2">
-                  <Col xs={8}>
-                  <InputGroup.Prepend>
-                    <InputGroup.Text>Pitch: {config["pitch"]}</InputGroup.Text>
-                     <Form.Control id="pitch" name="pitch" type="number"
-                      ref={register({ required: true })}
-                      defaultValue="0.1"
-                      inputMode='decimal' step='any' placeholder="1.0" />
-                  </InputGroup.Prepend>
-                  </Col>
-
-                  <Col>
-                  <Button type="submit" className="mb-2">
-                    Change Pitch!
-                  </Button>
-                  </Col>
-                </InputGroup>
-                </Form.Row>
-              </Form>
-              
-             { showRapid && 
-              <div>
-                <Form onSubmit={handleSubmit(onSubmitRapid)}>
-                <div className="row row-cols-lg-auto g-3 align-items-center">
-                  <div className="col-12">
-                   <RangeSlider name="Rapid" defaultValue={config.rapid} register={register} /> 
-                  </div>
-
-                </div>
-                </Form>
-                </div>
-
-              }
-              { showRapid &&
-              <div>
-              <Form inline onSubmit={handleSubmit(onSubmitJogScaler)} >
-                <InputGroup className="mb-2 mr-sm-2">
-                  <InputGroup.Prepend>
-                    <InputGroup.Text>Jog Scaler</InputGroup.Text>
-                     <Form.Control id="sc" name="sc" type="number"
-                      ref={register({ required: true })}
-                      defaultValue="0.5"                                                                                                      
-                      inputMode='decimal' step='any' placeholder="1.0" />
-                  </InputGroup.Prepend>
-                  <Button type="submit" className="mb-2">
-                    Update Jog Scaler Hack!
-                  </Button>
-                </InputGroup>
-              </Form>
-              </div>
-              }
-
-              <span className="card-text">
-                {config["m"] == 0 &&
-                  <h4>
-                  Select a mode to get started!
-                  </h4>
-                }
-
-              </span>
-
-            </div>
-      <div>
-
-      </div>
-    </div>
-    </Tab>
+    
     <Tab eventKey="net_tab" title="Network">
-      <EspWS set_ws={set_ws} msg={msg} set_msg={set_msg} connected={connected} set_connected={set_connected} config={config}  />
+      <EspWS msg={msg} set_msg={set_msg} connected={connected} set_connected={set_connected} config={config}  />
       
     </Tab>
     <Tab eventKey="thread_tab" title="Thread">
@@ -561,10 +373,10 @@ export default function App() {
       
     </Tab>
     <Tab eventKey="hob_tab" title="Hobbing">
-      <Hobbing config={config} setConfig={setConfig} me={me} ws={ws} stats={stats} ></Hobbing>
+      <Hobbing config={config} setConfig={setConfig} me={me} stats={stats} ></Hobbing>
     </Tab>
     <Tab eventKey="debug_tab" title="Debug">
-      <Debug ws={ws} ></Debug>
+      <Debug ></Debug>
 
 
 

@@ -11,11 +11,13 @@ export default function Moving({stats,ws}){
     }
     return(
       <div>
-        {stats["sw"] &&
+        {
+          // stats sw is syncwaiting
+        stats["sw"] &&
           <div>
           <Button variant="danger">Waiting for Sync</Button>
           <Button variant="danger" onClick={moveCancel}>
-              Cancel Jog!
+              Cancel Move!
             </Button>
           </div>
           }
@@ -42,7 +44,7 @@ export default function Moving({stats,ws}){
                 }
             </Button>
             <Button variant="danger" onClick={moveCancel}>
-              Cancel Jog!
+              Cancel Move!
             </Button>
             </div>
             }
