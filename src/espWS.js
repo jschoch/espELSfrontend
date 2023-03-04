@@ -48,7 +48,7 @@ export default function EspWS({set_ws,msg,set_msg,connected, set_connected, conf
         ws.current.onclose = () => {
             console.log("ws closed, trying to reconnect");
             set_connected( false);
-            //ws.current = new WebSocket(ws_url);
+            ws.current = new WebSocket(ws_url);
         }
         ws.current.onmessage = message => {
             if(message.data instanceof Blob){

@@ -5,6 +5,7 @@ import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import {send} from './util.js';
 
 export default function Bounce({ws}){
     const [jog_mm,set_jog_mm] = useState(0);
@@ -15,7 +16,8 @@ export default function Bounce({ws}){
         var c = {jog_mm: jog_mm,rapid: rapid_pitch,pitch: jog_pitch,f: true};
         var d = {cmd: "bounce",config: c}
         console.log("jog ws",d,ws);
-        ws.send(JSON.stringify(d));
+        //ws.send(JSON.stringify(d));
+        send(d,ws);
     }
 
   return(

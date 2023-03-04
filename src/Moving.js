@@ -1,12 +1,13 @@
 import React, { Component, useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
-import send from './util.js';
+import {send} from './util.js';
 
 export default function Moving({stats,ws}){
     function moveCancel(){
       var d = {cmd: "moveCancel"};
-      ws.send(JSON.stringify(d));
+      //ws.send(JSON.stringify(d));
+      send(d,ws);
     }
     return(
       <div>

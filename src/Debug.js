@@ -1,5 +1,6 @@
 import React, { Component, useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
+import {send} from './util.js';
 
 export default function Debug({ws}){
 
@@ -9,7 +10,8 @@ export default function Debug({ws}){
   const handleEncClick = data => {
     console.log("debug click",data);
     var d = {cmd: "debug",basic: data};
-    ws.send(JSON.stringify(d));
+    //ws.send(JSON.stringify(d));
+    send(d,ws);
   }
 
   function updateEncSpeed(val){
@@ -18,13 +20,15 @@ export default function Debug({ws}){
     c.encSpeed = val;
     var d = {cmd: "updateEncSpeed",config: c}
     console.log("ws",d,ws);
-    ws.send(JSON.stringify(d));
+    //ws.send(JSON.stringify(d));
+    send(d,ws);
   }
 
   function handleNumTicksClick(){
     console.log("foo",numTicks);
     var d = {cmd: "debug",ticks: numTicks};
-    ws.send(JSON.stringify(d));
+    //ws.send(JSON.stringify(d));
+    send(d,ws);
   }
 
 

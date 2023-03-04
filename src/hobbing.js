@@ -5,6 +5,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { ArrowBarLeft, ArrowLeft, ArrowRight,ArrowBarRight } from 'react-bootstrap-icons';
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import {send} from './util.js';
 
 
 export default function Hobbing({config,setConfig,me,ws,stats}){
@@ -26,13 +27,15 @@ export default function Hobbing({config,setConfig,me,ws,stats}){
         c.s = syncStart;
         var d = {cmd: "hobrun",config: c}
         console.log("hob ws",d,ws);
-        ws.send(JSON.stringify(d));
+        //ws.send(JSON.stringify(d));
+        send(d,ws);
     }
     function handleStop(){
         console.log("hob start clicked");
         var c = config;
         var d = {cmd: "hobstop",config: c}
-        ws.send(JSON.stringify(d));
+        //ws.send(JSON.stringify(d));
+        send(d,ws);
     }
 
     return(

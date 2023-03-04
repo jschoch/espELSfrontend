@@ -3,7 +3,7 @@ import { encode, decode,decodeAsync } from "@msgpack/msgpack";
 import Info from './info.js';
 import ThreadView from "./ThreadView.js";
 import ModeSel from './Mode.js';
-import JogUI from './JogUI.js';
+import MoveSyncUI from './MoveSyncUI.js';
 import Debug from './Debug.js';
 import Moving from './Moving.js';
 import EspWS from './espWS.js';
@@ -27,6 +27,7 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import Rev from './Rev.js';
 import Hobbing from './hobbing.js';
+import {send} from './util.js';
 
 
 // TODO: refactor, why so many modes unused here?
@@ -123,7 +124,8 @@ export default function App() {
   const handleResetNvConfig = (data) => {
     console.log("resetting config");
     var d = {cmd: "resetNvConfig"};
-    ws.send(JSON.stringify(d));
+    //ws.send(JSON.stringify(d));
+    send(d,ws);
   }
 
   
@@ -225,11 +227,13 @@ export default function App() {
 
   function getNvConfig(){
     var d = {cmd: "getNvConfig"};
-    ws.send(JSON.stringify(d));
+    //ws.send(JSON.stringify(d));
+    send(d,ws);
   }
   function sendNvConfig(data){
     data["cmd"] = "setNvConfig";
-    ws.send(JSON.stringify(data));
+    //ws.send(JSON.stringify(data));
+    send(data,ws);
   }
 
  
@@ -239,7 +243,8 @@ export default function App() {
     console.log("ws",config,ws);
     if(typeof ws.send !== "undefined"){
       console.log("sending");
-      ws.send(JSON.stringify(d));
+      //ws.send(JSON.stringify(d));
+      send(d,ws);
     }else{
       // TODO: WTF? popup an error or something
       //connect();
@@ -251,7 +256,8 @@ export default function App() {
   function jog(){
     var d = {cmd: "jog",config: config}
     console.log("ws",config,ws);
-    ws.send(JSON.stringify(d));
+    //ws.send(JSON.stringify(d));
+    send(d,ws);
   }
 
   
@@ -339,7 +345,10 @@ export default function App() {
             </div>
             }
             { config["m"] != 0 && 
-            <JogUI config={config} setConfig={setConfig} me={me} ws={ws} stats={stats} sendConfig={sendConfig}></JogUI>
+            <MoveSyncUI 
+              config={config} setConfig={setConfig} me={me} 
+              ws={ws} stats={stats} sendConfig={sendConfig}
+              />
             }
         </div>
       </div>
@@ -353,6 +362,7 @@ export default function App() {
           
            { showJog && !stats["pos_feed"] && !stats["sw"] &&
             <div>
+              { /*  TODO: add this stuff back in but refactor it
               <Form inline >
                 <Form.Row>
                   <Col>
@@ -404,6 +414,8 @@ export default function App() {
                 </InputGroup>
                 </Form.Row>
               </Form>
+              */
+              }
               
  
               <MoveSyncAbs config={config} stats={stats} ws={ws} /> 

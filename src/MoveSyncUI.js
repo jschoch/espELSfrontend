@@ -12,11 +12,12 @@ import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Moving from './Moving.js';
 import Bounce from './Bounce.js';
+import {send} from './util.js';
 
 
 
 
-export default function JogUI({config,setConfig,me,ws,stats,sendConfig}){
+export default function MoveSyncUI({config,setConfig,me,ws,stats,sendConfig}){
     const [enRL,setEnRL] = useState(true);
     const [enRR,setEnRR] = useState(true);
     const [showModalJog,setShowModalJog] = useState(false);
@@ -46,7 +47,8 @@ export default function JogUI({config,setConfig,me,ws,stats,sendConfig}){
         c.jm = distance;
         var d = {cmd: "jog",config: c}
         console.log("jog ws",d,ws);
-        ws.send(JSON.stringify(d));
+        //ws.send(JSON.stringify(d));
+        send(d,ws);
       }
       function rapid(config,distance){
         var c = config;
@@ -55,7 +57,8 @@ export default function JogUI({config,setConfig,me,ws,stats,sendConfig}){
         c.jm = distance;
         var d = {cmd: "rapid",config: c}
         console.log("rapid ws",d,ws);
-        ws.send(JSON.stringify(d));
+        //ws.send(JSON.stringify(d));
+        send(d,ws);
       }
 
     const handleJogClick = (id) => {
