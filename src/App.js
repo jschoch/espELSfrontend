@@ -5,8 +5,9 @@ import ThreadView from "./ThreadView.js";
 import ModeSel from './Mode.js';
 import JogUI from './JogUI.js';
 import Debug from './Debug.js';
-import Feeding from './Feeding.js';
+import Moving from './Moving.js';
 import EspWS from './espWS.js';
+import MoveSyncAbs from './moveSyncAbs.js';
 import React, { Component, useState, useEffect } from 'react';
 import {useForm} from 'react-hook-form';
 import DropdownButton from 'react-bootstrap/DropdownButton';
@@ -118,17 +119,7 @@ export default function App() {
     console.log("onSubmitJog data",data,c,submitButton);
   }
 
-  const onSubmitAbsJog = (data) => {
-    // TODO: consider making this a component and also having it in "new jog"
-    //
-    console.log("jogAbs submit clicked",data)
-    var c = config;
-    c.f = feedingLeft;
-    c.s = syncStart;
-    
-    jogAbs(data.jog_abs_mm);  
-  }
-
+  
   const handleResetNvConfig = (data) => {
     console.log("resetting config");
     var d = {cmd: "resetNvConfig"};
@@ -241,10 +232,7 @@ export default function App() {
     ws.send(JSON.stringify(data));
   }
 
-  function jogcancel(){
-    var d = {cmd: "jogcancel"};
-    ws.send(JSON.stringify(d));
-  }
+ 
 
   function sendConfig(){
     var d = {cmd: "sendConfig",config: config}
@@ -266,13 +254,7 @@ export default function App() {
     ws.send(JSON.stringify(d));
   }
 
-  function jogAbs(pos){
-    console.log("jogAbs pos",pos)
-    var d = {cmd: "jogAbs",config: config}
-    d.config.ja = pos;
-    console.log("ws",d,config,ws);
-    ws.send(JSON.stringify(d));
-  }
+  
  
   // all the msg handling goes here 
   useEffect(() => {
@@ -357,7 +339,7 @@ export default function App() {
             </div>
             }
             { config["m"] != 0 && 
-            <JogUI config={config} setConfig={setConfig} me={me} ws={ws} stats={stats} jogcancel={jogcancel} sendConfig={sendConfig}></JogUI>
+            <JogUI config={config} setConfig={setConfig} me={me} ws={ws} stats={stats} sendConfig={sendConfig}></JogUI>
             }
         </div>
       </div>
@@ -366,7 +348,7 @@ export default function App() {
     <div>
       <div className="card-body">
           { stats["pos_feed"] &&
-            <Feeding stats={stats} jogcancel={jogcancel}></Feeding> 
+            <Moving stats={stats} ws={ws} />
           }
           
            { showJog && !stats["pos_feed"] && !stats["sw"] &&
@@ -424,25 +406,7 @@ export default function App() {
               </Form>
               
  
-                <h5> Absolute </h5>
-               <Form inline onSubmit={handleSubmit(onSubmitAbsJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
-                <Col xs={8}>
-                <InputGroup.Prepend className="inputGroup-sizing-sm">
-                    <InputGroup.Text>Position(mm)</InputGroup.Text>
-                     <Form.Control id="jog_abs_mm" name="jog_abs_mm" type="number"
-                      ref={register({ required: true })}
-                      inputMode='decimal' step='any' defaultValue={Math.abs(config.ja)} />
-
-                  </InputGroup.Prepend>
-                </Col>
-                <Col>
-                  <Button type="submit" className="mb-2"
-                    disabled={stats.pos_feed}
-                    onClick={() => setSubmitButton(2)}>
-                    Go
-                  </Button>
-                </Col>
-              </Form>
+              <MoveSyncAbs config={config} stats={stats} ws={ws} /> 
             </div>
            }
       </div>
@@ -585,7 +549,7 @@ export default function App() {
       
     </Tab>
     <Tab eventKey="hob_tab" title="Hobbing">
-      <Hobbing config={config} setConfig={setConfig} me={me} ws={ws} stats={stats} jogcancel={jogcancel}></Hobbing>
+      <Hobbing config={config} setConfig={setConfig} me={me} ws={ws} stats={stats} ></Hobbing>
     </Tab>
     <Tab eventKey="debug_tab" title="Debug">
       <Debug ws={ws} ></Debug>

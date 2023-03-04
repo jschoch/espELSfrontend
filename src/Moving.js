@@ -1,15 +1,19 @@
 import React, { Component, useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
+import send from './util.js';
 
-export default function Feeding({stats,jogcancel}){
-
+export default function Moving({stats,ws}){
+    function moveCancel(){
+      var d = {cmd: "moveCancel"};
+      ws.send(JSON.stringify(d));
+    }
     return(
       <div>
         {stats["sw"] &&
           <div>
           <Button variant="danger">Waiting for Sync</Button>
-          <Button variant="danger" onClick={jogcancel}>
+          <Button variant="danger" onClick={moveCancel}>
               Cancel Jog!
             </Button>
           </div>
@@ -36,7 +40,7 @@ export default function Feeding({stats,jogcancel}){
                 
                 }
             </Button>
-            <Button variant="danger" onClick={jogcancel}>
+            <Button variant="danger" onClick={moveCancel}>
               Cancel Jog!
             </Button>
             </div>

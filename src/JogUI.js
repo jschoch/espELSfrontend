@@ -10,13 +10,13 @@ import Col from "react-bootstrap/Col";
 import ModalJog from './ModalJogSettings.js';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
-import Feeding from './Feeding.js';
+import Moving from './Moving.js';
 import Bounce from './Bounce.js';
 
 
 
 
-export default function JogUI({config,setConfig,me,ws,stats,jogcancel,sendConfig}){
+export default function JogUI({config,setConfig,me,ws,stats,sendConfig}){
     const [enRL,setEnRL] = useState(true);
     const [enRR,setEnRR] = useState(true);
     const [showModalJog,setShowModalJog] = useState(false);
@@ -170,7 +170,7 @@ export default function JogUI({config,setConfig,me,ws,stats,jogcancel,sendConfig
            </div>
             }
            <Row>
-            <Feeding stats={stats} jogcancel={jogcancel}></Feeding>
+            <Moving stats={stats} ws={ws} />
                 
             </Row>
 

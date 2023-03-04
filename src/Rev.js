@@ -1,4 +1,5 @@
 import React, { Component, useState, useEffect } from 'react';
+
 import Button from 'react-bootstrap/Button';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -10,7 +11,6 @@ import Col from "react-bootstrap/Col";
 import ModalJog from './ModalJogSettings.js';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
-import Feeding from './Feeding.js';
 import Bounce from './Bounce.js';
 
 

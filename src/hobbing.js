@@ -7,7 +7,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
 
-export default function Hobbing({config,setConfig,me,ws,stats,jogcancel}){
+export default function Hobbing({config,setConfig,me,ws,stats}){
     // feedingLeft is the feed direciton CW/CCW
     const [feedingLeft,set_feedingLeft] = useState(true);
     const [hobconfig, set_hobconfig] = useState({pitch: config.pitch, mode: config.m})
