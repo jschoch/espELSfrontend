@@ -11,6 +11,17 @@ import { ElectronCapacitorApp, setupContentSecurityPolicy, setupReloadWatcher } 
 // Graceful handling of unhandled errors.
 unhandled();
 
+const { session } = require('electron')
+
+session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+  callback({
+    responseHeaders: {
+      ...details.responseHeaders,
+      'Content-Security-Policy': ['default-src \'*\'']
+    }
+  })
+})
+
 // Define our menu templates (these are optional)
 const trayMenuTemplate: (MenuItemConstructorOptions | MenuItem)[] = [new MenuItem({ label: 'Quit App', role: 'quit' })];
 const appMenuBarMenuTemplate: (MenuItemConstructorOptions | MenuItem)[] = [

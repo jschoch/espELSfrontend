@@ -222,11 +222,7 @@ export function setupContentSecurityPolicy(customScheme: string): void {
     callback({
       responseHeaders: {
         ...details.responseHeaders,
-        'Content-Security-Policy': [
-          electronIsDev
-            ? `default-src ${customScheme}://* 'unsafe-inline' devtools://* 'unsafe-eval' data:`
-            : `default-src ${customScheme}://* 'unsafe-inline' data:`,
-        ],
+        'Content-Security-Policy': [`default-src '*' 'self' 'unsafe-inline' devtools://* 'unsafe-eval' data:`],
       },
     });
   });

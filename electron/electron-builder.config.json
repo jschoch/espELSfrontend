@@ -3,6 +3,7 @@
   "directories": {
     "buildResources": "resources"
   },
+  "allowRunningInsecureContent": true,
   "files": [
     "assets/**/*",
     "build/**/*",
