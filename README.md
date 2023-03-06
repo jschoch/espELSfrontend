@@ -24,3 +24,19 @@ Todo:
 Fix: 
 
 1. WS reconnection timer not workig well with react hooks
+
+Running the electron app:
+Referenced from https://medium.com/how-to-react/convert-your-existing-react-js-app-to-android-or-ios-app-using-the-ionic-capacitor-a127deda75bd
+
+- install ionic globally
+-- (optional) use the Iconic extension for visual studio code, by ionic.io
+-- npm install -g @ionic/cli
+- install electron
+-- npm install -g electron
+- build the npm project
+-- npm run build
+- run the electron app
+-- nagivate to the electron dir in this project
+-- type electron ./
+
+Also, a lot more in the visual studio code ionic extension. Including an android build.

@@ -1,0 +1,21 @@
+{
+  "name": "espELS",
+  "integrations": {
+    "capacitor": {
+      "appId": "com.github.jschoch.espELSFrontend",
+    "appName": "espELS",
+    "webDir": "build",
+    "bundledWebRuntime": true,
+    "loggingBehavior": "debug",
+    "android": {
+      "allowMixedContent": true
+    },
+    "cordova": {
+      "allowMixedContent": true
+    },
+    "server": {
+      "allowMixedContent": true
+    }}
+  },
+  "type": "react"
+}
