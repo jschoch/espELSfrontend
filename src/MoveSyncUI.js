@@ -40,13 +40,13 @@ export default function MoveSyncUI({config,setConfig,me,stats,sendConfig,nvConfi
             Seems like heavy refactor is needed
 
         */
+        console.log("distance",distance);
         var c = config;
         // TODO: add these to the UI
         c.f = feedingLeft;
         c.s = syncStart;
         c.pitch = moveConfig.pitch;
 
-        //c.jm = distance;
         c.moveSteps = distanceToSteps(nvConfig,distance);
         var d = {cmd: "jog",config: c}
         send(d);
@@ -67,7 +67,6 @@ export default function MoveSyncUI({config,setConfig,me,stats,sendConfig,nvConfi
             me.setModalErrorMsg("Can't Jog 0 mm");
             me.setShowModalError(true);
         }else{
-            //var id = data.target.getAttribute(“id”);
             if(id == "rrapid"){
                 console.log("right rapid");
                 rapid(moveConfig,Math.abs(jog_mm));
