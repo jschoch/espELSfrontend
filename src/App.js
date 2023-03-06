@@ -9,6 +9,7 @@ import Moving from './Moving.js';
 import EspWS from './espWS.js';
 import ShowNvConfig from './nvConfig.js';
 import MoveSyncAbs from './moveSyncAbs.js';
+import Feed from './feed.js';
 import React, { Component, useState, useEffect } from 'react';
 import {useForm} from 'react-hook-form';
 import DropdownButton from 'react-bootstrap/DropdownButton';
@@ -304,6 +305,9 @@ export default function App() {
             }
         </div>
       </div>
+    </Tab>
+    <Tab eventKey="Feed" title="Feed">
+      <Feed config={config} />
     </Tab>
     
     <Tab eventKey="net_tab" title="Network">
