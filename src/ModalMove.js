@@ -6,6 +6,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
+import {send} from './util.js';
 
 
 
@@ -16,10 +17,12 @@ export default function ModalMove({config,setConfig,moveConfig,set_moveConfig,sh
         var c = config;
         c.pitch = movePitch;
         c.rapid = rapidPitch;
-        setConfig(c)
+        setConfig(c);
         console.log("pitch, rapid",movePitch,rapidPitch);
         set_moveConfig(c);
         setShow(false);
+        var d = {cmd: "sendConfig",config: config}
+        send(d);
     }
     const handleShow = () => setShow(true);
     return(

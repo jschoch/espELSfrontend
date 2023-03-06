@@ -44,15 +44,16 @@ export default function Info(props) {
           <KV k="Encoder Pulses" v={props.stats.encoderPos} />
           <KV k="Encoder revolutions" v={(props.stats.encoderPos / 2400).toFixed(2)} />
           <KV k="Tool Position (in steps)" v={props.stats.tp} />
+          <KV k="Pos Stop" v={props.stats.sp.toFixed(3)} />
+
+          <KV k="Neg Stop" v={props.stats.sn.toFixed(3)} />
           <br />
           { /* yuck <!--  need to add debug stats here
           <KV k="Target Tool Position" v={props.stats.targetPos} />
           <KV k="Target MM" v={props.stats.targetPosMM.toFixed(4)} />
           <br /> 
           <KV k="delta" v={props.stats.delta} />
-          <KV k="Pos Stop" v={props.stats.sp.toFixed(4)} />
-
-          <KV k="Neg Stop" v={props.stats.sn.toFixed(4)} />
+          
           <KV k="DRO" v={props.stats.pmm.toFixed(4)} />
           
           */
