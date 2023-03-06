@@ -7,6 +7,7 @@ import MoveSyncUI from './MoveSyncUI.js';
 import Debug from './Debug.js';
 import Moving from './Moving.js';
 import EspWS from './espWS.js';
+import ShowNvConfig from './nvConfig.js';
 import MoveSyncAbs from './moveSyncAbs.js';
 import React, { Component, useState, useEffect } from 'react';
 import {useForm} from 'react-hook-form';
@@ -27,7 +28,7 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import Rev from './Rev.js';
 import Hobbing from './hobbing.js';
-import {send} from './util.js';
+import {send,stepsToDistance,distanceToSteps} from './util.js';
 
 
 // TODO: refactor, why so many modes unused here?
@@ -158,7 +159,7 @@ export default function App() {
   const [dro,setDRO] = useState(0.0);
   const [rpm,setRPM] = useState(0);
   const [stats, setStats] = useState({});
-  const [nvConfig,setNvConfig] = useState({error: true});
+  const [nvConfig,setNvConfig] = useState({error: true,motor_steps: 0});
   const [origin,setOrigin] = useState();
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
@@ -214,12 +215,12 @@ export default function App() {
  
   // all the msg handling goes here 
   useEffect(() => {
-    console.log("moar",msg);
+    //console.log("moar",msg);
     if (msg === null) return;
     if("t" in msg){
       if(msg["t"] == "status"){
         setStats(msg);
-        setDRO(msg.pmm);
+        setDRO(stepsToDistance(nvConfig,msg.p));
         setRPM(msg.rpm);
         }
       else if(msg["t"] == "nvConfig"){
@@ -259,7 +260,7 @@ export default function App() {
             }
           </span>
           <span>
-            DRO: <span className="badge bg-warning">{dro.toFixed(4)}</span>
+            DRO: <span className="badge bg-warning">{dro}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
             <Rev stats={stats} />
           </span>
@@ -297,6 +298,7 @@ export default function App() {
             { config["m"] != 0 && 
             <MoveSyncUI 
               config={config} setConfig={setConfig} me={me} 
+              nvConfig={nvConfig}
               stats={stats} sendConfig={sendConfig}
               />
             }
@@ -309,65 +311,11 @@ export default function App() {
       
     </Tab>
     <Tab eventKey="thread_tab" title="Thread">
-                <ThreadView config={config} stats={stats} />
+      <ThreadView config={config} stats={stats} />
     </Tab>
     <Tab eventKey="config_tab" title="Conf">
-      <div className="row">
-      <div className="col-md-8">
-        <div className="card">
-          <div className="card-header">
-            NV Config
-          </div>
-          <div className="card-body">
-          <Form inline onSubmit={handleSubmit(onSubmitNvConfig)} >
-                  <Form.Row>
-                  <InputGroup className="mb-2 mr-sm-2">
-                    <Col xs={8}>
-                    <InputGroup.Prepend>
-                      <InputGroup.Text>Lead Screw Pitch {nvConfig["lead_screw_pitch"]}</InputGroup.Text>
-                      <Form.Control id="lead_screw_pitch" name="lead_screw_pitch" type="number"
-                        ref={register({ required: true })}
-                        defaultValue={nvConfig["lead_screw_pitch"]}
-                        inputMode='decimal' step='any' placeholder={nvConfig["lead_screw_pitch"]} />
-                        
-                    </InputGroup.Prepend>
-                    <InputGroup.Prepend>
-                      <InputGroup.Text>Micro Steps {nvConfig["microsteps"]}</InputGroup.Text>
-                      <button type="button" className="btn btn-secondary" data-toggle="tooltip" title="this is the microstepping mutliplier 1,2,4,8,16 etc">?</button>
-                      <Form.Control id="microsteps" name="microsteps" type="number"
-                        ref={register({ required: true })}
-                        defaultValue={nvConfig["microsteps"]}
-                        inputMode='decimal' step='any' placeholder={nvConfig["microsteps"]} />
-                        
-                    </InputGroup.Prepend>
-                    <InputGroup.Prepend>
-                      <InputGroup.Text>Spindle Encoder Resolution (CPR) {nvConfig["spindle_encoder_resolution"]}</InputGroup.Text>
-                      <Form.Control id="spindle_encoder_resolution" name="spindle_encoder_resolution" type="number"
-                        ref={register({ required: true })}
-                        defaultValue={nvConfig["spindle_encoder_resolution"]}
-                        inputMode='decimal' step='any' placeholder={nvConfig["spindle_encoder_resolution"]} />
-                        
-                    </InputGroup.Prepend>
-                    </Col>
-
-                    <Col>
-                    <Button type="submit" className="mb-2">
-                      Save Config! 
-                    </Button>
-                    </Col>
-                  </InputGroup>
-                  </Form.Row>
-                </Form>
-                <Form onSubmit={handleSubmit(handleResetNvConfig)}>
-                <Button type="submit" className="mb-2">
-                      Reset Config to defaults.
-                    </Button>
-                </Form>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div>
+      <ShowNvConfig nvConfig={nvConfig} stats={stats} config={config} />
+      <div>
       - <Info stats={stats} config={config} nvConfig={nvConfig} /> -
       </div>
       

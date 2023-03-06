@@ -53,10 +53,13 @@ export default function Info(props) {
           <KV k="Pos Stop" v={props.stats.sp.toFixed(4)} />
 
           <KV k="Neg Stop" v={props.stats.sn.toFixed(4)} />
+          <KV k="DRO" v={props.stats.pmm.toFixed(4)} />
+          
           */
   }
-          <KV k="DRO" v={props.stats.pmm.toFixed(4)} />
-          <KV k="DRO Pulses" v={props.stats.p} />
+          <KV k="DRO Pulses" v={props.stats.p} /> 
+
+
 
 
             

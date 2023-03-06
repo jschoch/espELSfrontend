@@ -1,13 +1,13 @@
 import React, { Component, useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
-import {send} from './util.js';
+import {send, stepsToDistance} from './util.js';
 
-export default function Moving({stats,ws}){
+export default function Moving({stats,nvConfig}){
     function moveCancel(){
       var d = {cmd: "moveCancel"};
       //ws.send(JSON.stringify(d));
-      send(d,ws);
+      send(d,window.wsclient);
     }
     return(
       <div>
@@ -34,11 +34,11 @@ export default function Moving({stats,ws}){
                 />
               {stats.fd && 
                 <span>
-                    Distance to Go: {(stats.sp - stats.pmm).toFixed(4)}
+                    Distance to Go: {stepsToDistance(nvConfig,(stats.sp - stats.p)).toFixed(4)}
                 </span>}
               {!stats.fd && 
                 <span>
-                Distance to Go: {(stats.pmm - stats.sn).toFixed(4)}
+                -Distance to Go: {stepsToDistance(nvConfig,(stats.p - stats.sn)).toFixed(4)}
                 </span>
                 
                 }

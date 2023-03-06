@@ -12,12 +12,12 @@ import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Moving from './Moving.js';
 import Bounce from './Bounce.js';
-import {send} from './util.js';
+import {distanceToSteps, send} from './util.js';
 
 
 
 
-export default function MoveSyncUI({config,setConfig,me,stats,sendConfig}){
+export default function MoveSyncUI({config,setConfig,me,stats,sendConfig,nvConfig}){
     // enable flag for rapid left
     const [enRL,setEnRL] = useState(true);
     // enable flag for enable rapid right
@@ -46,7 +46,8 @@ export default function MoveSyncUI({config,setConfig,me,stats,sendConfig}){
         c.s = syncStart;
         c.pitch = moveConfig.pitch;
 
-        c.jm = distance;
+        //c.jm = distance;
+        c.moveSteps = distanceToSteps(nvConfig,distance);
         var d = {cmd: "jog",config: c}
         send(d);
       }
@@ -109,6 +110,15 @@ export default function MoveSyncUI({config,setConfig,me,stats,sendConfig}){
                     </Col>
                     </Row>
                     <Row>
+                    <p className="text-center">
+                        Current Pitch set to: {config.pitch} {(!enRL || !enRR) &&
+                            <span>
+                                Rapid Pitch: {moveConfig.rapid}
+                            </span>
+                        }
+                        </p>
+                    </Row>
+                    <Row>
                         <button className="btn btn-danger btn-block" type="button" size="lg"
                         onClick={() => {set_showModalMove(!showModalMove)}}>Change Move Settings</button>
                         <ModalMove config={config} setConfig={setConfig} 
@@ -117,19 +127,14 @@ export default function MoveSyncUI({config,setConfig,me,stats,sendConfig}){
                 </Row>
                     <Row>
                         <Col>
-                        <span>
-                        Pitch: {config.pitch} {(!enRL || !enRR) &&
-                            <span>
-                                Rapid Pitch: {moveConfig.rapid}
-                            </span>
-                        }
-                        </span>
+                       
                         </Col>
                     </Row>
                     
                     <Row>
                     <Col>
                     <InputGroup className="mb-3">
+                      <InputGroup.Text id="notsure">(mm) Jog Distance</InputGroup.Text>
                         <FormControl
                         placeholder="Distance to Jog"
                         aria-label="Distance to Jog"
@@ -138,7 +143,7 @@ export default function MoveSyncUI({config,setConfig,me,stats,sendConfig}){
                         inputMode='decimal' step='any' type="number"
                         onChange={e => set_jog_mm(e.target.value)}
                         />
-                        <InputGroup.Text id="notsure">(mm) Jog Distance</InputGroup.Text>
+                        
                     </InputGroup>
                     </Col>
                 
@@ -172,7 +177,7 @@ export default function MoveSyncUI({config,setConfig,me,stats,sendConfig}){
                 </div>
                     }
                 <Row>
-                    <Moving stats={stats}  />
+                    <Moving stats={stats} nvConfig={nvConfig}  />
                         
                     </Row>
 
