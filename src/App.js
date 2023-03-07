@@ -30,7 +30,7 @@ import Tooltip from "react-bootstrap/Tooltip";
 import Rev from './Rev.js';
 import Hobbing from './hobbing.js';
 import { send, stepsToDistance, distanceToSteps } from './util.js';
-import {Wifi,WifiOff} from 'react-bootstrap-icons';
+import { Wifi, WifiOff } from 'react-bootstrap-icons';
 
 
 // TODO: refactor, why so many modes unused here?
@@ -167,6 +167,7 @@ export default function App() {
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
   const [feedingLeft, setFeedingLeft] = useState(true);
   const [syncStart, setSyncStart] = useState(true);
+  const [dbg, set_dbg] = useState(false);
 
 
 
@@ -231,6 +232,8 @@ export default function App() {
       }
       else if (msg["t"] == "state") {
         console.log("updating config", msg);
+        msg.vsn = vsn;
+        msg.dbg = dbg;
         setConfig(msg);
         handleView(msg["m"]);
       }
@@ -263,6 +266,12 @@ export default function App() {
             DRO: <span className="badge bg-warning">{dro}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
             <Rev stats={stats} />
+            <div>
+              <Button
+                size="sm"
+                onClick={() => { set_dbg(!dbg); var c = config; c.dbg = !c.dbg; setConfig(c) }}>
+                Dbg: {dbg ? "On" : "Off"}
+              </Button></div>
           </Col>
         </Row>
 
@@ -310,7 +319,7 @@ export default function App() {
         </Tab>
 
         <Tab eventKey="net_tab" title="Network">
-          <EspWS msg={msg} set_msg={set_msg} connected={connected} 
+          <EspWS msg={msg} set_msg={set_msg} connected={connected}
             vsn={vsn}
             set_connected={set_connected} config={config} />
 

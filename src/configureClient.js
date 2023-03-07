@@ -4,16 +4,14 @@ import { Form, InputGroup, Col, Grid, Row, Button } from 'react-bootstrap';
 
 export default function ConfigureClient(ws, ws_url, set_ws_url, config, connected, cookie, updateCookie) {
 
-    const [thisurl, set_thisurl] = useState(cookie.url);
+    const [thisurl, set_thisurl] = useState(cookie);
+    const [submitConnecting,set_submitCOnnecting] = useState(false);
 
     useEffect(() => {
         if (!connected) {
-            console.log("network", ws_url, cookie.url);
-            if (cookie != ws_url) {
-                console.log("fuck unf fuck");
-                //setAddr(cookie);
-            }
-            //connect();
+            return
+        }else{
+            set_submitCOnnecting(false);
         }
     }, [cookie, ws_url, connected]);
 
@@ -23,7 +21,7 @@ export default function ConfigureClient(ws, ws_url, set_ws_url, config, connecte
         console.log("network submitted", thisurl);
         set_ws_url(thisurl);
         updateCookie(thisurl, 1000);
-
+        set_submitCOnnecting(true);
         console.log("submit clicked", ws.current);
     };
     const onChangeHandler = event => {
@@ -35,10 +33,12 @@ export default function ConfigureClient(ws, ws_url, set_ws_url, config, connecte
 
     return (
         <div>
+            { !submitConnecting && 
+            <div>
             <Form onSubmit={handleSubmit}>
 
                 <label htmlFor="url">example: ws://192.168.0.100/els </label>
-                <input className="form-control" type="text"
+                <input  className="form-control" type="text"
                     name="url"
                     onChange={onChangeHandler}
                     defaultValue={cookie} />
@@ -46,10 +46,14 @@ export default function ConfigureClient(ws, ws_url, set_ws_url, config, connecte
                 <Button type="submit">Submit Connection Url</Button>
 
             </Form>
-            <Button className="error">
-                {JSON.stringify(cookie)}
-                ws_url {ws_url}
-            </Button>
+            </div>
+            }
+            { submitConnecting  &&
+
+                <div>
+                    <h1> Connecting </h1>
+                </div>
+            }
 
 
         </div>

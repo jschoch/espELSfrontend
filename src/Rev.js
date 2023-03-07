@@ -1,4 +1,5 @@
 import React, { Component, useState, useEffect } from 'react';
+import Button from 'react-bootstrap/Button';
 
 
 
@@ -13,10 +14,12 @@ export default function Rev({ stats }) {
     return (
         <span>
             rev {(stats.encoderPos / 2400) - revOff}
-            <button type="button" className="btn btn-outline-dark spaceBtn" id="lwtf"
+            <Button type="button" id="lwtf"
+                variant="outline-warning"
+                size="sm"
                 onClick={() => revSet()}>
                 Rev Cnt Zero
-            </button>
+            </Button>
         </span>
     );
 

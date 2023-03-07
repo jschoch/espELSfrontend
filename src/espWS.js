@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import Button from 'react-bootstrap/Button';
 import { encode, decode, decodeAsync, decodeArrayStream, decodeMultiStream } from "@msgpack/msgpack";
 import ConfigureClient from "./configureClient.js";
 
@@ -53,7 +54,7 @@ export default function EspWS({ msg, set_msg, connected, set_connected, config,v
             send(outmsg);
             setInterval(() => {
                 send(ping);
-            },500);
+            },800);
           };
     
           client.onclose = () => {
@@ -113,7 +114,17 @@ export default function EspWS({ msg, set_msg, connected, set_connected, config,v
         <div id="espWS">
 
             {!client_configured && ConfigureClient(ws, ws_url, set_ws_url, config, connected, cookie, updateCookie)}
+            <div style={config.dbg ? {} : {display: 'none'}}>
+            <span>
+                {JSON.stringify(cookie)}
+                ws_url {ws_url}
+            </span>
+            <br />
+            <span>
             Current Message {JSON.stringify(msg)}
+            </span>
+            
+            </div>
         </div>
     )
 }
