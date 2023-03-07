@@ -30,6 +30,7 @@ import Tooltip from "react-bootstrap/Tooltip";
 import Rev from './Rev.js';
 import Hobbing from './hobbing.js';
 import { send, stepsToDistance, distanceToSteps } from './util.js';
+import {Wifi,WifiOff} from 'react-bootstrap-icons';
 
 
 // TODO: refactor, why so many modes unused here?
@@ -248,24 +249,22 @@ export default function App() {
   // TODO: refactor this mess 
   return (
     <div>
-      <div className="card-title">
-        <span className="btn-group">
-          <span>
+      <div >
+        <Row >
+          <Col>
             <ModeSel handleModeSelect={handleModeSelect} modes={modes} config={config}></ModeSel>
-          </span>
-          <span style={{ marginLeft: 5 }}>
+          </Col>
+          <Col >
             {
               connected ?
-                <span className="badge bg-success">C</span>
-                : <span className="badge bg-danger">Not Connected</span>
+                <span className="badge bg-success"><Wifi /> </span>
+                : <span className="badge bg-danger"><WifiOff /></span>
             }
-          </span>
-          <span>
             DRO: <span className="badge bg-warning">{dro}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
             <Rev stats={stats} />
-          </span>
-        </span>
+          </Col>
+        </Row>
 
       </div>
 

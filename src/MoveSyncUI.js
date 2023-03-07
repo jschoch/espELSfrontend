@@ -118,11 +118,14 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
                                 </p>
                             </Row>
                             <Row>
-                                <button className="btn btn-danger btn-block" type="button" size="lg"
-                                    onClick={() => { set_showModalMove(!showModalMove) }}>Change Move Settings</button>
+                                <Col xs={10}>
+                                <Button className="btn btn-danger btn-block" type="button" size="lg"
+                                    onClick={() => { set_showModalMove(!showModalMove) }}>Change Move Settings
+                                </Button>
                                 <ModalMove config={config} setConfig={setConfig}
                                     moveConfig={moveConfig} set_moveConfig={set_moveConfig}
                                     show={showModalMove} setShow={set_showModalMove} />
+                                </Col>
                             </Row>
                             <Row>
                                 <Col>
@@ -148,26 +151,27 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
 
                             </Row>
                             <Row>
-                                <Col xs={6} >
-                                    <span>
-                                        <button type="button" className="btn btn-danger spaceBtn " disabled={enRL} id="lrapid"
+                                <Col xs={5} >
+                                        <Button type="button" className="btn btn-danger spaceBtn " disabled={enRL} id="lrapid"
                                             onClick={() => handleJogClick("lrapid")}>
-                                            <ArrowBarLeft />|<br />Rapid Z-</button>
-                                        <button type="button" className="btn btn-outline-dark spaceBtn" id="ljog"
+                                            <ArrowBarLeft />|<br />Rapid Z-
+                                            </Button>
+                                        <Button type="button" className="btn btn-outline-dark spaceBtn" id="ljog"
                                             onClick={() => handleJogClick("ljog")}>
                                             <ArrowBarLeft /><br />
                                             Move
-                                        </button>
-                                    </span>
+                                        </Button>
                                 </Col>
 
                                 <Col xs='auto'>
-                                    <button type="button" className="btn btn-outline-dark spaceBtn" id="rjog"
+                                    <Button type="button" className="btn btn-outline-dark spaceBtn" id="rjog"
                                         onClick={() => handleJogClick("rjog")}>
-                                        <ArrowBarRight /><br />Move</button>
-                                    <button type="button" className="btn btn-danger spaceBtn " disabled={enRR} id="rrapid"
+                                        <ArrowBarRight /><br />Move
+                                    </Button>
+                                    <Button type="button" className="btn btn-danger spaceBtn " disabled={enRR} id="rrapid"
                                         onClick={() => handleJogClick("rrapid")}>
-                                        |<ArrowBarRight /><br />Rapid Z+</button>
+                                        |<ArrowBarRight /><br />Rapid Z+
+                                    </Button>
 
                                 </Col>
                             </Row>

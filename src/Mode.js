@@ -1,12 +1,16 @@
 import React, { Component, useState, useEffect } from 'react';
+import { Form, InputGroup, Col, Grid, Row } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
 
 
+
+
 export default function ModeSel(props) {
   return (
-    <span>
+    <Row>
+      <Col>
       <DropdownButton
         alignRight
         title={`Selected Mode: ${props.modes[props.config.m]}`}
@@ -18,6 +22,9 @@ export default function ModeSel(props) {
         <Dropdown.Item eventKey="9">Hobbing Mode</Dropdown.Item>
 
       </DropdownButton>
-    </span>
+    </Col>
+
+    </Row>
+    
   )
 }

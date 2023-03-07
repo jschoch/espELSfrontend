@@ -34,14 +34,14 @@ export default function Debug({ ws }) {
 
   return (
     <div>
-      <h2> Full Revolution</h2>
+      <h5> Full Revolution</h5>
       <Button onClick={() => handleEncClick(0)}>
         Decrement virtual encoder 1 rev
       </Button>
       <Button onClick={() => handleEncClick(1)}>
         Increment virtual encoder 1 rev
       </Button>
-      <h2> Single Encoder Ticks</h2>
+      <h5> Single Encoder Ticks</h5>
       <Button onClick={() => handleEncClick(2)}>
         Increment virtual encoder 1 tick
       </Button>
@@ -49,7 +49,7 @@ export default function Debug({ ws }) {
         Decrement virtual encoder 1 tick
       </Button>
       <div>
-        <h3>Virtual Spindle Speed</h3>
+        <h5>Virtual Spindle Speed</h5>
         <span> will run the enconder contstantly at the set speed</span>
         <input type="range" className="custom-range" min="0" max="500"
           step="1"
@@ -57,6 +57,7 @@ export default function Debug({ ws }) {
           onMouseUp={(event) => updateEncSpeed(event.target.value)} />
         <span>Speed: {encSpeed} <input value={encSpeed} onChange={(e) => updateEncSpeed(e.target.value)}></input></span>
         <span className="col-12">
+          <h5>Move X Ticks</h5>
         </span>
         <div>
           <form>

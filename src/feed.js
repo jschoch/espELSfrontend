@@ -16,7 +16,15 @@ export default function Feed({ config }) {
         <div>
             <Row>
                 <Col className="xs12">
-                    <span> Full Time Feed mode.  Moves with spindle all the time.  Requires use of half nut or toggling spindle on/off</span>
+                    <span>
+                        <h5>
+                            Help:
+                        </h5>
+                        <p>
+                            : This sets Full Time Feed mode.  Moves with spindle all the time.  Requires use of half nut or toggling spindle on/off
+                        </p>
+                    </span>
+                    <hr />
                 </Col>
             </Row>
 
@@ -33,6 +41,9 @@ export default function Feed({ config }) {
                 <Col className="xs4">
                     <span>
                         Current Config:
+                    </span>
+                    <span>
+                        Pitch {config.pitch}
                     </span>
 
                 </Col>
