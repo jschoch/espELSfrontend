@@ -1,32 +1,32 @@
 
 
-export function send(cmd){
-    if(window.wsclient && window.wsclient.readyState === 1){
-        console.log("Sending cmd:",cmd)
+export function send(cmd) {
+    if (window.wsclient && window.wsclient.readyState === 1) {
+        console.log("Sending cmd:", cmd)
         var json = JSON.stringify(cmd);
         window.wsclient.send(json);
-    }else{
+    } else {
         alert("not connected");
     }
 }
 
-export function distanceToSteps(nvConfig,distance,mm = true){
-    if(mm){
+export function distanceToSteps(nvConfig, distance, mm = true) {
+    if (mm) {
         var stepsPerMM = nvConfig.motor_steps * nvConfig.lead_screw_pitch;
         return distance * stepsPerMM;
-    }else{
+    } else {
 
     }
     return distance * nvConfig.conversion;
 
 }
 
-export function stepsToDistance(nvConfig, steps, mm = true){
-    if(!nvConfig){
+export function stepsToDistance(nvConfig, steps, mm = true) {
+    if (!nvConfig) {
         //console.log("wtf");
         return 0;
     }
-    if(mm){
+    if (mm) {
         var stepsPerMM = nvConfig.motor_steps * nvConfig.lead_screw_pitch;
         var r = steps / stepsPerMM;
         //console.log("stepstoDistance" ,stepsPerMM,r);

@@ -1,5 +1,5 @@
 
-import React, {  useState } from 'react';
+import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -7,19 +7,19 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 //import Card from "react-boostrap/Card";
 
-export default function Feed({config}){
+export default function Feed({ config }) {
 
 
 
 
-    return(
+    return (
         <div>
             <Row>
                 <Col className="xs12">
-                <span> Full Time Feed mode.  Moves with spindle all the time.  Requires use of half nut or toggling spindle on/off</span> 
+                    <span> Full Time Feed mode.  Moves with spindle all the time.  Requires use of half nut or toggling spindle on/off</span>
                 </Col>
             </Row>
-           
+
             <Row>
 
                 <Col className="xs4">
@@ -27,17 +27,17 @@ export default function Feed({config}){
                         Turn On
                     </Button>
                     <Button>
-                        Configure 
+                        Configure
                     </Button>
-                 </Col>
-                 <Col className="xs4">
+                </Col>
+                <Col className="xs4">
                     <span>
                         Current Config:
                     </span>
 
-                 </Col>
+                </Col>
             </Row>
-           
+
         </div>
     )
 }
