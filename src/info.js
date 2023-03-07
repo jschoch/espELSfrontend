@@ -12,7 +12,7 @@ const KV = (props) => {
 <span className="margin-left">
 <Button variant="primary margin-left">
   {k}<Badge variant="light">{v}</Badge>
-  <span className="sr-only">unread messages</span>
+  <span className="sr-only"></span>
 </Button>
 </span>
 

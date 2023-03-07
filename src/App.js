@@ -242,7 +242,7 @@ export default function App() {
         }
       }
     //}
-  },[msg,set_msg]); 
+  },[msg,set_msg,nvConfig]); 
 
 
     // TODO: refactor this mess 
@@ -315,7 +315,9 @@ export default function App() {
       
     </Tab>
     <Tab eventKey="thread_tab" title="Thread">
+
       <ThreadView config={config} stats={stats} />
+
     </Tab>
     <Tab eventKey="config_tab" title="Conf">
       <ShowNvConfig nvConfig={nvConfig} stats={stats} config={config} />

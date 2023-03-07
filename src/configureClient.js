@@ -15,7 +15,7 @@ export default function ConfigureClient(ws,ws_url, set_ws_url,config,connected,c
           }
           //connect();
         }
-      },[cookie]);
+      },[cookie,ws_url,connected]);
 
     const handleSubmit = (e) => {
        
