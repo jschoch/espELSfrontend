@@ -43,8 +43,12 @@ export default function ConfigUI({stats,config,nvConfig,cookie_setters}){
            
                 </Tab>
             </Tabs>
-            <div>raw config<pre>{JSON.stringify(config, null, 2)}</pre></div>
-            <div>raw nvConfig<pre>{JSON.stringify(nvConfig, null, 2)}</pre></div>
+            { config.dbg && 
+             <div>
+                <div>raw config<pre>{JSON.stringify(config, null, 2)}</pre></div>
+                <div>raw nvConfig<pre>{JSON.stringify(nvConfig, null, 2)}</pre></div>
+             </div>
+            }   
         </div>
 
     )

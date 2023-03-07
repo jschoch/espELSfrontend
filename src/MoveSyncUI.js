@@ -17,7 +17,7 @@ import { distanceToSteps, send } from './util.js';
 
 
 
-export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, nvConfig }) {
+export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, nvConfig,connected }) {
     // enable flag for rapid left
     const [enRL, setEnRL] = useState(true);
     // enable flag for enable rapid right
@@ -191,7 +191,7 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
 
                 </Tab>
                 <Tab eventKey="bounce" title="Bounce">
-                    <Bounce stats={stats} nvConfig={nvConfig}></Bounce>
+                    <Bounce stats={stats} nvConfig={nvConfig} config={config}></Bounce>
                 </Tab>
                 <Tab eventKey="FreeJog" title="Jog (non sync)">
                     TODO:

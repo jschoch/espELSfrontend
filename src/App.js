@@ -72,23 +72,6 @@ const ModalError = ({ showModalError, modalErrorMsg, setShowModalError }) => {
     </>
   );
 }
-const RangeSlider = (props) => {
-
-  const [rangeval, setRangeval] = useState(props.defaultValue);
-
-  return (
-    <div>
-      <input type="range" className="custom-range" min=".5" max="5"
-        step="0.1"
-        defaultValue={props.defaultValue}
-        onChange={(event) => setRangeval(event.target.value)} />
-      <span>{props.name}: {rangeval}</span>
-      <span className="col-12">
-        <input className="btn btn-primary" type="submit" value={`Update ${props.name}`} />
-      </span>
-    </div>
-  );
-};
 
 export default function App() {
   const { register, handleSubmit, watch, errors } = useForm();
@@ -106,23 +89,6 @@ export default function App() {
     sendConfig();
   }
 
-  // TODO: read up on const function literals vs functions and pick one
-
-  /*
-  const handleView = (m) => {
-    if (m != undefined) {
-      console.log("hanlde view: ", m);
-      if (m == 2 || m == 3) {
-        //setShowMove(true);
-      } else {
-        //setShowMove(false);
-      }
-      if (m == 9 || m == 10 || m == 11) {
-        console.log("set hobbing enabled")
-      }
-    }
-  }
-  */
 
   const vsn = "0.0.3";
 
@@ -265,6 +231,7 @@ export default function App() {
                 <MoveSyncUI
                   config={config} setConfig={setConfig} me={me}
                   nvConfig={nvConfig}
+                  connected={connected}
                   stats={stats} sendConfig={sendConfig}
                 />
               }
