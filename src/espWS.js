@@ -30,6 +30,13 @@ export default function EspWS({ msg, set_msg, connected, set_connected, config,v
         }
     }
     const ping = {cmd: "ping"};
+    useEffect( () => {
+        const interval = setInterval(() => {
+            send(ping);
+        },1000);
+        return () => clearInterval(interval);
+    },[connected])
+
     useEffect(() => {
 
         if (waitingToReconnect) {
@@ -52,9 +59,6 @@ export default function EspWS({ msg, set_msg, connected, set_connected, config,v
             var outmsg = { cmd: "helo", vsn: vsn };
             //ws.current.send(JSON.stringify(outmsg));
             send(outmsg);
-            setInterval(() => {
-                send(ping);
-            },800);
           };
     
           client.onclose = () => {

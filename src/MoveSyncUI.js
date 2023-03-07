@@ -110,7 +110,9 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
                             </Row>
                             <Row>
                                 <p className="text-center">
-                                    Current Pitch set to: {config.pitch} {(!enRL || !enRR) &&
+                                    Current Pitch set to: {(nvConfig.metric == "true" ? config.pitch : (config.pitch / 25.4).toFixed(4))}  
+                                    {nvConfig.metric == "true" ? "(mm)" : "(in)"}
+                                    {(!enRL || !enRR) &&
                                         <span>
                                             Rapid Pitch: {moveConfig.rapid}
                                         </span>
@@ -123,8 +125,9 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
                                     onClick={() => { set_showModalMove(!showModalMove) }}>Change Move Settings
                                 </Button>
                                 <ModalMove config={config} setConfig={setConfig}
+                                    nvConfig={nvConfig}
                                     moveConfig={moveConfig} set_moveConfig={set_moveConfig}
-                                    show={showModalMove} setShow={set_showModalMove} />
+                                    show={showModalMove} set_show={set_showModalMove} />
                                 </Col>
                             </Row>
                             <Row>
@@ -136,7 +139,8 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
                             <Row>
                                 <Col>
                                     <InputGroup className="mb-3">
-                                        <InputGroup.Text id="notsure">(mm) Jog Distance</InputGroup.Text>
+                                        <InputGroup.Text id="notsure">( { nvConfig.metric == "true" ? "mm" : "in"} )
+                                            Jog Distance</InputGroup.Text>
                                         <FormControl
                                             placeholder="Distance to Jog"
                                             aria-label="Distance to Jog"

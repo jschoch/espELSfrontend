@@ -10,21 +10,31 @@ import { send } from './util.js';
 
 
 
-export default function ModalMove({ config, setConfig, moveConfig, set_moveConfig, show, setShow }) {
-  const [movePitch, set_movePitch] = useState(moveConfig.pitch);
-  const [rapidPitch, set_rapidPitch] = useState(0.5);
+export default function ModalMove({ config, setConfig, nvConfig,show,set_show }) {
+  const [movePitch, set_movePitch] = useState(config.pitch);
+  const [rapidPitch, set_rapidPitch] = useState(config.rapid);
   const handleClose = () => {
     var c = config;
-    c.pitch = movePitch;
-    c.rapid = rapidPitch;
+    if(nvConfig.metric == "true"){
+      c.pitch = movePitch;
+      c.rapid = rapidPitch;
+    }else{
+      c.pitch = movePitch * 25.4;
+      c.rapid = rapidPitch * 25.4;
+    }
+    
     setConfig(c);
     console.log("pitch, rapid", movePitch, rapidPitch);
-    set_moveConfig(c);
-    setShow(false);
+    set_show(false);
     var d = { cmd: "sendConfig", config: config }
     send(d);
   }
-  const handleShow = () => setShow(true);
+  const mp = config.pitch;
+  const ip = (config.pitch * (1/25.4)).toFixed(4);
+
+  const mr = config.rapid;
+  const ir = (config.rapid * (1/25.4)).toFixed(4);
+
   return (
 
 
@@ -37,17 +47,19 @@ export default function ModalMove({ config, setConfig, moveConfig, set_moveConfi
       <Modal.Body>
         <InputGroup size="sm" className="mb-3">
           <InputGroup.Text id="rapidPitch">Rapid Pitch</InputGroup.Text>
-          <FormControl placeholder={config.rapid} aria-label="Small" aria-describedby="rapidPitch"
+          <FormControl aria-label="Small" aria-describedby="rapidPitch"
             inputMode='decimal' step='any' type="number"
-            value={rapidPitch} onChange={(e) => set_rapidPitch(e.target.value)}
+            placeholder={(nvConfig.metric == "true") ? mr : ir} 
+            onChange={(e) => set_rapidPitch(e.target.value)}
           />
         </InputGroup>
 
         <InputGroup size="sm" className="mb-3">
           <InputGroup.Text id="movePitch" >Move Pitch</InputGroup.Text>
-          <FormControl placeholder={config.pitch} aria-label="Small" aria-describedby="inputGroup-sizing-sm"
+          <FormControl aria-label="Small" aria-describedby="inputGroup-sizing-sm"
             inputMode='decimal' step='any' type="number"
-            value={movePitch} onChange={(e) => set_movePitch(e.target.value)}
+            placeholder={(nvConfig.metric == "true") ? mp : ip} 
+            onChange={(e) => set_movePitch(e.target.value)}
           />
         </InputGroup>
 
