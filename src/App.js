@@ -310,7 +310,9 @@ export default function App() {
         </Tab>
 
         <Tab eventKey="net_tab" title="Network">
-          <EspWS msg={msg} set_msg={set_msg} connected={connected} set_connected={set_connected} config={config} />
+          <EspWS msg={msg} set_msg={set_msg} connected={connected} 
+            vsn={vsn}
+            set_connected={set_connected} config={config} />
 
         </Tab>
         <Tab eventKey="thread_tab" title="Thread">

@@ -4,10 +4,11 @@ import ConfigureClient from "./configureClient.js";
 
 
 import useCookie from "./useCookie";
+import { send } from './util.js';
 
 var default_ws_url = "ws://192.168.100.100/els";
 
-export default function EspWS({ msg, set_msg, connected, set_connected, config }) {
+export default function EspWS({ msg, set_msg, connected, set_connected, config,vsn }) {
     //const [ws_connected,set_ws_connected] = useState(false);
     const ws = useRef(null);
     const [client_configured, set_client_configured] = useState(false);
@@ -16,6 +17,7 @@ export default function EspWS({ msg, set_msg, connected, set_connected, config }
     const [ws_url, set_ws_url] = useState(cookie);
     const [clients, set_clients] = useState([]);
     const [waitingToReconnect, setWaitingToReconnect] = useState(null);
+    const [isOpen, setIsOpen] = useState(false);
 
     async function decodeFromBlob(blob: Blob): unknown {
         if (blob.stream) {
@@ -26,66 +28,86 @@ export default function EspWS({ msg, set_msg, connected, set_connected, config }
             return decode(await blob.arrayBuffer());
         }
     }
-
-
+    const ping = {cmd: "ping"};
     useEffect(() => {
-        console.log("the ru", ws_url)
-        if (ws_url === default_ws_url || ws_url == undefined) {
-            return;
-        }
-        if (ws_url == 'undefined' || ws_url == 0 || typeof (ws_url) == "undefined") {
-            console.log("javasscript is the worst", ws_url, cookie)
-            return;
-        }
 
-        if (ws.current && ws.current.readyState == 3) {
-            console.log("lalalallalalala");
+        if (waitingToReconnect) {
+          return;
         }
-
-        if (!ws.current || ws.current.borked) {
-            ws.current = new WebSocket(ws_url);
-            // maybe this is better?
-            window.wsclient = ws.current;
-
-            ws.current.onopen = () => {
-                console.log("ws opened"); ws.current.binaryType = 'blob'; set_connected(true);
-                var outmsg = { cmd: "helo", vsn: config.vsn };
-                ws.current.send(JSON.stringify(outmsg));
+    
+        // Only set up the websocket once
+        if (!ws.current) {
+          const client = new WebSocket(ws_url);
+          ws.current = client;
+    
+          window.wsclient = client;
+    
+          client.onerror = (e) => console.error(e);
+    
+          client.onopen = () => {
+            setIsOpen(true);
+            set_connected(true);
+            console.log('ws opened');
+            var outmsg = { cmd: "helo", vsn: vsn };
+            //ws.current.send(JSON.stringify(outmsg));
+            send(outmsg);
+            setInterval(() => {
+                send(ping);
+            },500);
+          };
+    
+          client.onclose = () => {
+    
+            if (ws.current) {
+              // Connection failed
+              console.log('ws closed by server');
+            } else {
+              // Cleanup initiated from app side, can return here, to not attempt a reconnect
+              console.log('ws closed by app component unmount');
+              return;
             }
-            ws.current.onclose = () => {
-                set_connected(false);
-                if (waitingToReconnect) {
-                    console.log("r.");
-                    return;
-                }
-                if (ws.current) {
-                    console.log("server closed ws , trying to reconnect");
-                } else {
-                    console.log("ws closed by unmount");
-                    return;
-                }
-                console.log("setting timeout to reconnect, why doesn't this fucking work!!!!");
-                setWaitingToReconnect(true);
-                setTimeout(() => {
-                    console.log("boom", ws.current);
-                    setWaitingToReconnect(null);
-                    ws.current.borked = true;
-                    alert("reconnection is broken refresh asshole");
-                }, 1000);
-            }
-            ws.current.onmessage = message => {
-                if (message.data instanceof Blob) {
-                    decodeFromBlob(message.data).then((x) => {
-                        set_msg(x);
-                    });
-                }
+    
+            if (waitingToReconnect) {
+              return;
             };
+    
+            // Parse event code and log
+            setIsOpen(false);
+            console.log('ws closed');
+    
+            // Setting this will trigger a re-run of the effect,
+            // cleaning up the current websocket, but not setting
+            // up a new one right away
+            setWaitingToReconnect(true);
+    
+            // This will trigger another re-run, and because it is false,
+            // the socket will be set up again
+            setTimeout(() => setWaitingToReconnect(null), 500);
+          };
+    
+          client.onmessage = message => {
+            if (message.data instanceof Blob) {
+                decodeFromBlob(message.data).then((x) => {
+                    set_msg(x);
+                });
+            }
+          };
+    
+    
+          return () => {
+    
+            console.log('Cleanup');
+            set_connected(false);
+            // Dereference, so it will set up next time
+            ws.current = null;
+    
+            client.close();
+          }
         }
+    
+      }, [waitingToReconnect]);
 
-        return () => {
-            ws.current.close();
-        }
-    }, [ws_url, ws]);
+
 
     return (
         <div id="espWS">
