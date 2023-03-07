@@ -43,7 +43,7 @@ export default function Info(props) {
 
                     <KV k="Encoder Pulses" v={props.stats.encoderPos} />
                     <KV k="Encoder revolutions" v={(props.stats.encoderPos / 2400).toFixed(2)} />
-                    <KV k="Tool Position (in steps)" v={props.stats.tp} />
+                    <KV k="Tool Position (in steps)" v={props.stats.p} />
                     <KV k="Pos Stop" v={props.stats.sp.toFixed(3)} />
 
                     <KV k="Neg Stop" v={props.stats.sn.toFixed(3)} />

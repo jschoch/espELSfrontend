@@ -5,16 +5,16 @@ import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { send } from './util.js';
+import { send,distanceToSteps,stepsToDistance } from './util.js';
 import Moving from './Moving.js';
 
-export default function Bounce({ stats }) {
+export default function Bounce({ stats,nvConfig }) {
   const [jog_mm, set_jog_mm] = useState(0);
   const [jog_pitch, set_jog_pitch] = useState(0.1);
   const [rapid_pitch, set_rapid_pitch] = useState(1);
 
   function bounce(distance) {
-    var c = { jog_mm: jog_mm, rapid: rapid_pitch, pitch: jog_pitch, f: true };
+    var c = { moveSteps: distanceToSteps(nvConfig,jog_mm), rapid: rapid_pitch, pitch: jog_pitch, f: true };
     var d = { cmd: "bounce", config: c }
     send(d);
   }
@@ -75,7 +75,7 @@ export default function Bounce({ stats }) {
         </div>
       }
       <Row>
-        <Moving stats={stats} />
+        <Moving stats={stats} nvConfig={nvConfig} />
 
       </Row>
     </div>

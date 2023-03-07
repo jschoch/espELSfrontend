@@ -187,7 +187,7 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
 
                 </Tab>
                 <Tab eventKey="bounce" title="Bounce">
-                    <Bounce stats={stats} ></Bounce>
+                    <Bounce stats={stats} nvConfig={nvConfig}></Bounce>
                 </Tab>
                 <Tab eventKey="FreeJog" title="Jog (non sync)">
                     TODO:
