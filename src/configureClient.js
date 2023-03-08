@@ -2,18 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Form, InputGroup, Col, Grid, Row, Button } from 'react-bootstrap';
 
 
-export default function ConfigureClient(ws, ws_url, set_ws_url, config, connected, cookie, updateCookie) {
+export default function ConfigureClient(set_ws_url,  connected, cookie, updateCookie) {
 
     const [thisurl, set_thisurl] = useState(cookie);
     const [submitConnecting,set_submitCOnnecting] = useState(false);
 
-    useEffect(() => {
-        if (!connected) {
-            return
-        }else{
-            set_submitCOnnecting(false);
-        }
-    }, [cookie, ws_url, connected]);
 
     const handleSubmit = (e) => {
 
@@ -22,7 +15,6 @@ export default function ConfigureClient(ws, ws_url, set_ws_url, config, connecte
         set_ws_url(thisurl);
         updateCookie(thisurl, 1000);
         set_submitCOnnecting(true);
-        console.log("submit clicked", ws.current);
     };
     const onChangeHandler = event => {
         set_thisurl(event.target.value);
@@ -48,7 +40,7 @@ export default function ConfigureClient(ws, ws_url, set_ws_url, config, connecte
             </Form>
             </div>
             }
-            { submitConnecting  &&
+            { submitConnecting && !connected &&
 
                 <div>
                     <h1> Connecting </h1>

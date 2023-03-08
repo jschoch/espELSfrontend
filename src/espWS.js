@@ -7,15 +7,14 @@ import ConfigureClient from "./configureClient.js";
 import useCookie from "./useCookie";
 import { send } from './util.js';
 
-var default_ws_url = "ws://192.168.100.100/els";
 
-export default function EspWS({ msg, set_msg, connected, set_connected, config,vsn }) {
+
+export default function EspWS({ ws_url, set_msg, connected, set_connected, vsn }) {
     //const [ws_connected,set_ws_connected] = useState(false);
     const ws = useRef(null);
-    const [client_configured, set_client_configured] = useState(false);
-    const [cookie, updateCookie] = useCookie("url", default_ws_url);
-    //const [ws_url,set_ws_url] = useState("ws://192.168.1.41/");
-    const [ws_url, set_ws_url] = useState(cookie);
+    
+    
+    
     const [clients, set_clients] = useState([]);
     const [waitingToReconnect, setWaitingToReconnect] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
@@ -33,7 +32,7 @@ export default function EspWS({ msg, set_msg, connected, set_connected, config,v
     useEffect( () => {
         const interval = setInterval(() => {
             send(ping);
-        },1000);
+        },2000);
         return () => clearInterval(interval);
     },[connected])
 
@@ -115,20 +114,6 @@ export default function EspWS({ msg, set_msg, connected, set_connected, config,v
 
 
     return (
-        <div id="espWS">
-
-            {!client_configured && ConfigureClient(ws, ws_url, set_ws_url, config, connected, cookie, updateCookie)}
-            <div style={config.dbg ? {} : {display: 'none'}}>
-            <span>
-                {JSON.stringify(cookie)}
-                ws_url {ws_url}
-            </span>
-            <br />
-            <span>
-            Current Message {JSON.stringify(msg)}
-            </span>
-            
-            </div>
-        </div>
+       <div></div> 
     )
 }

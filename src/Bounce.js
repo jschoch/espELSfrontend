@@ -103,16 +103,18 @@ export default function Bounce({ stats, nvConfig, config,connected }) {
           <Button className="btn-block" onClick={() => bounce()}>Run Bounce</Button>
         </div>
       }
+
+      <Row>
+        <Moving stats={stats} nvConfig={nvConfig} />
+
+      </Row>
       { config.dbg &&
         <div>
           <div>raw nvConfig<pre>{JSON.stringify(nvConfig, null, 2)}</pre></div>
           </div>
       
       }
-      <Row>
-        <Moving stats={stats} nvConfig={nvConfig} />
 
-      </Row>
     </div>
   )
 }

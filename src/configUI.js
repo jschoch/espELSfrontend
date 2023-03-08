@@ -35,6 +35,12 @@ export default function ConfigUI({stats,config,nvConfig,cookie_setters}){
                             <Button>
                                 Stats Interval
                             </Button>
+                            <Button>
+                                Debug Stats Toggle
+                            </Button>
+                            <Button>
+                                Debug Interval
+                            </Button>
                         </Col>
                     </Row>
                 </Tab>

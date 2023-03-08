@@ -1,7 +1,5 @@
 import React, { Component, useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
-import DropdownButton from 'react-bootstrap/DropdownButton';
-import Dropdown from 'react-bootstrap/Dropdown';
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { ArrowBarLeft, ArrowLeft, ArrowRight, ArrowBarRight } from 'react-bootstrap-icons';
@@ -26,12 +24,8 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
     const [moveConfig, set_moveConfig] = useState({ pitch: 0.1, rapid: config.rapid });
     const [feedingLeft, set_feedingLeft] = useState(true);
     const [syncStart, set_syncStart] = useState(true);
-    const [showMove, set_showMove] = useState(true);
 
     const colW = 5;
-
-    // detect first run to ensure we validate pitch
-    const [first_run, set_first_run] = useState(true);
 
     function moveSync(config, distance) {
         /*
