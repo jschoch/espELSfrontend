@@ -10,6 +10,7 @@ import EspWS from './espWS.js';
 import ShowNvConfig from './nvConfig.js';
 import Feed from './feed.js';
 import ConfigUI from './configUI.js'
+import Network from './Network.js'
 import React, { Component, useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import DropdownButton from 'react-bootstrap/DropdownButton';
@@ -46,7 +47,8 @@ const modes = {
   6: "Bounce",
   9: "Hob Ready",
   10: "Hob Running",
-  11: "Hob Stop"
+  11: "Hob Stop",
+  14: "Feed Mode"
 };
 
 
@@ -72,7 +74,7 @@ const ModalError = ({ showModalError, modalErrorMsg, setShowModalError }) => {
     </>
   );
 }
-
+var default_ws_url = "ws://192.168.100.100/els";
 export default function App() {
   const { register, handleSubmit, watch, errors } = useForm();
 
@@ -96,12 +98,14 @@ export default function App() {
   const [connected, set_connected] = useState(false);
   const [dro, setDRO] = useState(0.0);
   const [rpm, setRPM] = useState(0);
-  const [stats, setStats] = useState({});
+  const [stats, set_stats] = useState({});
   const [nvConfig, setNvConfig] = useState({ error: true, motor_steps: 0 });
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
   const [dbg, set_dbg] = useState(false);
-  const [metric,set_metric] = useCookie("metric","true");
+  const [metric, set_metric] = useCookie("metric", "true");
+  const [cookie, updateCookie] = useCookie("url", default_ws_url);
+  const [ws_url, set_ws_url] = useState(cookie);
   const me = { setModalErrorMsg: setModalErrorMsg, setShowModalError: setShowModalError };
   // espWS setup
   const [msg, set_msg] = useState(null);
@@ -131,10 +135,10 @@ export default function App() {
   // yuck
   const cookie_setters = {
     metric: (val) => {
-      console.log("toggle metric",val);
+      console.log("toggle metric", val);
       var nv = nvConfig;
-      nv.metric = val; 
-      set_metric(val,1000);
+      nv.metric = val;
+      set_metric(val, 1000);
       setNvConfig(nv);
     }
   }
@@ -145,7 +149,10 @@ export default function App() {
     if (msg === null) return;
     if ("t" in msg) {
       if (msg["t"] == "status") {
-        setStats(msg);
+        // hacky 
+        var merged = {}
+        Object.assign(merged, stats, msg);
+        set_stats(merged);
         setDRO(stepsToDistance(nvConfig, msg.p));
         setRPM(msg.rpm);
       }
@@ -168,9 +175,19 @@ export default function App() {
           setShowModalError(true);
         }
       }
+      else if (msg["t"] == "dbg_st") {
+        var s = stats;
+        var merged = {};
+        Object.assign(merged, stats, msg);
+        set_stats(merged);
+
+      }
+      else {
+        console.log("unknown msg:", msg)
+      }
     }
     //}
-  }, [msg, set_msg, nvConfig,setNvConfig,dro,setDRO]);
+  }, [msg, set_msg, nvConfig, setNvConfig, dro, setDRO]);
 
 
   return (
@@ -199,75 +216,133 @@ export default function App() {
         </Row>
 
       </div>
+      {
+        //  only disply when we are not in startup mode
+        config["m"] != 0 &&
+        <div>
+          <Tabs defaultActiveKey="home" id="uncontrolled-tab-example"
+            onSelect={handleTabSelect}
+            transition={false}>
 
-      <Tabs defaultActiveKey="home" id="uncontrolled-tab-example"
-        onSelect={handleTabSelect}
-        transition={false}>
-        <Tab eventKey="home_tab" title="Home">
-          <div>
-            Connection Status: {
-              connected ?
-                <span className="badge bg-success">"True"</span>
-                : <span className="badge bg-danger">"False"</span>
-            }
-          </div>
-          <div>
-            <span>
-              Welcome!  Select a mode to get started.
-              <ModeSel handleModeSelect={handleModeSelect} modes={modes} config={config}></ModeSel>
-            </span>
-          </div>
-        </Tab>
-        <Tab eventKey="moveSync_tab" title="MoveSync">
-          <div>
-            <div className="card-body">
-              {config["m"] == 0 &&
-                <div>
+            <Tab
+              tabClassName={(config["m"] == "2" || config["m"] == "4" || config["m"] == "6") ? "" : "d-none"}
+              eventKey="moveSync_tab" title="MoveSync">
+              <div>
+                <div className="card-body">
+                  {config["m"] == 0 &&
+                    <div>
 
-                  Select a mode above
+                      Select a mode above
+                    </div>
+                  }
+                  {config["m"] != 0 &&
+                    <MoveSyncUI
+                      config={config} setConfig={setConfig} me={me}
+                      nvConfig={nvConfig}
+                      connected={connected}
+                      stats={stats} sendConfig={sendConfig}
+                    />
+                  }
                 </div>
-              }
-              {config["m"] != 0 &&
-                <MoveSyncUI
-                  config={config} setConfig={setConfig} me={me}
-                  nvConfig={nvConfig}
-                  connected={connected}
-                  stats={stats} sendConfig={sendConfig}
-                />
-              }
-            </div>
-          </div>
-        </Tab>
-        <Tab eventKey="Feed" title="Feed">
-          <Feed config={config} />
-        </Tab>
+              </div>
+            </Tab>
 
-        <Tab eventKey="net_tab" title="Network">
-          <EspWS msg={msg} set_msg={set_msg} connected={connected}
-            vsn={vsn}
-            set_connected={set_connected} config={config} />
 
-        </Tab>
-        <Tab eventKey="thread_tab" title="Thread">
+            <Tab
+              tabClassName={(config["m"] == "14" || config["m"] == "4") ? "" : "d-none"}
+              eventKey="Feed" title="Feed">
+              <Feed config={config} nvConfig={nvConfig} />
+            </Tab>
 
-          <ThreadView config={config} stats={stats} />
 
-        </Tab>
-        <Tab eventKey="config_tab" title="Conf">
-          
+            
+            <Tab
+              tabClassName={(config["m"] == "15" || config["m"] == "4") ? "" : "d-none"}
+                eventKey = "thread_tab" title="Thread">
+
+              <ThreadView config={config} stats={stats} />
+
+            </Tab>
+            <Tab
+              tabClassName={(config["m"] == "9" || config["m"] == "4") ? "" : "d-none"}
+              eventKey="hob_tab" title="Hobbing">
+              <Hobbing config={config} setConfig={setConfig} me={me} stats={stats} ></Hobbing>
+            </Tab>
+            <Tab eventKey="config_tab" title="Conf">
+
               <ConfigUI stats={stats} config={config} nvConfig={nvConfig} cookie_setters={cookie_setters} />
-        </Tab>
-        <Tab eventKey="hob_tab" title="Hobbing">
-          <Hobbing config={config} setConfig={setConfig} me={me} stats={stats} ></Hobbing>
-        </Tab>
-        <Tab eventKey="debug_tab" title="Debug">
-          <Debug stats={stats} config={config} nvConfig={nvConfig} ></Debug>
+            </Tab>
+            <Tab eventKey="net_tab">
+
+            </Tab>
+            <Tab eventKey="net_tab" title="Network">
+                <Network 
+                  ws_url={ws_url}
+                  set_ws_url={set_ws_url}
+                  cookie={cookie}
+                  updateCookie={updateCookie}
+                  config={config} connected={connected} />
+
+            </Tab>
+
+            {dbg &&
+              <Tab eventKey="debug_tab" title="Debug">
+                <Debug stats={stats} config={config} nvConfig={nvConfig} ></Debug>
+              </Tab>
+            }
+          </Tabs>
+
+        </div>
+      }
+      {
+        // Startup mode home
+        (config["m"] == undefined || config["m"] == 0) &&
+        <div>
+          <Tabs defaultActiveKey="home_tab" id="uncontrolled-tab-example"
+            onSelect={handleTabSelect}
+            transition={false}>
 
 
 
+            <Tab eventKey="home_tab" title="Home">
+              <div>
+                Connection Status: {
+                  connected ?
+                    <span className="badge bg-success">"True"</span>
+                    : <span className="badge bg-danger">"False"</span>
+                }
+              </div>
+              <div>
+                <span>
+                  Welcome!  Select a mode to get started.
+                  <ModeSel handleModeSelect={handleModeSelect} modes={modes} config={config}></ModeSel>
+                </span>
+              </div>
+            </Tab>
+            <Tab eventKey="net_tab" title="Network">
+                <Network 
+                  cookie={cookie}
+                  updateCookie={updateCookie}
+                  ws_url={ws_url}
+                  set_ws_url={set_ws_url}
+                  config={config} connected={connected} />
 
-        </Tab>
-      </Tabs>
+            </Tab>
+            {dbg &&
+              <div>
+                <Tab eventKey="debug_tab" title="Debug">
+                  <Debug stats={stats} config={config} nvConfig={nvConfig} ></Debug>
+                </Tab>
+              </div>
+            }
+
+          </Tabs>
+        </div>
+      }
+      <EspWS msg={msg} set_msg={set_msg} connected={connected}
+                vsn={vsn}
+                ws_url={ws_url}
+                set_connected={set_connected} config={config} />
       <ModalError showModalError={showModalError}
         modalErrorMsg={modalErrorMsg}
         setShowModalError={setShowModalError}

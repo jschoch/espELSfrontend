@@ -13,7 +13,7 @@ export default function Rev({ stats }) {
     }
     return (
         <span>
-            rev {(stats.encoderPos / 2400) - revOff}
+            rev {(stats.encoderPos / 2400).toFixed(4) - revOff}
             <Button type="button" id="lwtf"
                 variant="outline-warning"
                 size="sm"

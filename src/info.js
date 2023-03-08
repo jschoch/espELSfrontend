@@ -98,7 +98,8 @@ export default function Info(props) {
                     <KV k="CPU0" v={props.stats.c0} />
                     <KV k="CPU1" v={props.stats.c1} />
                     <KV k="pings" v={props.stats.c} />
-                    <KV k="factor" v={props.stats.f} />
+                    <KV k="free heap" v={props.stats.h} />
+                    <KV k="used heap" v={props.stats.ha} />
                   </span>
                 </div>
               </div>
