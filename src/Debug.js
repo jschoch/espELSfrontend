@@ -1,8 +1,11 @@
 import React, { Component, useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import { send } from './util.js';
+import Tabs from 'react-bootstrap/Tabs';
+import Tab from 'react-bootstrap/Tab';
+import Info from './info.js';
 
-export default function Debug({ ws }) {
+export default function Debug({ stats,config,nvConfig }) {
 
   const [encSpeed, set_encSpeed] = useState(0);
   const [numTicks, set_numTicks] = useState(10);
@@ -10,8 +13,7 @@ export default function Debug({ ws }) {
   const handleEncClick = data => {
     console.log("debug click", data);
     var d = { cmd: "debug", basic: data };
-    //ws.send(JSON.stringify(d));
-    send(d, ws);
+    send(d);
   }
 
   function updateEncSpeed(val) {
@@ -19,21 +21,26 @@ export default function Debug({ ws }) {
     var c = {};
     c.encSpeed = val;
     var d = { cmd: "updateEncSpeed", config: c }
-    console.log("ws", d, ws);
-    //ws.send(JSON.stringify(d));
-    send(d, ws);
+    send(d);
   }
 
   function handleNumTicksClick() {
     console.log("foo", numTicks);
     var d = { cmd: "debug", ticks: numTicks };
-    //ws.send(JSON.stringify(d));
-    send(d, ws);
+    send(d);
   }
 
 
   return (
     <div>
+      <Tabs defaultActiveKey="stats" id="debugTabs">
+        <Tab eventKey="venc" title="Virtual Encoder">
+
+        </Tab>
+        <Tab eventKey="stats" title="Stats">
+                - <Info stats={stats} config={config} nvConfig={nvConfig} /> -
+        </Tab>
+      </Tabs>
       <h5> Full Revolution</h5>
       <Button onClick={() => handleEncClick(0)}>
         Decrement virtual encoder 1 rev

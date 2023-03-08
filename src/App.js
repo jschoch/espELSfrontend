@@ -1,6 +1,6 @@
 import './App.css';
 import { encode, decode, decodeAsync } from "@msgpack/msgpack";
-import Info from './info.js';
+
 import ThreadView from "./ThreadView.js";
 import ModeSel from './Mode.js';
 import MoveSyncUI from './MoveSyncUI.js';
@@ -8,8 +8,8 @@ import Debug from './Debug.js';
 import Moving from './Moving.js';
 import EspWS from './espWS.js';
 import ShowNvConfig from './nvConfig.js';
-import MoveSyncAbs from './moveSyncAbs.js';
 import Feed from './feed.js';
+import ConfigUI from './configUI.js'
 import React, { Component, useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import DropdownButton from 'react-bootstrap/DropdownButton';
@@ -31,6 +31,7 @@ import Rev from './Rev.js';
 import Hobbing from './hobbing.js';
 import { send, stepsToDistance, distanceToSteps } from './util.js';
 import { Wifi, WifiOff } from 'react-bootstrap-icons';
+import useCookie from './useCookie.js';
 
 
 // TODO: refactor, why so many modes unused here?
@@ -71,54 +72,9 @@ const ModalError = ({ showModalError, modalErrorMsg, setShowModalError }) => {
     </>
   );
 }
-const RangeSlider = (props) => {
-
-  const [rangeval, setRangeval] = useState(props.defaultValue);
-
-  return (
-    <div>
-      <input type="range" className="custom-range" min=".5" max="5"
-        step="0.1"
-        defaultValue={props.defaultValue}
-        onChange={(event) => setRangeval(event.target.value)} />
-      <span>{props.name}: {rangeval}</span>
-      <span className="col-12">
-        <input className="btn btn-primary" type="submit" value={`Update ${props.name}`} />
-      </span>
-    </div>
-  );
-};
 
 export default function App() {
   const { register, handleSubmit, watch, errors } = useForm();
-
-
-  const onSubmitPitch = (data) => {
-    var c = config
-    c.pitch = data.pitch
-    setConfig(c);
-    console.log("data", data);
-    sendConfig();
-  }
-
-  const onSubmitNvConfig = (data) => {
-    console.log("submit nvdata", data);
-    delete data.pitch;
-    sendNvConfig(data);
-  }
-
-
-
-  const handleResetNvConfig = (data) => {
-    console.log("resetting config");
-    var d = { cmd: "resetNvConfig" };
-    //ws.send(JSON.stringify(d));
-    send(d);
-  }
-
-
-
-
 
 
   const handleModeSelect = data => {
@@ -133,78 +89,36 @@ export default function App() {
     sendConfig();
   }
 
-  // TODO: read up on const function literals vs functions and pick one
-
-  const handleView = (m) => {
-    if (m != undefined) {
-      console.log("hanlde view: ", m);
-      if (m == 2 || m == 3) {
-        setShowMove(true);
-      } else {
-        setShowMove(false);
-      }
-      if (m == 9 || m == 10 || m == 11) {
-        console.log("set hobbing enabled")
-      }
-    }
-  }
-
-
 
   const vsn = "0.0.3";
 
   const [config, setConfig] = useState({ vsn: vsn });
   const [connected, set_connected] = useState(false);
-  const [showMove, setShowMove] = useState(false);
-  const [showRapid, setShowRapid] = useState(false);
-  const [timeout, setTimeout] = useState(250);
   const [dro, setDRO] = useState(0.0);
   const [rpm, setRPM] = useState(0);
   const [stats, setStats] = useState({});
   const [nvConfig, setNvConfig] = useState({ error: true, motor_steps: 0 });
-  const [origin, setOrigin] = useState();
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
-  const [feedingLeft, setFeedingLeft] = useState(true);
-  const [syncStart, setSyncStart] = useState(true);
   const [dbg, set_dbg] = useState(false);
-
-
-
+  const [metric,set_metric] = useCookie("metric","true");
   const me = { setModalErrorMsg: setModalErrorMsg, setShowModalError: setShowModalError };
-
-
-
-
-  const [warnings, setWarnings] = useState([]);
-  const [logs, setLogs] = useState([]);
-  const [submitButton, setSubmitButton] = useState(1);
-  const [threadOffset, setThreadOffset] = useState(0.0);
   // espWS setup
   const [msg, set_msg] = useState(null);
 
-
-
-
-
   function getNvConfig() {
     var d = { cmd: "getNvConfig" };
-    //ws.send(JSON.stringify(d));
     send(d);
   }
   function sendNvConfig(data) {
     data["cmd"] = "setNvConfig";
-    //ws.send(JSON.stringify(data));
     send(data);
   }
-
-
 
   function sendConfig() {
     var d = { cmd: "sendConfig", config: config }
     send(d);
   }
-
 
   const handleTabSelect = data => {
     console.log("select tab", data);
@@ -214,7 +128,16 @@ export default function App() {
     }
   }
 
-
+  // yuck
+  const cookie_setters = {
+    metric: (val) => {
+      console.log("toggle metric",val);
+      var nv = nvConfig;
+      nv.metric = val; 
+      set_metric(val,1000);
+      setNvConfig(nv);
+    }
+  }
 
   // all the msg handling goes here 
   useEffect(() => {
@@ -228,6 +151,7 @@ export default function App() {
       }
       else if (msg["t"] == "nvConfig") {
         console.log("got nv configuration", msg);
+        msg.metric = metric;
         setNvConfig(msg);
       }
       else if (msg["t"] == "state") {
@@ -235,7 +159,7 @@ export default function App() {
         msg.vsn = vsn;
         msg.dbg = dbg;
         setConfig(msg);
-        handleView(msg["m"]);
+        //handleView(msg["m"]);
       }
       else if (msg["t"] == "log") {
         console.log("stuff", msg);
@@ -246,10 +170,9 @@ export default function App() {
       }
     }
     //}
-  }, [msg, set_msg, nvConfig]);
+  }, [msg, set_msg, nvConfig,setNvConfig,dro,setDRO]);
 
 
-  // TODO: refactor this mess 
   return (
     <div>
       <div >
@@ -308,6 +231,7 @@ export default function App() {
                 <MoveSyncUI
                   config={config} setConfig={setConfig} me={me}
                   nvConfig={nvConfig}
+                  connected={connected}
                   stats={stats} sendConfig={sendConfig}
                 />
               }
@@ -330,17 +254,14 @@ export default function App() {
 
         </Tab>
         <Tab eventKey="config_tab" title="Conf">
-          <ShowNvConfig nvConfig={nvConfig} stats={stats} config={config} />
-          <div>
-            - <Info stats={stats} config={config} nvConfig={nvConfig} /> -
-          </div>
-
+          
+              <ConfigUI stats={stats} config={config} nvConfig={nvConfig} cookie_setters={cookie_setters} />
         </Tab>
         <Tab eventKey="hob_tab" title="Hobbing">
           <Hobbing config={config} setConfig={setConfig} me={me} stats={stats} ></Hobbing>
         </Tab>
         <Tab eventKey="debug_tab" title="Debug">
-          <Debug ></Debug>
+          <Debug stats={stats} config={config} nvConfig={nvConfig} ></Debug>
 
 
 
