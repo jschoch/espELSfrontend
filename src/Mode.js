@@ -11,6 +11,7 @@ export default function ModeSel(props) {
   return (
     <Row>
       <Col>
+      <div className = "d-grid gap-1">
       <DropdownButton
         alignRight
         title={`Selected Mode: (${props.config.m}) ${props.modes[props.config.m]}`}
@@ -23,6 +24,7 @@ export default function ModeSel(props) {
         <Dropdown.Item eventKey="9">Hobbing Mode</Dropdown.Item>
 
       </DropdownButton>
+      </div>
     </Col>
 
     </Row>

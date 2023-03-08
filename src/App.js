@@ -16,7 +16,7 @@ import { useForm } from 'react-hook-form';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
-import { Form, InputGroup, Col, Grid, Row } from 'react-bootstrap';
+import { Form, InputGroup, Col, Grid, Row,Container } from 'react-bootstrap';
 import FormControl from 'react-bootstrap/FormControl';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
@@ -74,6 +74,24 @@ const ModalError = ({ showModalError, modalErrorMsg, setShowModalError }) => {
     </>
   );
 }
+
+const selectDefaultTab = (config) => {
+  var t = config["m"];
+  switch (t) {
+    case "14":
+      return "feed_tab";
+      break;
+    case "2":
+      return "moveSync_tab"
+      break;
+    case "9":
+      return "hob_tab";
+      break;
+    default:
+      return "net_tab"
+  }
+}
+
 var default_ws_url = "ws://192.168.100.100/els";
 export default function App() {
   const { register, handleSubmit, watch, errors } = useForm();
@@ -102,13 +120,28 @@ export default function App() {
   const [nvConfig, setNvConfig] = useState({ error: true, motor_steps: 0 });
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
-  const [dbg, set_dbg] = useState(false);
+  const [dbg, set_dbg] = useState(true);
   const [metric, set_metric] = useCookie("metric", "true");
   const [cookie, updateCookie] = useCookie("url", default_ws_url);
   const [ws_url, set_ws_url] = useState(cookie);
   const me = { setModalErrorMsg: setModalErrorMsg, setShowModalError: setShowModalError };
   // espWS setup
   const [msg, set_msg] = useState(null);
+  const [vencState, set_vencState] = useState(false);
+
+  const handleVenc = (data) => {
+    var c = {};
+      if(vencState){
+        c.encSpeed = 0;
+        set_vencState(false);
+      }else{
+        c.encSpeed = 1;
+        set_vencState(true);
+      }
+      var d = { cmd: "updateEncSpeed", config: c }
+      send(d);
+  
+  }
 
   function getNvConfig() {
     var d = { cmd: "getNvConfig" };
@@ -191,13 +224,10 @@ export default function App() {
 
 
   return (
-    <div>
+    <Container fluid>
       <div >
         <Row >
-          <Col>
-            <ModeSel handleModeSelect={handleModeSelect} modes={modes} config={config}></ModeSel>
-          </Col>
-          <Col >
+          <Col xs={10} >
             {
               connected ?
                 <span className="badge bg-success"><Wifi /> </span>
@@ -206,12 +236,24 @@ export default function App() {
             DRO: <span className="badge bg-warning">{dro}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
             <Rev stats={stats} />
-            <div>
-              <Button
+              <span
+                className="badge bg-success"
                 size="sm"
                 onClick={() => { set_dbg(!dbg); var c = config; c.dbg = !c.dbg; setConfig(c) }}>
                 Dbg: {dbg ? "On" : "Off"}
-              </Button></div>
+              </span>
+              {dbg &&
+                <span 
+                 onClick={() => {handleVenc()}}
+                className="badge bg-danger">
+                  venc {vencState ? "On" : "Off"}
+                </span>
+              }
+          </Col>
+        </Row>
+        <Row>
+        <Col>
+            <ModeSel handleModeSelect={handleModeSelect} modes={modes} config={config}></ModeSel>
           </Col>
         </Row>
 
@@ -220,7 +262,9 @@ export default function App() {
         //  only disply when we are not in startup mode
         config["m"] != 0 &&
         <div>
-          <Tabs defaultActiveKey="home" id="uncontrolled-tab-example"
+          <Tabs
+            defaultActiveKey={selectDefaultTab(config)}
+            id="uncontrolled-tab-example"
             onSelect={handleTabSelect}
             transition={false}>
 
@@ -250,15 +294,15 @@ export default function App() {
 
             <Tab
               tabClassName={(config["m"] == "14" || config["m"] == "4") ? "" : "d-none"}
-              eventKey="Feed" title="Feed">
-              <Feed config={config} nvConfig={nvConfig} />
+              eventKey="feed_tab" title="Feed">
+              <Feed stats={stats} config={config} nvConfig={nvConfig} />
             </Tab>
 
 
-            
+
             <Tab
               tabClassName={(config["m"] == "15" || config["m"] == "4") ? "" : "d-none"}
-                eventKey = "thread_tab" title="Thread">
+              eventKey="thread_tab" title="Thread">
 
               <ThreadView config={config} stats={stats} />
 
@@ -276,20 +320,21 @@ export default function App() {
 
             </Tab>
             <Tab eventKey="net_tab" title="Network">
-                <Network 
-                  ws_url={ws_url}
-                  set_ws_url={set_ws_url}
-                  cookie={cookie}
-                  updateCookie={updateCookie}
-                  config={config} connected={connected} />
+              <Network
+                ws_url={ws_url}
+                set_ws_url={set_ws_url}
+                cookie={cookie}
+                updateCookie={updateCookie}
+                config={config} connected={connected} />
 
             </Tab>
 
-            {dbg &&
-              <Tab eventKey="debug_tab" title="Debug">
-                <Debug stats={stats} config={config} nvConfig={nvConfig} ></Debug>
-              </Tab>
-            }
+            <Tab
+              tabClassName={dbg ? "" : "d-none"}
+              eventKey="debug_tab" title="Debug"
+              >
+                <Debug stats={stats} config={config} nvConfig={nvConfig} />
+            </Tab>
           </Tabs>
 
         </div>
@@ -320,34 +365,31 @@ export default function App() {
               </div>
             </Tab>
             <Tab eventKey="net_tab" title="Network">
-                <Network 
-                  cookie={cookie}
-                  updateCookie={updateCookie}
-                  ws_url={ws_url}
-                  set_ws_url={set_ws_url}
-                  config={config} connected={connected} />
+              <Network
+                cookie={cookie}
+                updateCookie={updateCookie}
+                ws_url={ws_url}
+                set_ws_url={set_ws_url}
+                config={config} connected={connected} />
 
             </Tab>
-            {dbg &&
-              <div>
-                <Tab eventKey="debug_tab" title="Debug">
-                  <Debug stats={stats} config={config} nvConfig={nvConfig} ></Debug>
-                </Tab>
-              </div>
-            }
-
+            <Tab
+              tabClassName={dbg ? "" : "d-none"}
+              eventKey="debug_tab" title="Debug">
+                <Debug stats={stats} config={config} nvConfig={nvConfig} />
+            </Tab>
           </Tabs>
         </div>
       }
       <EspWS msg={msg} set_msg={set_msg} connected={connected}
-                vsn={vsn}
-                ws_url={ws_url}
-                set_connected={set_connected} config={config} />
+        vsn={vsn}
+        ws_url={ws_url}
+        set_connected={set_connected} config={config} />
       <ModalError showModalError={showModalError}
         modalErrorMsg={modalErrorMsg}
         setShowModalError={setShowModalError}
 
       />
-    </div>
+    </Container>
   )
 };

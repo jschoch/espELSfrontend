@@ -74,10 +74,9 @@ export default function Info(props) {
                   Flags
                 </h5>
 
-                <KV k="feeding " v={props.stats.feeding ? "true" : "false"} />
-                <KV k="jogging " v={props.stats.jogging ? "true" : "false"} />
+                <KV k="jogging(rename) " v={props.stats.jogging ? "true" : "false"} />
                 <KV k="rapiding " v={props.stats.rap ? "true" : "false"} />
-                <KV k="Feed to Position" v={props.stats.pos_feed ? "true" : "false"} />
+                <KV k="Motion On: " v={props.stats.pos_feed ? "true" : "false"} />
                 <KV k="Feeding_dir" v={props.stats.fd ? "true" : "false"} />
                 <KV k="Waiting for Sync" v={props.stats.sw ? "true" : "false"} />
                 <KV k={props.nvConfig.metric == "true" ? "Metric": "Imperial"} v="on" />
