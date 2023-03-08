@@ -4,16 +4,33 @@ import Button from 'react-bootstrap/Button';
 import { Form, InputGroup, Col, Grid, Row } from 'react-bootstrap';
 import FormControl from 'react-bootstrap/FormControl';
 import { useForm } from 'react-hook-form';
+import { send } from './util.js';
 
 export default function ShowNvConfig({ nvConfig, stats, config }) {
     const { register, handleSubmit, watch, errors } = useForm();
 
-    function onSubmitNvConfig() {
+    const onSubmitNvConfig = (data) => {
+        console.log("submit nvdata",data);
+        var merged = {};
 
-    }
-    function handleResetNvConfig() {
+        // data should ovveride any conflicts 
+       
+        var nv = nvConfig;
+        //Object.assign(merged,data,nv);
+        Object.assign(merged,nvConfig,data)
+        delete merged.id;
+        delete merged.t;
+        var d = {cmd: "setNvConfig",config: merged};
+        console.log(d);
+        send(d);
+      }
 
-    }
+    const handleResetNvConfig = (data) => {
+        console.log("resetting config");
+        var d = {cmd: "resetNvConfig"};
+        //ws.send(JSON.stringify(d));
+        send(d);
+      }
 
 
     return (
@@ -74,6 +91,10 @@ export default function ShowNvConfig({ nvConfig, stats, config }) {
 
                                             <InputGroup>
                                                 <InputGroup.Text>Motor Steps per MM {nvConfig["motor_steps"]}</InputGroup.Text>
+
+                                            </InputGroup>
+                                            <InputGroup>
+                                                <InputGroup.Text>Motor Native Steps {nvConfig["native_steps"]}</InputGroup.Text>
 
                                             </InputGroup>
                                             <InputGroup>

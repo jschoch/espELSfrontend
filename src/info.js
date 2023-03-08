@@ -99,6 +99,7 @@ export default function Info(props) {
                     <KV k="pings" v={props.stats.c} />
                     <KV k="free heap" v={props.stats.h} />
                     <KV k="used heap" v={props.stats.ha} />
+                    <KV k="RSSI" v={props.stats.r} />
                   </span>
                 </div>
               </div>
