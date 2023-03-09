@@ -20,6 +20,10 @@ export default function ShowNvConfig({ nvConfig, stats, config }) {
         Object.assign(merged,nvConfig,data)
         delete merged.id;
         delete merged.t;
+        delete merged.motor_steps;
+        merged.microsteps = parseInt(merged.microsteps);
+        merged.spindle_encoder_resolution = parseInt(merged.spindle_encoder_resolution);
+        merged.lead_screw_pitch = parseFloat(merged.lead_screw_pitch);
         var d = {cmd: "setNvConfig",config: merged};
         console.log(d);
         send(d);

@@ -143,15 +143,6 @@ export default function App() {
   
   }
 
-  function getNvConfig() {
-    var d = { cmd: "getNvConfig" };
-    send(d);
-  }
-  function sendNvConfig(data) {
-    data["cmd"] = "setNvConfig";
-    send(data);
-  }
-
   function sendConfig() {
     var d = { cmd: "sendConfig", config: config }
     send(d);
@@ -160,8 +151,8 @@ export default function App() {
   const handleTabSelect = data => {
     console.log("select tab", data);
     if (data == "config_tab") {
-      console.log("config_tab selectyed");
-      getNvConfig();
+      //console.log("config_tab selectyed");
+      //getNvConfig();
     }
   }
 
