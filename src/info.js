@@ -47,6 +47,7 @@ export default function Info(props) {
                     <KV k="Pos Stop" v={props.stats.sp.toFixed(3)} />
 
                     <KV k="Neg Stop" v={props.stats.sn.toFixed(3)} />
+                    <KV k="steps per MM" v={props.nvConfig.motor_steps / props.nvConfig.lead_screw_pitch} />
                     <br />
                     { /* yuck <!--  need to add debug stats here
           <KV k="Target Tool Position" v={props.stats.targetPos} />
@@ -100,6 +101,8 @@ export default function Info(props) {
                     <KV k="free heap" v={props.stats.h} />
                     <KV k="used heap" v={props.stats.ha} />
                     <KV k="RSSI" v={props.stats.r} />
+                    <KV k="WS clients connected" v={props.stats.cc} />
+                    <KV k="enc avg time" v={props.stats.at} />
                   </span>
                 </div>
               </div>

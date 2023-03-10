@@ -15,7 +15,7 @@ export function send(cmd) {
 }
 
 export function distanceToSteps(nvConfig,distance) {
-    var stepsPerMM = nvConfig.motor_steps * nvConfig.lead_screw_pitch;
+    var stepsPerMM = nvConfig.motor_steps / nvConfig.lead_screw_pitch;
     if (nvConfig.metric == "true") {
         return distance * stepsPerMM;
     } else {
