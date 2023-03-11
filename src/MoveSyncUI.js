@@ -84,6 +84,7 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
     const [jog_mm, set_jog_mm] = useState(0);
     return (
         <div>
+            { config.m == 2 &&
             <Tabs defaultActiveKey="syncMove" id="uncontrolled-tab-example" className="mb-3">
                 <Tab eventKey="syncMove" title="Move slaved to spindle">
                     {
@@ -191,6 +192,7 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
                     TODO:
                 </Tab>
             </Tabs>
+            }
         </div>
     )
 }

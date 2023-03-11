@@ -79,6 +79,7 @@ const selectDefaultTab = (config) => {
   var t = config["m"];
   switch (t) {
     case "14":
+      console.log("should select feed tab");
       return "feed_tab";
       break;
     case "2":
@@ -107,6 +108,12 @@ export default function App() {
       setShowModalError(true);
     }
     sendConfig();
+    if(data == 2){
+      set_modetabkey("moveSync_tab");
+    }
+    if(data == 14){
+      set_modetabkey("feed_tab");
+    }
   }
 
 
@@ -128,6 +135,8 @@ export default function App() {
   // espWS setup
   const [msg, set_msg] = useState(null);
   const [vencState, set_vencState] = useState(false);
+  const [modetabkey, set_modetabkey] = useState('moveSync_tab');
+
 
   const handleVenc = (data) => {
     var c = {};
@@ -148,9 +157,10 @@ export default function App() {
     send(d);
   }
 
-  const handleTabSelect = data => {
-    console.log("select tab", data);
-    if (data == "config_tab") {
+  const handleTabSelect = (key)=> {
+    console.log("select tab", key);
+    set_modetabkey(key);
+    if (key== "config_tab") {
       //console.log("config_tab selectyed");
       //getNvConfig();
     }
@@ -254,9 +264,11 @@ export default function App() {
         config["m"] != 0 &&
         <div>
           <Tabs
-            defaultActiveKey={selectDefaultTab(config)}
+            defaultActiveKey="moveSync_tab"
+            //activeKey={selectDefaultTab(config)}
+            activeKey={modetabkey}
             id="uncontrolled-tab-example"
-            onSelect={handleTabSelect}
+            onSelect={(key) => handleTabSelect(key)}
             transition={false}>
 
             <Tab
@@ -335,7 +347,7 @@ export default function App() {
         (config["m"] == undefined || config["m"] == 0) &&
         <div>
           <Tabs defaultActiveKey="home_tab" id="uncontrolled-tab-example"
-            onSelect={handleTabSelect}
+            onSelect={(key) => handleTabSelect(key)}
             transition={false}>
 
 
