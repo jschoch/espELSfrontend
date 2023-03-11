@@ -36,7 +36,7 @@ export function stepsPerIn(nvConfig){
 }
 
 export function stepsPerMM(nvConfig){
-    return nvConfig.motor_steps * nvConfig.lead_screw_pitch;
+    return nvConfig.motor_steps / nvConfig.lead_screw_pitch;
 }
 
 export function mmToIn(val){
@@ -52,8 +52,7 @@ export function stepsToDistance(nvConfig, steps) {
     }
     
     if (nvConfig.metric == "true") {
-        var stepsPerMM = stepsPerMM(nvConfig); 
-        var r = steps / stepsPerMM;
+        var r = steps / stepsPerMM(nvConfig);
         //console.log("stepstoDistance" ,stepsPerMM,r);
         return r;
     }else{
