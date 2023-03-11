@@ -2,6 +2,7 @@
 import React, { Component, useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Badge from 'react-bootstrap/Badge'
+import {mmOrImp, stepsPerIn,stepsPerMM} from './util.js';
 
 var magic = true;
 
@@ -47,7 +48,7 @@ export default function Info(props) {
                     <KV k="Pos Stop" v={props.stats.sp.toFixed(3)} />
 
                     <KV k="Neg Stop" v={props.stats.sn.toFixed(3)} />
-                    <KV k="steps per MM" v={props.nvConfig.motor_steps / props.nvConfig.lead_screw_pitch} />
+                    <KV k={"steps per " + mmOrImp(props.nvConfig)} v={props.nvConfig.metric == "true" ? stepsPerMM(props.nvConfig) : stepsPerIn(props.nvConfig)} />
                     <br />
                     { /* yuck <!--  need to add debug stats here
           <KV k="Target Tool Position" v={props.stats.targetPos} />

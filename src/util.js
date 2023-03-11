@@ -15,26 +15,50 @@ export function send(cmd) {
 }
 
 export function distanceToSteps(nvConfig,distance) {
-    var stepsPerMM = nvConfig.motor_steps / nvConfig.lead_screw_pitch;
+    
     if (nvConfig.metric == "true") {
-        return distance * stepsPerMM;
+        return distance * stepsPerMM(nvConfig);
     } else {
-        return distance * stepsPerMM * 25.4;
+        return distance * stepsPerIn(nvConfig);
     }
 }
 
-export function stepsToDistance(nvConfig, steps, mm = true) {
+export function mmOrImp(nvConfig){
+    if(nvConfig.metric == "true"){
+        return "(mm)";
+    }else{
+        return "(in)";
+    }
+}
+
+export function stepsPerIn(nvConfig){
+    return stepsPerMM(nvConfig) * 25.4;
+}
+
+export function stepsPerMM(nvConfig){
+    return nvConfig.motor_steps * nvConfig.lead_screw_pitch;
+}
+
+export function mmToIn(val){
+    return (val / 25.4).toFixed(4)
+}
+
+
+
+export function stepsToDistance(nvConfig, steps) {
     if (!nvConfig ) {
         console.log("wtf",nvConfig);
         return 0;
     }
-    var stepsPerMM = nvConfig.motor_steps * nvConfig.lead_screw_pitch;
+    
     if (nvConfig.metric == "true") {
+        var stepsPerMM = stepsPerMM(nvConfig); 
         var r = steps / stepsPerMM;
         //console.log("stepstoDistance" ,stepsPerMM,r);
         return r;
     }else{
-        var r = steps / (stepsPerMM * 25.4);
+
+        var r = steps / stepsPerIn(nvConfig) ;
         //console.log("steps",r);
         return r;
     }

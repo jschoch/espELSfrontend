@@ -30,7 +30,7 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import Rev from './Rev.js';
 import Hobbing from './hobbing.js';
-import { send, stepsToDistance, distanceToSteps } from './util.js';
+import { send, stepsToDistance, mmOrImp, distanceToSteps } from './util.js';
 import { Wifi, WifiOff } from 'react-bootstrap-icons';
 import useCookie from './useCookie.js';
 
@@ -234,7 +234,7 @@ export default function App() {
                 <span className="badge bg-success"><Wifi /> </span>
                 : <span className="badge bg-danger"><WifiOff /></span>
             }
-            DRO: <span className="badge bg-warning">{dro}</span>
+            DRO: <span className="badge bg-warning">{dro} {mmOrImp(nvConfig)}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
             <Rev stats={stats} />
               <span

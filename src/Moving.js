@@ -1,7 +1,7 @@
 import React, { Component, useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
-import { send, stepsToDistance } from './util.js';
+import { send, stepsToDistance,mmOrImp } from './util.js';
 
 export default function Moving({ stats, nvConfig }) {
   function moveCancel() {
@@ -35,10 +35,12 @@ export default function Moving({ stats, nvConfig }) {
             {stats.fd &&
               <span>
                 Distance to Go: {stepsToDistance(nvConfig, (stats.sp - stats.p)).toFixed(4)}
+                {mmOrImp(nvConfig)}
               </span>}
             {!stats.fd &&
               <span>
                 -Distance to Go: {stepsToDistance(nvConfig, (stats.p - stats.sn)).toFixed(4)}
+                {mmOrImp(nvConfig)}
               </span>
 
             }

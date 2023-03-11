@@ -6,23 +6,8 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { send } from './util.js';
+import { send,mmToIn } from './util.js';
 
-/*
-function metric_p_to_in(test,p){
-  if(test == "true"){
-    return (1/25.4 * p);
-  }
-  else {
-    return p;
-  }
-}
-
-export default function Bounce({ stats,config,nvConfig }) {
-  const [jog_mm, set_jog_mm] = useState(0);
-  const [jog_pitch, set_jog_pitch] = useState( metric_p_to_in(nvConfig.metric,config.pitch)); 
-  const [rapid_pitch, set_rapid_pitch] = useState(metric_p_to_in(nvConfig.metric,config.rapid));
- */
 
 
 export default function ModalMove({ config, setConfig, nvConfig,show,set_show }) {
@@ -45,10 +30,12 @@ export default function ModalMove({ config, setConfig, nvConfig,show,set_show })
     send(d);
   }
   const mp = config.pitch;
-  const ip = (config.pitch * (1/25.4)).toFixed(4);
+  //const ip = (config.pitch * (1/25.4)).toFixed(4);
+  const ip = mmToIn(config.pitch);
 
   const mr = config.rapid;
-  const ir = (config.rapid * (1/25.4)).toFixed(4);
+  //const ir = (config.rapid * (1/25.4)).toFixed(4);
+  const ir = mmToIn(config.rapid);
 
   return (
 

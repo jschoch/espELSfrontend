@@ -10,7 +10,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Moving from './Moving.js';
 import Bounce from './Bounce.js';
-import { distanceToSteps, send } from './util.js';
+import { distanceToSteps, mmOrImp, mmToIn, send } from './util.js';
 
 
 
@@ -24,6 +24,8 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
     const [moveConfig, set_moveConfig] = useState({ pitch: 0.1, rapid: config.rapid });
     const [feedingLeft, set_feedingLeft] = useState(true);
     const [syncStart, set_syncStart] = useState(true);
+    // set this to "u" for undefined so we can ensure it was actually set by the operator
+    const [distance, set_distance] = useState(0);
 
     const colW = 5;
 
@@ -55,33 +57,30 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
     }
 
     const handleJogClick = (id) => {
-        console.log("Jog or Rapid Clicked", id, jog_mm);
-        if (jog_mm == 0) {
+        console.log("Jog or Rapid Clicked", id, distance);
+        if (distance == 0) {
             console.log("unf");
-            me.setModalErrorMsg("Can't Jog 0 mm");
+            me.setModalErrorMsg("Can't Move 0 ");
             me.setShowModalError(true);
         } else {
             if (id == "rrapid") {
                 console.log("right rapid");
-                rapid(moveConfig, Math.abs(jog_mm));
+                rapid(moveConfig, Math.abs(distance));
             } else if (id == "lrapid") {
                 console.log("left rapid");
-                rapid(moveConfig, Math.abs(jog_mm) * -1);
+                rapid(moveConfig, Math.abs(distance) * -1);
             }
             else if (id == "ljog") {
-                //console.log("left",jog_mm);
-                moveSync(moveConfig, Math.abs(jog_mm) * -1);
+                moveSync(moveConfig, Math.abs(distance) * -1);
             } else if (id == "rjog") {
-                moveSync(moveConfig, Math.abs(jog_mm));
-                //console.log("right",jog_mm);
+                moveSync(moveConfig, Math.abs(distance));
             } else {
                 console.log("WTF", id)
             }
         }
     }
 
-    // set this to "u" for undefined so we can ensure it was actually set by the operator
-    const [jog_mm, set_jog_mm] = useState(0);
+    
     return (
         <div>
             { config.m == 2 &&
@@ -105,8 +104,8 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
                             </Row>
                             <Row>
                                 <p className="text-center">
-                                    Current Pitch set to: {(nvConfig.metric == "true" ? config.pitch : (config.pitch / 25.4).toFixed(4))}  
-                                    {nvConfig.metric == "true" ? "(mm)" : "(in)"}
+                                    Current Pitch set to: {(nvConfig.metric == "true" ? config.pitch : mmToIn(config.pitch))}  
+                                    {mmOrImp(nvConfig)}
                                     {(!enRL || !enRR) &&
                                         <span>
                                             Rapid Pitch: {moveConfig.rapid}
@@ -134,15 +133,16 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
                             <Row>
                                 <Col>
                                     <InputGroup className="mb-3">
-                                        <InputGroup.Text id="notsure">( { nvConfig.metric == "true" ? "mm" : "in"} )
-                                            Jog Distance</InputGroup.Text>
+                                        <InputGroup.Text id="notsure">
+                                            ( { mmOrImp(nvConfig)} )
+                                            Move Distance</InputGroup.Text>
                                         <FormControl
-                                            placeholder="Distance to Jog"
-                                            aria-label="Distance to Jog"
+                                            placeholder="Distance to Move"
+                                            aria-label="Distance to Move"
                                             aria-describedby="basic-addon2"
-                                            value={jog_mm}
+                                            value={distance}
                                             inputMode='decimal' step='any' type="number"
-                                            onChange={e => set_jog_mm(e.target.value)}
+                                            onChange={e => set_distance(e.target.value)}
                                         />
 
                                     </InputGroup>

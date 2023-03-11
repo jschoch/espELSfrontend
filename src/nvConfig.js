@@ -52,7 +52,7 @@ export default function ShowNvConfig({ nvConfig, stats, config }) {
                                     <InputGroup className="mb-2 mr-sm-2">
                                         <Col xs={8}>
                                             <InputGroup>
-                                                <InputGroup.Text>Lead Screw Pitch {nvConfig["lead_screw_pitch"]}</InputGroup.Text>
+                                                <InputGroup.Text>Lead Screw Pitch (in mm) {nvConfig["lead_screw_pitch"]}</InputGroup.Text>
                                                 <Form.Control id="lead_screw_pitch" name="lead_screw_pitch" type="number"
                                                     ref={register({ required: true })}
                                                     defaultValue={nvConfig["lead_screw_pitch"]}
