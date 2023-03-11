@@ -19,7 +19,8 @@ export default function EspWS({ ws_url, set_msg, connected, set_connected, vsn }
     const [waitingToReconnect, setWaitingToReconnect] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
 
-    async function decodeFromBlob(blob: Blob): unknown {
+    //async function decodeFromBlob(blob: Blob): unknown {
+    async function decodeFromBlob(blob) {
         if (blob.stream) {
             //console.log("stream");
             return await decodeAsync(blob.stream());
