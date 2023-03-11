@@ -4,6 +4,24 @@ preview here: [http://espels.s3-us-west-2.amazonaws.com/index.html]
 
 uses react and websockets to make awesome
 
+# running
+
+the .env should start the npm server on 0.0.0.0
+if you are developing you may want a map created, gulp config is in .env
+
+
+```
+npm start
+```
+
+# building
+
+```
+npm run build
+# bundle all files
+npx gulp
+```
+
 Todo:
 
  - [] make Jog tab on "new jog" ui default
