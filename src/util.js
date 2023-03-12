@@ -15,11 +15,20 @@ export function send(cmd) {
 }
 
 export function distanceToSteps(nvConfig,distance) {
-    
+    var r = 0; 
     if (nvConfig.metric == "true") {
-        return distance * stepsPerMM(nvConfig);
+       r = distance * stepsPerMM(nvConfig);
     } else {
-        return distance * stepsPerIn(nvConfig);
+        r = distance * stepsPerIn(nvConfig);
+    }
+
+    if(Number.isSafeInteger(r) ){
+        return r
+    } else
+    {
+        alert("Invalid Distance error");
+        console.log("invalid distance conversion", nvConfig,distance);
+        return 0
     }
 }
 
@@ -43,22 +52,33 @@ export function mmToIn(val){
     return (val / 25.4).toFixed(4)
 }
 
+export function inToMM(val){
+    return val * 25.4;
+}
+
 
 
 export function stepsToDistance(nvConfig, steps) {
+    var r = 0;
     if (!nvConfig ) {
         console.log("wtf",nvConfig);
         return 0;
     }
     
     if (nvConfig.metric == "true") {
-        var r = steps / stepsPerMM(nvConfig);
+        r = steps / stepsPerMM(nvConfig);
         //console.log("stepstoDistance" ,stepsPerMM,r);
-        return r;
     }else{
 
-        var r = steps / stepsPerIn(nvConfig) ;
+        r = steps / stepsPerIn(nvConfig) ;
         //console.log("steps",r);
+    }
+    if( r !== undefined || !isNaN(r)){
         return r;
+
+    }else{
+        //alert("invalid steps conversion");
+        console.log("invalid steps conversion",nvConfig,steps)
+        return 0;
     }
 }

@@ -82,6 +82,9 @@ const selectDefaultTab = (config) => {
       console.log("should select feed tab");
       return "feed_tab";
       break;
+    case "6":
+      return "moveSync_tab";
+      break;
     case "2":
       return "moveSync_tab"
       break;
@@ -234,7 +237,7 @@ export default function App() {
                 <span className="badge bg-success"><Wifi /> </span>
                 : <span className="badge bg-danger"><WifiOff /></span>
             }
-            DRO: <span className="badge bg-warning">{dro} {mmOrImp(nvConfig)}</span>
+            DRO: <span className="badge bg-warning">{dro.toFixed(4)} {mmOrImp(nvConfig)}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
             <Rev stats={stats} />
               <span

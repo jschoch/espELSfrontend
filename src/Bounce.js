@@ -4,32 +4,21 @@ import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { send, distanceToSteps, stepsToDistance } from './util.js';
+import { send, distanceToSteps, stepsToDistance,mmToIn } from './util.js';
 import Moving from './Moving.js';
 
 
 
 export default function Bounce({ stats, nvConfig, config,connected }) {
-  const [jog_mm, set_jog_mm] = useState(0);
+  const [distance, set_distance] = useState(0);
   const [move_pitch, set_move_pitch] = useState(config.pitch);
   const [rapid_pitch, set_rapid_pitch] = useState(config.rapid);
 
-  function metric_p_to_in(test, p) {
-    console.log("tests", test, p);
-    if (test != "true") {
-      var r = ((1 / 25.4) * p)
-      console.log("returning in",r);
-      return r
-    }
-    else {
-      return p;
-    }
-  }
 
   
 
-  function bounce(distance) {
-    var c = { moveSteps: distanceToSteps(nvConfig, jog_mm), rapid: rapid_pitch, pitch: move_pitch, f: true };
+  function do_bounce() {
+    var c = { moveSteps: distanceToSteps(nvConfig, distance), rapid: rapid_pitch, pitch: move_pitch, f: true };
     var d = { cmd: "bounce", config: c }
     send(d);
   }
@@ -37,8 +26,14 @@ export default function Bounce({ stats, nvConfig, config,connected }) {
   useEffect (() => {
     if(nvConfig.lead_screw_pitch && config.pitch){
       console.log("gash, " , nvConfig,config);
-      set_move_pitch(metric_p_to_in(nvConfig.metric,config.pitch));
-      set_rapid_pitch(metric_p_to_in(nvConfig.metric,config.rapid));
+      if(nvConfig.metric == "true"){
+          set_move_pitch(config.pitch);
+          set_rapid_pitch(config.rapid);
+
+      }else{
+        set_move_pitch(mmToIn(config.pitch));
+        set_rapid_pitch(mmToIn(config.rapid));
+      }
       return;
     }
     
@@ -59,13 +54,13 @@ export default function Bounce({ stats, nvConfig, config,connected }) {
               <InputGroup className="mb-3">
                 <FormControl
                   aria-label="Distance to Move"
-                  value={jog_mm}
+                  value={distance}
                   inputMode='numeric' step='any' type="number"
-                  onChange={e => set_jog_mm(e.target.value)}
+                  onChange={e => set_distance(e.target.value)}
                 />
                 <InputGroup.Text id="notsure">
                   {nvConfig == "true" ? "(mm)" : "(in)"}
-                  Jog Distance</InputGroup.Text>
+                  Move Distance</InputGroup.Text>
               </InputGroup>
             </Col>
           </Row>
@@ -100,7 +95,7 @@ export default function Bounce({ stats, nvConfig, config,connected }) {
               </InputGroup>
             </Col>
           </Row>
-          <Button className="btn-block" onClick={() => bounce()}>Run Bounce</Button>
+          <Button className="btn-block" onClick={() => do_bounce()}>Run Bounce</Button>
         </div>
       }
 

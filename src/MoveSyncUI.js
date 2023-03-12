@@ -83,7 +83,7 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
     
     return (
         <div>
-            { config.m == 2 &&
+            { (config.m == 2 || config.m == 6) &&
             <Tabs defaultActiveKey="syncMove" id="uncontrolled-tab-example" className="mb-3">
                 <Tab eventKey="syncMove" title="Move slaved to spindle">
                     {
