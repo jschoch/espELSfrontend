@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
 import { send, stepsToDistance,mmOrImp } from './util.js';
 
-export default function Moving({ stats, nvConfig }) {
+export default function Moving({ config, stats, nvConfig }) {
   function moveCancel() {
     var d = { cmd: "moveCancel" };
     //ws.send(JSON.stringify(d));
@@ -24,6 +24,12 @@ export default function Moving({ stats, nvConfig }) {
 
       {stats["pos_feed"] && !stats["sw"] &&
         <div>
+           { config.m == "6"  && 
+            <div>
+              Bounce: {stats.rap? "Rapid Mode" : "Moving Mode"}
+            </div>
+            
+            }
           <Button disabled={stats.pos_feed} >
             <Spinner
               as="span"
@@ -31,7 +37,8 @@ export default function Moving({ stats, nvConfig }) {
               size="sm"
               role="status"
               aria-hidden="true"
-            />
+            />            
+           
             {stats.fd &&
               <span>
                 Distance to Go: {stepsToDistance(nvConfig, (stats.sp - stats.p)).toFixed(4)}

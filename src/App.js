@@ -5,9 +5,7 @@ import ThreadView from "./ThreadView.js";
 import ModeSel from './Mode.js';
 import MoveSyncUI from './MoveSyncUI.js';
 import Debug from './Debug.js';
-import Moving from './Moving.js';
 import EspWS from './espWS.js';
-import ShowNvConfig from './nvConfig.js';
 import Feed from './feed.js';
 import ConfigUI from './configUI.js'
 import Network from './Network.js'
@@ -301,7 +299,7 @@ export default function App() {
             <Tab
               tabClassName={(config["m"] == "14" || config["m"] == "4") ? "" : "d-none"}
               eventKey="feed_tab" title="Feed">
-              <Feed stats={stats} config={config} nvConfig={nvConfig} />
+              <Feed stats={stats} config={config} nvConfig={nvConfig} me={me} />
             </Tab>
 
 

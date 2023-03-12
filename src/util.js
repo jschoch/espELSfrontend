@@ -56,6 +56,12 @@ export function inToMM(val){
     return val * 25.4;
 }
 
+export function maxPitch(nvConfig){
+    var maxSteps =  (nvConfig.spindle_encoder_resolution * nvConfig.lead_screw_pitch)
+  
+    return stepsToDistance(nvConfig,maxSteps);
+}
+
 
 
 export function stepsToDistance(nvConfig, steps) {

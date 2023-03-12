@@ -5,17 +5,27 @@ import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { send } from './util.js';
+import { mmOrImp, send } from './util.js';
 import { Stats } from 'fs';
 //import Card from "react-boostrap/Card";
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
 
-export default function Feed({ config, nvConfig, stats }) {
+export default function Feed({ config, nvConfig, stats,me }) {
 
     const [pitch, set_pitch] = useState(config.pitch);
     const [reverse, set_reverse] = useState(true);
+
+
+    // turn feed on
     const handleToggle = (data) => {
+        var p = parseFloat(pitch);
+        if(p == 0 || isNaN(p) || p === undefined){
+            console.log("doh pitch was 0")
+            me.setModalErrorMsg("Pitch can't be 0 ");
+            me.setShowModalError(true);
+            return;
+        }
         var c = config;
         c.f = !reverse;
         c.pitch = parseFloat(pitch);
@@ -55,7 +65,7 @@ export default function Feed({ config, nvConfig, stats }) {
 
                                 <ButtonGroup className="mb-2">
                                     <InputGroup size="sm" className="mb-3">
-                                        <InputGroup.Text id="movePitch" >Feed Pitch</InputGroup.Text>
+                                        <InputGroup.Text id="movePitch" >Feed Pitch {mmOrImp(nvConfig)}</InputGroup.Text>
                                         <FormControl aria-label="Small" aria-describedby="inputGroup-sizing-sm"
                                             inputMode='decimal' step='any' type="number"
                                             placeholder={(nvConfig.metric == "true") ? mp : ip}

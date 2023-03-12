@@ -21,7 +21,7 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
     // enable flag for enable rapid right
     const [enRR, setEnRR] = useState(true);
     const [showModalMove, set_showModalMove] = useState(false);
-    const [moveConfig, set_moveConfig] = useState({ pitch: 0.1, rapid: config.rapid });
+    const [moveConfig, set_moveConfig] = useState({ pitch: config.pitch, rapid: config.rapid });
     const [feedingLeft, set_feedingLeft] = useState(true);
     const [syncStart, set_syncStart] = useState(true);
     // set this to "u" for undefined so we can ensure it was actually set by the operator
@@ -29,7 +29,7 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
 
     const colW = 5;
 
-    function moveSync(config, distance) {
+    function moveSync(moveConfig, distance) {
         /*
 
             WHy?  it seems you want to set jog pitch and rapid pitch differently in "new jog" vs "old jog" but why?
@@ -41,7 +41,7 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
         // TODO: add these to the UI
         c.f = feedingLeft;
         c.s = syncStart;
-        c.pitch = moveConfig.pitch;
+        c.pitch = config.pitch;
 
         c.moveSteps = distanceToSteps(nvConfig, distance);
         var d = { cmd: "jog", config: c }
@@ -180,7 +180,7 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
                         </div>
                     }
                     <Row>
-                        <Moving stats={stats} nvConfig={nvConfig} />
+                        <Moving config={config} stats={stats} nvConfig={nvConfig} />
 
                     </Row>
 

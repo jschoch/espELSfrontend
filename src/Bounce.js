@@ -4,8 +4,9 @@ import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { send, distanceToSteps, stepsToDistance,mmToIn } from './util.js';
+import { send, distanceToSteps, stepsToDistance,mmToIn, inToMM } from './util.js';
 import Moving from './Moving.js';
+import MaxPitch from './MaxPitch.js';
 
 
 
@@ -18,7 +19,16 @@ export default function Bounce({ stats, nvConfig, config,connected }) {
   
 
   function do_bounce() {
-    var c = { moveSteps: distanceToSteps(nvConfig, distance), rapid: rapid_pitch, pitch: move_pitch, f: true };
+    var c = { 
+      moveSteps: distanceToSteps(nvConfig, distance), 
+      rapid: rapid_pitch, 
+      pitch: move_pitch, 
+      f: true 
+    };
+    if(nvConfig.metric != "true"){
+      c.rapid = inToMM(rapid_pitch);
+      c.pitch = inToMM(move_pitch);
+    }
     var d = { cmd: "bounce", config: c }
     send(d);
   }
@@ -45,12 +55,12 @@ export default function Bounce({ stats, nvConfig, config,connected }) {
     <div>
       {
         // hides controls when pos_feeding is true
-        !stats["pos_feed"] && !stats["sw"] &&
+        ( !stats["pos_feed"] && !stats["sw"] && config.m != 6) &&
         <div>
           <Button variant="dark" className="btn-block" > Bounce Settings</Button>
           <Row>
             <Col>
-              <span> Set positive for Z+ negative for Z- TODO: is this an issue with number chooser on phone?</span>
+              <span> Set positive for Z+ negative for Z- </span>
               <InputGroup className="mb-3">
                 <FormControl
                   aria-label="Distance to Move"
@@ -66,6 +76,11 @@ export default function Bounce({ stats, nvConfig, config,connected }) {
           </Row>
           <Row>
             <Col>
+            <span>
+              <MaxPitch nvConfig={nvConfig} /> 
+              {config.dbg &&
+               <span> Current Pitch: {config.pitch} Rapid: {config.rapid} </span>}
+            </span>
               <InputGroup className="mb-3">
                 <FormControl
                   aria-label="Bounce Pitch"
@@ -100,7 +115,7 @@ export default function Bounce({ stats, nvConfig, config,connected }) {
       }
 
       <Row>
-        <Moving stats={stats} nvConfig={nvConfig} />
+        <Moving config={config} stats={stats} nvConfig={nvConfig} />
 
       </Row>
       { config.dbg &&
