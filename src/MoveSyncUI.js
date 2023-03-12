@@ -51,7 +51,8 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
         var c = config;
         c.f = feedingLeft;
         c.s = syncStart;
-        c.jm = distance;
+        c.rapid = moveConfig.rapid;
+        c.moveSteps = distanceToSteps(nvConfig,distance);
         var d = { cmd: "rapid", config: c }
         send(d);
     }
@@ -64,11 +65,11 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
             me.setShowModalError(true);
         } else {
             if (id == "rrapid") {
-                console.log("right rapid");
+                console.log("right rapid",distance);
                 rapid(moveConfig, Math.abs(distance));
             } else if (id == "lrapid") {
-                console.log("left rapid");
-                rapid(moveConfig, Math.abs(distance) * -1);
+                console.log("left rapid",distance);
+                rapid(moveConfig, (Math.abs(distance) * -1));
             }
             else if (id == "ljog") {
                 moveSync(moveConfig, Math.abs(distance) * -1);

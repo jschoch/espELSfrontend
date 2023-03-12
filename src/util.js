@@ -2,9 +2,9 @@
 
 export function send(cmd) {
     if (window.wsclient && window.wsclient.readyState === 1) {
-        //if(cmd.cmd && cmd.cmd != "ping"){
+        if(cmd.cmd && cmd.cmd != "ping"){
             console.log("Sending cmd:", cmd)
-        //}
+        }
         
         var json = JSON.stringify(cmd);
         window.wsclient.send(json);
