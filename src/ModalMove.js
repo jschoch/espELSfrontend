@@ -11,37 +11,44 @@ import MaxPitch from './MaxPitch.js';
 
 
 
-export default function ModalMove({ config, setConfig, nvConfig,show,set_show,moveConfig, set_moveConfig }) {
-  const [movePitch, set_movePitch] = useState(config.pitch);
-  const [rapidPitch, set_rapidPitch] = useState(config.rapid);
+export default function ModalMove({ state,show,set_show,moveConfig,set_moveConfig,nvConfig }) {
+  const [movePitch, set_movePitch] = useState(moveConfig.movePitch);
+  const [rapidPitch, set_rapidPitch] = useState(moveConfig.rapidPitch);
   const handleClose = () => {
-    var c = config;
+    var c = moveConfig;
     if(nvConfig.metric == "true"){
       c.pitch = movePitch;
+      c.movePitch = movePitch;
       c.rapid = rapidPitch;
+      c.rapidPitch = rapidPitch;
       set_moveConfig(c);
     }else{
       c.pitch = inToMM(movePitch);
+      c.movePitch = inToMM(movePitch);
       c.rapid = inToMM(rapidPitch);
+      c.rapidPitch = inToMM(rapidPitch);
       set_moveConfig(c);
     }
-    
-    setConfig(c);
-    console.log("pitch, rapid", movePitch, rapidPitch);
+    console.log("ModalMove moveConfig updated", moveConfig);
     set_show(false);
-    var d = { cmd: "sendConfig", config: config }
-    send(d);
+    var d = { cmd: "sendMoveConfig", config: c }
+    if( Number.isFinite(c.pitch) && Number.isFinite(c.rapid) ){
+      send(d);
+    }else{
+      console.log("MoveModal: bad number error",c)
+    }
   }
-  const mp = config.pitch;
+  const mp = moveConfig.movePitch;
   //const ip = (config.pitch * (1/25.4)).toFixed(4);
-  const ip = mmToIn(config.pitch);
+  const ip = mmToIn(moveConfig.movePitch);
 
-  const mr = config.rapid;
+  const mr = moveConfig.rapidPitch;
   //const ir = (config.rapid * (1/25.4)).toFixed(4);
-  const ir = mmToIn(config.rapid);
+  const ir = mmToIn(moveConfig.rapidPitch);
 
 
   useEffect (() => {
+    /* TODO fix thsi
     if(nvConfig.metric == "true"){
       set_movePitch( config.pitch);
       set_movePitch( config.rapid);
@@ -49,8 +56,10 @@ export default function ModalMove({ config, setConfig, nvConfig,show,set_show,mo
       set_movePitch( mmToIn(config.pitch));
       set_rapidPitch( mmToIn(config.rapid));
     }
+    */
+    console.log("fix useEffect for unit changes",state);
+  },[nvConfig.metric,moveConfig.movePitch,moveConfig.rapidPitch])
 
-  },[nvConfig.metric,config.pitch,config.rapid,moveConfig.pitch,moveConfig.rapid])
 
   return (
 
@@ -67,7 +76,7 @@ export default function ModalMove({ config, setConfig, nvConfig,show,set_show,mo
           <FormControl aria-label="Small" aria-describedby="rapidPitch"
             inputMode='decimal' step='any' type="number"
             placeholder={(nvConfig.metric == "true") ? mr : ir} 
-            onChange={(e) => set_rapidPitch(e.target.value)}
+            onChange={(e) => set_rapidPitch(parseFloat(e.target.value))}
           />
         </InputGroup>
 
@@ -76,7 +85,7 @@ export default function ModalMove({ config, setConfig, nvConfig,show,set_show,mo
           <FormControl aria-label="Small" aria-describedby="inputGroup-sizing-sm"
             inputMode='decimal' step='any' type="number"
             placeholder={(nvConfig.metric == "true") ? mp : ip} 
-            onChange={(e) => set_movePitch(e.target.value)}
+            onChange={(e) => set_movePitch(parseFloat(e.target.value))}
           />
         </InputGroup>
 

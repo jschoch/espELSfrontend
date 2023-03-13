@@ -73,36 +73,15 @@ const ModalError = ({ showModalError, modalErrorMsg, setShowModalError }) => {
   );
 }
 
-const selectDefaultTab = (config) => {
-  var t = config["m"];
-  switch (t) {
-    case "14":
-      console.log("should select feed tab");
-      return "feed_tab";
-      break;
-    case "6":
-      return "moveSync_tab";
-      break;
-    case "2":
-      return "moveSync_tab"
-      break;
-    case "9":
-      return "hob_tab";
-      break;
-    default:
-      return "net_tab"
-  }
-}
-
 var default_ws_url = "ws://192.168.100.100/els";
 export default function App() {
   const { register, handleSubmit, watch, errors } = useForm();
 
 
   const handleModeSelect = data => {
-    var c = config
+    var c = machineConfig;
     c.m = data;
-    setConfig(c);
+    set_machineConfig(c)
     console.log("select data", data);
     if (data == 5) {
       setModalErrorMsg("Mode not implemented yet");
@@ -120,12 +99,16 @@ export default function App() {
 
   const vsn = "0.0.3";
 
+
+  // Depricate
   const [config, setConfig] = useState({ vsn: vsn });
+
+  const [machineConfig,set_machineConfig] = useState({m: 0});
   const [connected, set_connected] = useState(false);
   const [dro, setDRO] = useState(0.0);
   const [rpm, setRPM] = useState(0);
   const [stats, set_stats] = useState({});
-  const [nvConfig, setNvConfig] = useState({ error: true, motor_steps: 0 });
+  const [nvConfig, set_nvConfig] = useState({ error: true, motor_steps: 0 });
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
   const [dbg, set_dbg] = useState(true);
@@ -137,6 +120,16 @@ export default function App() {
   const [msg, set_msg] = useState(null);
   const [vencState, set_vencState] = useState(false);
   const [modetabkey, set_modetabkey] = useState('moveSync_tab');
+  const [moveConfig,set_moveConfig] = useState({});
+  const [state,set_state] = useState( { 
+    nvConfig:  nvConfig,
+    stats: stats,
+    connected: connected,
+    set_connected: set_connected,
+    // modal error thingy
+    me: me,
+    vsn: vsn
+  });
 
 
   const handleVenc = (data) => {
@@ -154,7 +147,7 @@ export default function App() {
   }
 
   function sendConfig() {
-    var d = { cmd: "sendConfig", config: config }
+    var d = { cmd: "sendConfig", config: machineConfig}
     send(d);
   }
 
@@ -162,8 +155,7 @@ export default function App() {
     console.log("select tab", key);
     set_modetabkey(key);
     if (key== "config_tab") {
-      //console.log("config_tab selectyed");
-      //getNvConfig();
+      // what is this?
     }
   }
 
@@ -174,7 +166,7 @@ export default function App() {
       var nv = nvConfig;
       nv.metric = val;
       set_metric(val, 1000);
-      setNvConfig(nv);
+      set_nvConfig(nv);
     }
   }
 
@@ -187,21 +179,28 @@ export default function App() {
         // hacky 
         var merged = {}
         Object.assign(merged, stats, msg);
-        set_stats(merged);
+        set_state( {
+            ...state,
+            stats: merged
+          })
         setDRO(stepsToDistance(nvConfig, msg.p));
         setRPM(msg.rpm);
       }
       else if (msg["t"] == "nvConfig") {
         console.log("got nv configuration", msg);
         msg.metric = metric;
-        setNvConfig(msg);
+        set_nvConfig(msg);
       }
       else if (msg["t"] == "state") {
         console.log("updating config", msg);
-        msg.vsn = vsn;
+        //msg.vsn = vsn;
         msg.dbg = dbg;
-        setConfig(msg);
-        //handleView(msg["m"]);
+        set_machineConfig(msg);
+        var mc = moveConfig;
+        mc.movePitch = msg.pitch;
+        mc.rapidPitch = msg.rapid;
+        set_moveConfig(mc);
+        console.log("machineConfig", machineConfig,moveConfig)
       }
       else if (msg["t"] == "log") {
         console.log("stuff", msg);
@@ -222,7 +221,7 @@ export default function App() {
       }
     }
     //}
-  }, [msg, set_msg, nvConfig, setNvConfig, dro, setDRO]);
+  }, [msg, set_msg, nvConfig, set_nvConfig, dro, setDRO]);
 
 
   return (
@@ -237,11 +236,11 @@ export default function App() {
             }
             DRO: <span className="badge bg-warning">{dro.toFixed(4)} {mmOrImp(nvConfig)}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
-            <Rev stats={stats} />
+            <Rev state={state} />
               <span
                 className="badge bg-success"
                 size="sm"
-                onClick={() => { set_dbg(!dbg); var c = config; c.dbg = !c.dbg; setConfig(c) }}>
+                onClick={() => { set_dbg(!dbg); var c = machineConfig; c.dbg = !c.dbg; setConfig(c) }}>
                 Dbg: {dbg ? "On" : "Off"}
               </span>
               {dbg &&
@@ -255,40 +254,44 @@ export default function App() {
         </Row>
         <Row>
         <Col>
-            <ModeSel handleModeSelect={handleModeSelect} modes={modes} config={config}></ModeSel>
+            <ModeSel 
+              handleModeSelect={handleModeSelect} 
+              modes={modes} 
+              machineConfig={machineConfig}></ModeSel>
           </Col>
         </Row>
 
       </div>
       {
         //  only disply when we are not in startup mode
-        config["m"] != 0 &&
+        machineConfig.m != 0 &&
         <div>
           <Tabs
             defaultActiveKey="moveSync_tab"
-            //activeKey={selectDefaultTab(config)}
             activeKey={modetabkey}
             id="uncontrolled-tab-example"
             onSelect={(key) => handleTabSelect(key)}
             transition={false}>
 
             <Tab
-              tabClassName={(config["m"] == "2" || config["m"] == "4" || config["m"] == "6") ? "" : "d-none"}
+              tabClassName={(machineConfig.m == "2" || machineConfig.m == "4" || machineConfig.m == "6") ? "" : "d-none"}
               eventKey="moveSync_tab" title="MoveSync">
               <div>
                 <div className="card-body">
-                  {config["m"] == 0 &&
+                  {machineConfig.m == 0 &&
                     <div>
 
                       Select a mode above
                     </div>
                   }
-                  {config["m"] != 0 &&
+                  {machineConfig.m != 0 &&
                     <MoveSyncUI
-                      config={config} setConfig={setConfig} me={me}
+                      state={state}
                       nvConfig={nvConfig}
-                      connected={connected}
-                      stats={stats} sendConfig={sendConfig}
+                      machineConfig={machineConfig}
+                      moveConfig={moveConfig}
+                      set_moveConfig={set_moveConfig}
+                      set_machineConfig={set_machineConfig}
                     />
                   }
                 </div>
@@ -297,31 +300,32 @@ export default function App() {
 
 
             <Tab
-              tabClassName={(config["m"] == "14" || config["m"] == "4") ? "" : "d-none"}
+              tabClassName={(machineConfig.m == "14" || machineConfig.m == "4") ? "" : "d-none"}
               eventKey="feed_tab" title="Feed">
-              <Feed stats={stats} config={config} nvConfig={nvConfig} me={me} />
+              <Feed 
+                state={state} 
+                moveConfig={moveConfig}
+                set_moveConfig={set_moveConfig}
+                machineConfig={machineConfig} nvConfig={nvConfig}  />
             </Tab>
 
 
 
             <Tab
-              tabClassName={(config["m"] == "15" || config["m"] == "4") ? "" : "d-none"}
+              tabClassName={(machineConfig.m == "15" || machineConfig.m == "4") ? "" : "d-none"}
               eventKey="thread_tab" title="Thread">
 
               <ThreadView config={config} stats={stats} />
 
             </Tab>
             <Tab
-              tabClassName={(config["m"] == "9" || config["m"] == "4") ? "" : "d-none"}
+              tabClassName={(machineConfig.m == "9" || machineConfig.m == "4") ? "" : "d-none"}
               eventKey="hob_tab" title="Hobbing">
               <Hobbing config={config} setConfig={setConfig} me={me} stats={stats} ></Hobbing>
             </Tab>
             <Tab eventKey="config_tab" title="Conf">
 
               <ConfigUI stats={stats} config={config} nvConfig={nvConfig} cookie_setters={cookie_setters} />
-            </Tab>
-            <Tab eventKey="net_tab">
-
             </Tab>
             <Tab eventKey="net_tab" title="Network">
               <Network
@@ -337,7 +341,7 @@ export default function App() {
               tabClassName={dbg ? "" : "d-none"}
               eventKey="debug_tab" title="Debug"
               >
-                <Debug stats={stats} config={config} nvConfig={nvConfig} />
+                <Debug state={state} machineConfig={machineConfig} nvConfig={nvConfig} />
             </Tab>
           </Tabs>
 
@@ -345,7 +349,7 @@ export default function App() {
       }
       {
         // Startup mode home
-        (config["m"] == undefined || config["m"] == 0) &&
+        (machineConfig.m == undefined || machineConfig.m == 0) &&
         <div>
           <Tabs defaultActiveKey="home_tab" id="uncontrolled-tab-example"
             onSelect={(key) => handleTabSelect(key)}
@@ -377,10 +381,14 @@ export default function App() {
                 config={config} connected={connected} />
 
             </Tab>
+            <Tab eventKey="config_tab" title="Conf">
+
+              <ConfigUI stats={stats} config={config} nvConfig={nvConfig} cookie_setters={cookie_setters} />
+            </Tab>
             <Tab
               tabClassName={dbg ? "" : "d-none"}
               eventKey="debug_tab" title="Debug">
-                <Debug stats={stats} config={config} nvConfig={nvConfig} />
+                <Debug state={state} machineConfig={machineConfig} nvConfig={nvConfig} />
             </Tab>
           </Tabs>
         </div>

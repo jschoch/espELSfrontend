@@ -3,17 +3,16 @@ import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
 import { send, stepsToDistance,mmOrImp } from './util.js';
 
-export default function Moving({ config, stats, nvConfig }) {
+export default function Moving({ state,nvConfig,machineConfig }) {
   function moveCancel() {
     var d = { cmd: "moveCancel" };
-    //ws.send(JSON.stringify(d));
-    send(d, window.wsclient);
+    send(d);
   }
   return (
     <div>
       {
         // stats sw is syncwaiting
-        stats["sw"] &&
+        state.stats["sw"] &&
         <div>
           <Button variant="danger">Waiting for Sync</Button>
           <Button variant="danger" onClick={moveCancel}>
@@ -22,15 +21,15 @@ export default function Moving({ config, stats, nvConfig }) {
         </div>
       }
 
-      {stats["pos_feed"] && !stats["sw"] &&
+      {state.stats["pos_feed"] && !state.stats["sw"] &&
         <div>
-           { config.m == "6"  && 
+           { machineConfig.m == "6"  && 
             <div>
-              Bounce: {stats.rap? "Rapid Mode" : "Moving Mode"}
+              Bounce: {state.stats.rap? "Rapid Mode" : "Moving Mode"}
             </div>
             
             }
-          <Button disabled={stats.pos_feed} >
+          <Button disabled={state.stats.pos_feed} >
             <Spinner
               as="span"
               animation="border"
@@ -39,14 +38,14 @@ export default function Moving({ config, stats, nvConfig }) {
               aria-hidden="true"
             />            
            
-            {stats.fd &&
+            {state.stats.fd &&
               <span>
-                Distance to Go: {stepsToDistance(nvConfig, (stats.sp - stats.p)).toFixed(4)}
+                Distance to Go: {stepsToDistance(nvConfig, (state.stats.sp - state.stats.p)).toFixed(4)}
                 {mmOrImp(nvConfig)}
               </span>}
-            {!stats.fd &&
+            {!state.stats.fd &&
               <span>
-                -Distance to Go: {stepsToDistance(nvConfig, (stats.p - stats.sn)).toFixed(4)}
+                -Distance to Go: {stepsToDistance(nvConfig, (state.stats.p - state.stats.sn)).toFixed(4)}
                 {mmOrImp(nvConfig)}
               </span>
 
