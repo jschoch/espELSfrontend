@@ -40,13 +40,13 @@ export default function Moving({ state,nvConfig,machineConfig }) {
            
             {state.stats.fd &&
               <span>
-                Distance to Go: {stepsToDistance(nvConfig, (state.stats.sp - state.stats.p)).toFixed(4)}
-                {mmOrImp(nvConfig)}
+                Distance to Go: {stepsToDistance(state,nvConfig, (state.stats.sp - state.stats.p)).toFixed(4)}
+                {mmOrImp(state)}
               </span>}
             {!state.stats.fd &&
               <span>
-                -Distance to Go: {stepsToDistance(nvConfig, (state.stats.p - state.stats.sn)).toFixed(4)}
-                {mmOrImp(nvConfig)}
+                -Distance to Go: {stepsToDistance(state,nvConfig, (state.stats.p - state.stats.sn)).toFixed(4)}
+                {mmOrImp(state)}
               </span>
 
             }

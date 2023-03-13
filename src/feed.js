@@ -5,7 +5,7 @@ import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { mmOrImp, send } from './util.js';
+import { mmOrImp, send,mmToIn, viewPitch } from './util.js';
 //import { state.stats } from 'fs';
 //import Card from "react-boostrap/Card";
 import DropdownButton from 'react-bootstrap/DropdownButton';
@@ -34,6 +34,9 @@ export default function Feed({ config, nvConfig, state,machineConfig,moveConfig,
         mc.movePitch = p;
         // TODO: how to handle feeding_ccw?
         //mc.f = c.f;
+
+
+        // TODO: should send moveConfig on update pitch and leave that out of the cmd
         set_moveConfig(mc);
         if (state.stats.pos_feed) {
             var d = { cmd: "moveCancel" };
@@ -46,7 +49,8 @@ export default function Feed({ config, nvConfig, state,machineConfig,moveConfig,
     };
 
     const mp = moveConfig.movePitch ;
-    const ip = (mp * (1 / 25.4)).toFixed(4);
+    const long_ip = parseFloat(mmToIn(mp));
+    const ip = long_ip.toFixed(4);
 
 
     return (
@@ -71,10 +75,12 @@ export default function Feed({ config, nvConfig, state,machineConfig,moveConfig,
 
                                 <ButtonGroup className="mb-2">
                                     <InputGroup size="sm" className="mb-3">
-                                        <InputGroup.Text id="movePitch" >Feed Pitch {mmOrImp(nvConfig)}</InputGroup.Text>
+                                        <InputGroup.Text id="movePitch" >
+                                            Feed Pitch {mmOrImp(state)}
+                                        </InputGroup.Text>
                                         <FormControl aria-label="Small" aria-describedby="inputGroup-sizing-sm"
                                             inputMode='decimal' step='any' type="number"
-                                            placeholder={(nvConfig.metric == "true") ? mp : ip}
+                                            placeholder={viewPitch(state,move_pitch)}
                                             onChange={(e) => set_pitch(e.target.value)}
                                         />
                                     </InputGroup>

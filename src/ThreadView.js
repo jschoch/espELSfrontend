@@ -12,14 +12,14 @@ var magic = true;
 
 
 
-export default function ThreadView({ config, stats }) {
+export default function ThreadView({ moveConfig,set_moveConfig,machineConfig, state }) {
   const { register, handleSubmit, watch, errors } = useForm();
 
 
 
 
   const passes = () => {
-    let p = Math.ceil(Math.pow(((config.pitch * 0.614) / firstThreadDepth), 2));
+    let p = Math.ceil(Math.pow(((moveConfig.pitch * 0.614) / firstThreadDepth), 2));
     if (Number.isInteger(p)) {
       return p;
     } else { return 0 }
@@ -32,11 +32,9 @@ export default function ThreadView({ config, stats }) {
 
   const onSubmitJog = (data) => {
     data.preventDefault();
-    var c = config
+    console.log("drepricated until abs jog works again");
     /*
-    c.f = feedingLeft;
-    c.s = syncStart;
-    */
+    var c = config
     if (submitButton == 1) {
     } else if (submitButton == -1) {
     } else if (submitButton == 3) {
@@ -57,14 +55,18 @@ export default function ThreadView({ config, stats }) {
 
     }
     console.log("onSubmitJog data", data, c, submitButton);
+    */
   }
 
   const onSubmitPitch = (data) => {
-    var c = config
+    /*
+    var c = moveConfig
     c.pitch = data.pitch
     //setConfig(c);
     console.log("data", data);
     //sendConfig();
+    */
+    alert("depricated");
   }
 
 
@@ -72,7 +74,7 @@ export default function ThreadView({ config, stats }) {
   // rec_passes is passes()
   function makeThreadTable(rec_passes, first) {
     var cards = [];
-    var thread_depth = (config.pitch * 0.614);
+    var thread_depth = (moveConfig.movePItch * 0.614);
     var t = first;
     var feed = 0;
     for (var i = 1; i <= (rec_passes); i++) {
@@ -83,7 +85,7 @@ export default function ThreadView({ config, stats }) {
       }
       cards.push(<ListGroup.Item key={i}>
         pass: {i} _
-        offset = {(config.pitch / passes()) * i} _
+        offset = {(moveConfig.pitch / passes()) * i} _
         Incremental Feed =
         <span> {feed - t} <b> Total Feed: {feed} </b>
         </span>
@@ -100,7 +102,7 @@ export default function ThreadView({ config, stats }) {
   return (
     <div className="container-fluid">
       <span>
-        Likely doesn't work anymore, needs refactoring <br />
+        not going to work with imperial, needs refactoring <br />
         TODO: add field for setFirstTHreadDepth as this drives how many passes there are
       </span>
 
@@ -120,27 +122,27 @@ export default function ThreadView({ config, stats }) {
               inputMode='decimal' step='any' defaultValue={passes()} />
 
           </InputGroup>
-          "offset per pass" {config.pitch / passes()}
+          "offset per pass" {moveConfig.movePitch / passes()}
 
         </Col>
       </Form>
       <Form inline onSubmit={handleSubmit(onSubmitJog)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }} >
         <Col>
           <Button type="submit" className="mb-2"
-            disabled={stats.pos_feed}
+            disabled={state.stats.pos_feed}
             onClick={() => setSubmitButton(3)}>
             Move Offset Z-
           </Button>
           <Button type="submit" className="mb-2"
-            disabled={stats.pos_feed}
+            disabled={state.stats.pos_feed}
             onClick={() => setSubmitButton(4)}>
             Move Offset Z+
           </Button>
         </Col>
       </Form>
       <div>
-        Thread Depth: {config.pitch * 0.614} Recommended Passes: {passes()}
-        Initial Offset: {firstThreadDepth} Offset per pass {config.pitch / passes()}
+        Thread Depth: {moveConfig.movePitch * 0.614} Recommended Passes: {passes()}
+        Initial Offset: {firstThreadDepth} Offset per pass {moveConfig.movePitch / passes()}
         <Card style={{ width: '18rem' }}>
           <ListGroup variant="flush">
             {
@@ -154,11 +156,11 @@ export default function ThreadView({ config, stats }) {
               <Col xs={8}>
                 <InputGroup>
                   <InputGroup.Text>
-                    Pitch: {config["pitch"]}</InputGroup.Text>
+                    Pitch: {moveConfig.movePitch}</InputGroup.Text>
                   <Form.Control id="pitch" name="pitch" type="number"
                     ref={register({ required: true })}
                     defaultValue="0.1"
-                    inputMode='decimal' step='any' placeholder="{config.pitch}" />
+                    inputMode='decimal' step='any' placeholder={moveConfig.movePitch} />
                 </InputGroup>
               </Col>
 
@@ -174,7 +176,7 @@ export default function ThreadView({ config, stats }) {
 
       </div>
       <div>
-        <div>raw config<pre>{JSON.stringify(config, null, 2)}</pre></div>
+        <div>raw config<pre>{JSON.stringify(moveConfig, null, 2)}</pre></div>
       </div>
     </div >
   )

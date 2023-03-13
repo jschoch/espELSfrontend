@@ -48,7 +48,7 @@ export default function Info(props) {
                     <KV k="Pos Stop" v={props.state.stats.sp.toFixed(3)} />
 
                     <KV k="Neg Stop" v={props.state.stats.sn.toFixed(3)} />
-                    <KV k={"steps per " + mmOrImp(props.nvConfig)} v={props.nvConfig.metric == "true" ? stepsPerMM(props.nvConfig) : stepsPerIn(props.nvConfig)} />
+                    <KV k={"steps per " + mmOrImp(props.state)} v={props.state.metric == "true" ? stepsPerMM(props.nvConfig) : stepsPerIn(props.nvConfig)} />
                     <br />
                     { /* yuck <!--  need to add debug stats here
           <KV k="Target Tool Position" v={props.state.stats.targetPos} />
@@ -81,7 +81,7 @@ export default function Info(props) {
                 <KV k="Motion On: " v={props.state.stats.pos_feed ? "true" : "false"} />
                 <KV k="Feeding_dir" v={props.state.stats.fd ? "true" : "false"} />
                 <KV k="Waiting for Sync" v={props.state.stats.sw ? "true" : "false"} />
-                <KV k={props.nvConfig.metric == "true" ? "Metric": "Imperial"} v="on" />
+                <KV k={props.state.metric == "true" ? "Metric": "Imperial"} v="on" />
                 <div className="card-body">
                   <p className="card-text">
                     Card content

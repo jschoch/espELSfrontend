@@ -6,7 +6,7 @@ import FormControl from 'react-bootstrap/FormControl';
 import { useForm } from 'react-hook-form';
 import { send } from './util.js';
 
-export default function ShowNvConfig({ nvConfig, stats, config }) {
+export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
     const { register, handleSubmit, watch, errors } = useForm();
 
     const onSubmitNvConfig = (data) => {
@@ -54,7 +54,7 @@ export default function ShowNvConfig({ nvConfig, stats, config }) {
                                             <InputGroup>
                                                 <InputGroup.Text>Lead Screw Pitch (in mm) {nvConfig["lead_screw_pitch"]}</InputGroup.Text>
                                                 <Form.Control id="lead_screw_pitch" name="lead_screw_pitch" type="number"
-                                                    ref={register({ required: true })}
+                                                    required
                                                     defaultValue={nvConfig["lead_screw_pitch"]}
                                                     inputMode='decimal' step='any' placeholder={nvConfig["lead_screw_pitch"]} />
 
@@ -63,7 +63,7 @@ export default function ShowNvConfig({ nvConfig, stats, config }) {
                                                 <InputGroup.Text>Micro Steps {nvConfig["microsteps"]}</InputGroup.Text>
                                                 <button type="button" className="btn btn-secondary" data-toggle="tooltip" title="this is the microstepping mutliplier 1,2,4,8,16 etc">?</button>
                                                 <Form.Control id="microsteps" name="microsteps" type="number"
-                                                    ref={register({ required: true })}
+                                                    required
                                                     defaultValue={nvConfig["microsteps"]}
                                                     inputMode='decimal' step='any' placeholder={nvConfig["microsteps"]} />
 
@@ -71,7 +71,7 @@ export default function ShowNvConfig({ nvConfig, stats, config }) {
                                             <InputGroup>
                                                 <InputGroup.Text>Spindle Encoder Resolution (CPR) {nvConfig["spindle_encoder_resolution"]}</InputGroup.Text>
                                                 <Form.Control id="spindle_encoder_resolution" name="spindle_encoder_resolution" type="number"
-                                                    ref={register({ required: true })}
+                                                    required
                                                     defaultValue={nvConfig["spindle_encoder_resolution"]}
                                                     inputMode='decimal' step='any' placeholder={nvConfig["spindle_encoder_resolution"]} />
 
@@ -79,7 +79,7 @@ export default function ShowNvConfig({ nvConfig, stats, config }) {
                                             <InputGroup>
                                                 <InputGroup.Text>Encoder Pin A: {nvConfig["EA"]}</InputGroup.Text>
                                                 <Form.Control id="EA" name="EA" type="number"
-                                                    ref={register({ required: true })}
+                                                    required
                                                     defaultValue={nvConfig["EA"]}
                                                     inputMode='decimal' step='any' placeholder={nvConfig["EA"]} />
 
@@ -87,7 +87,7 @@ export default function ShowNvConfig({ nvConfig, stats, config }) {
                                             <InputGroup>
                                                 <InputGroup.Text>Encoder Pin B: {nvConfig["EB"]}</InputGroup.Text>
                                                 <Form.Control id="EB" name="EB" type="number"
-                                                    ref={register({ required: true })}
+                                                    required
                                                     defaultValue={nvConfig["EB"]}
                                                     inputMode='decimal' step='any' placeholder={nvConfig["EB"]} />
 

@@ -98,10 +98,11 @@ export default function App() {
 
 
   const vsn = "0.0.3";
+  const default_moveConfig = {
+    movePitch: 0.1,
+    rapidPitch: 0.1
+  }
 
-
-  // Depricate
-  const [config, setConfig] = useState({ vsn: vsn });
 
   const [machineConfig,set_machineConfig] = useState({m: 0});
   const [connected, set_connected] = useState(false);
@@ -111,8 +112,7 @@ export default function App() {
   const [nvConfig, set_nvConfig] = useState({ error: true, motor_steps: 0 });
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
-  const [dbg, set_dbg] = useState(true);
-  const [metric, set_metric] = useCookie("metric", "true");
+  const [metric_cookie, set_metric_cookie] = useCookie("metric", "true");
   const [cookie, updateCookie] = useCookie("url", default_ws_url);
   const [ws_url, set_ws_url] = useState(cookie);
   const me = { setModalErrorMsg: setModalErrorMsg, setShowModalError: setShowModalError };
@@ -120,7 +120,7 @@ export default function App() {
   const [msg, set_msg] = useState(null);
   const [vencState, set_vencState] = useState(false);
   const [modetabkey, set_modetabkey] = useState('moveSync_tab');
-  const [moveConfig,set_moveConfig] = useState({});
+  const [moveConfig,set_moveConfig] = useState(default_moveConfig);
   const [state,set_state] = useState( { 
     nvConfig:  nvConfig,
     stats: stats,
@@ -128,6 +128,8 @@ export default function App() {
     set_connected: set_connected,
     // modal error thingy
     me: me,
+    metric: metric_cookie,
+    dbg: true,
     vsn: vsn
   });
 
@@ -163,10 +165,7 @@ export default function App() {
   const cookie_setters = {
     metric: (val) => {
       console.log("toggle metric", val);
-      var nv = nvConfig;
-      nv.metric = val;
-      set_metric(val, 1000);
-      set_nvConfig(nv);
+      set_metric_cookie(val, 1000);
     }
   }
 
@@ -183,22 +182,22 @@ export default function App() {
             ...state,
             stats: merged
           })
-        setDRO(stepsToDistance(nvConfig, msg.p));
+        setDRO(stepsToDistance(state,nvConfig, msg.p));
         setRPM(msg.rpm);
       }
       else if (msg["t"] == "nvConfig") {
         console.log("got nv configuration", msg);
-        msg.metric = metric;
+        //msg.metric = metric;
         set_nvConfig(msg);
       }
       else if (msg["t"] == "state") {
         console.log("updating config", msg);
-        //msg.vsn = vsn;
-        msg.dbg = dbg;
         set_machineConfig(msg);
         var mc = moveConfig;
         mc.movePitch = msg.pitch;
+        mc.pitch = msg.pitch;
         mc.rapidPitch = msg.rapid;
+        mc.rapid = msg.rapid;
         set_moveConfig(mc);
         console.log("machineConfig", machineConfig,moveConfig)
       }
@@ -223,6 +222,21 @@ export default function App() {
     //}
   }, [msg, set_msg, nvConfig, set_nvConfig, dro, setDRO]);
 
+  // handle changes from metric to imperial and back
+  /*
+  useEffect( () =>{
+    if(state.metric == "true"){
+      //set_move_pitch(moveConfig.movePitch);
+      //set_rapid_pitch(moveConfig.rapidPitch);
+      console.log("useEffect in app: metric");
+    }else{
+      //set_move_pitch(mmToIn(moveConfig.movePitch));
+      //set_rapid_pitch(mmToIn(moveConfig.rapidPitch));
+      console.log("useEffect in app: imp");
+    }
+  },[state.metric,nvConfig.lead_screw_pitch,state.connected])
+  */
+
 
   return (
     <Container fluid>
@@ -234,16 +248,21 @@ export default function App() {
                 <span className="badge bg-success"><Wifi /> </span>
                 : <span className="badge bg-danger"><WifiOff /></span>
             }
-            DRO: <span className="badge bg-warning">{dro.toFixed(4)} {mmOrImp(nvConfig)}</span>
+            DRO: <span className="badge bg-warning">{dro.toFixed(4)} {mmOrImp(state)}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
             <Rev state={state} />
               <span
                 className="badge bg-success"
                 size="sm"
-                onClick={() => { set_dbg(!dbg); var c = machineConfig; c.dbg = !c.dbg; setConfig(c) }}>
-                Dbg: {dbg ? "On" : "Off"}
+                onClick={() => { 
+                  //set_dbg(!dbg); 
+                  set_state({
+                    ...state,
+                    dbg: !state.dbg});
+                  }}>
+                Dbg: {state.dbg ? "On" : "Off"}
               </span>
-              {dbg &&
+              {state.dbg &&
                 <span 
                  onClick={() => {handleVenc()}}
                 className="badge bg-danger">
@@ -315,30 +334,45 @@ export default function App() {
               tabClassName={(machineConfig.m == "15" || machineConfig.m == "4") ? "" : "d-none"}
               eventKey="thread_tab" title="Thread">
 
-              <ThreadView config={config} stats={stats} />
+              <ThreadView state={state} 
+                moveConfig={moveConfig}
+                set_moveConfig={set_moveConfig}
+                machineConfig={machineConfig} 
+                stats={stats} />
 
             </Tab>
             <Tab
               tabClassName={(machineConfig.m == "9" || machineConfig.m == "4") ? "" : "d-none"}
               eventKey="hob_tab" title="Hobbing">
-              <Hobbing config={config} setConfig={setConfig} me={me} stats={stats} ></Hobbing>
+              <Hobbing 
+                moveConfig={moveConfig}
+                set_moveConfig={set_moveConfig}
+                machineConfig={machineConfig} 
+                set_machineConfig={set_machineConfig} 
+                state={state} ></Hobbing>
             </Tab>
             <Tab eventKey="config_tab" title="Conf">
 
-              <ConfigUI stats={stats} config={config} nvConfig={nvConfig} cookie_setters={cookie_setters} />
+              <ConfigUI state={state} machineConfig={machineConfig} 
+                nvConfig={nvConfig} 
+                set_state={set_state}
+                moveConfig={moveConfig}
+                set_moveConfig={set_moveConfig}
+                cookie_setters={cookie_setters} />
             </Tab>
             <Tab eventKey="net_tab" title="Network">
               <Network
                 ws_url={ws_url}
                 set_ws_url={set_ws_url}
                 cookie={cookie}
+                state={state}
                 updateCookie={updateCookie}
-                config={config} connected={connected} />
+                machineConfig={machineConfig} connected={connected} />
 
             </Tab>
 
             <Tab
-              tabClassName={dbg ? "" : "d-none"}
+              tabClassName={state.dbg ? "" : "d-none"}
               eventKey="debug_tab" title="Debug"
               >
                 <Debug state={state} machineConfig={machineConfig} nvConfig={nvConfig} />
@@ -368,7 +402,7 @@ export default function App() {
               <div>
                 <span>
                   Welcome!  Select a mode to get started.
-                  <ModeSel handleModeSelect={handleModeSelect} modes={modes} config={config}></ModeSel>
+                  <ModeSel handleModeSelect={handleModeSelect} modes={modes} machineConfig={machineConfig}></ModeSel>
                 </span>
               </div>
             </Tab>
@@ -376,17 +410,20 @@ export default function App() {
               <Network
                 cookie={cookie}
                 updateCookie={updateCookie}
+                state={state}
                 ws_url={ws_url}
                 set_ws_url={set_ws_url}
-                config={config} connected={connected} />
+                machineConfig={machineConfig} connected={connected} />
 
             </Tab>
             <Tab eventKey="config_tab" title="Conf">
 
-              <ConfigUI stats={stats} config={config} nvConfig={nvConfig} cookie_setters={cookie_setters} />
+              <ConfigUI state={state} machineConfig={machineConfig} 
+                set_state={set_state}
+                nvConfig={nvConfig} cookie_setters={cookie_setters} />
             </Tab>
             <Tab
-              tabClassName={dbg ? "" : "d-none"}
+              tabClassName={state.dbg ? "" : "d-none"}
               eventKey="debug_tab" title="Debug">
                 <Debug state={state} machineConfig={machineConfig} nvConfig={nvConfig} />
             </Tab>
@@ -396,7 +433,7 @@ export default function App() {
       <EspWS msg={msg} set_msg={set_msg} connected={connected}
         vsn={vsn}
         ws_url={ws_url}
-        set_connected={set_connected} config={config} />
+        set_connected={set_connected} machineConfig={machineConfig} />
       <ModalError showModalError={showModalError}
         modalErrorMsg={modalErrorMsg}
         setShowModalError={setShowModalError}

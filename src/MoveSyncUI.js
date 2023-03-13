@@ -21,7 +21,6 @@ export default function MoveSyncUI({ state,machineConfig,set_machineConfig,nvCon
     // enable flag for enable rapid right
     const [enRR, setEnRR] = useState(true);
     const [showModalMove, set_showModalMove] = useState(false);
-    //const [moveConfig, set_moveConfig] = useState({ pitch: config.pitch, rapid: config.rapid });
     const [feedingLeft, set_feedingLeft] = useState(true);
     const [syncStart, set_syncStart] = useState(true);
     // set this to "u" for undefined so we can ensure it was actually set by the operator
@@ -43,7 +42,7 @@ export default function MoveSyncUI({ state,machineConfig,set_machineConfig,nvCon
         c.s = syncStart;
         c.pitch = moveConfig.movePitch;
 
-        c.moveSteps = distanceToSteps(nvConfig, distance);
+        c.moveSteps = distanceToSteps(state,nvConfig, distance);
         var d = { cmd: "jog", config: c }
         send(d);
     }
@@ -52,7 +51,7 @@ export default function MoveSyncUI({ state,machineConfig,set_machineConfig,nvCon
         c.f = feedingLeft;
         c.s = syncStart;
         c.rapid = moveConfig.rapid;
-        c.moveSteps = distanceToSteps(nvConfig,distance);
+        c.moveSteps = distanceToSteps(state,nvConfig,distance);
         var d = { cmd: "rapid", config: c }
         send(d);
     }
@@ -105,8 +104,8 @@ export default function MoveSyncUI({ state,machineConfig,set_machineConfig,nvCon
                             </Row>
                             <Row>
                                 <p className="text-center">
-                                    Current Pitch set to: {(nvConfig.metric == "true" ? moveConfig.movePitch : mmToIn(moveConfig.movePitch))}  
-                                    {mmOrImp(nvConfig)}
+                                    Current Pitch set to: {(state.metric == "true" ? moveConfig.movePitch : mmToIn(moveConfig.movePitch))}  
+                                    {mmOrImp(state)}
                                     {(!enRL || !enRR) &&
                                         <span>
                                             Rapid Pitch: {moveConfig.rapid}
@@ -121,7 +120,6 @@ export default function MoveSyncUI({ state,machineConfig,set_machineConfig,nvCon
                                 </Button>
                                 <ModalMove 
                                     state={state}
-                                    //config={config} setConfig={setConfig}
                                     nvConfig={nvConfig}
                                     machineConfig={machineConfig}
                                     moveConfig={moveConfig} set_moveConfig={set_moveConfig}
@@ -138,7 +136,7 @@ export default function MoveSyncUI({ state,machineConfig,set_machineConfig,nvCon
                                 <Col>
                                     <InputGroup className="mb-3">
                                         <InputGroup.Text id="notsure">
-                                            ( { mmOrImp(state.nvConfig)} )
+                                            ( { mmOrImp(state)} )
                                             Move Distance</InputGroup.Text>
                                         <FormControl
                                             placeholder="Distance to Move"
