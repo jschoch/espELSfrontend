@@ -22,12 +22,14 @@ export function distanceToSteps(nvConfig,distance) {
         r = distance * stepsPerIn(nvConfig);
     }
 
+    r = Math.floor( r);
+
     if(Number.isSafeInteger(r) ){
         return r
     } else
     {
         alert("Invalid Distance error");
-        console.log("invalid distance conversion", nvConfig,distance);
+        console.log("invalid distance conversion", r, distance, nvConfig);
         return 0
     }
 }
