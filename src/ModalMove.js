@@ -11,7 +11,7 @@ import MaxPitch from './MaxPitch.js';
 
 
 
-export default function ModalMove({ config, setConfig, nvConfig,show,set_show }) {
+export default function ModalMove({ config, setConfig, nvConfig,show,set_show,moveConfig, set_moveConfig }) {
   const [movePitch, set_movePitch] = useState(config.pitch);
   const [rapidPitch, set_rapidPitch] = useState(config.rapid);
   const handleClose = () => {
@@ -19,9 +19,11 @@ export default function ModalMove({ config, setConfig, nvConfig,show,set_show })
     if(nvConfig.metric == "true"){
       c.pitch = movePitch;
       c.rapid = rapidPitch;
+      set_moveConfig(c);
     }else{
       c.pitch = inToMM(movePitch);
       c.rapid = inToMM(rapidPitch);
+      set_moveConfig(c);
     }
     
     setConfig(c);
@@ -48,7 +50,7 @@ export default function ModalMove({ config, setConfig, nvConfig,show,set_show })
       set_rapidPitch( mmToIn(config.rapid));
     }
 
-  },[nvConfig.metric])
+  },[nvConfig.metric,config.pitch,config.rapid,moveConfig.pitch,moveConfig.rapid])
 
   return (
 

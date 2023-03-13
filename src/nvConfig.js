@@ -94,7 +94,7 @@ export default function ShowNvConfig({ nvConfig, stats, config }) {
                                             </InputGroup>
 
                                             <InputGroup>
-                                                <InputGroup.Text>Motor Steps per MM {nvConfig["motor_steps"]}</InputGroup.Text>
+                                                <InputGroup.Text>Motor Steps per revolution {nvConfig["motor_steps"]}</InputGroup.Text>
 
                                             </InputGroup>
                                             <InputGroup>

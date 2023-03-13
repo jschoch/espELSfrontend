@@ -41,7 +41,7 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
         // TODO: add these to the UI
         c.f = feedingLeft;
         c.s = syncStart;
-        c.pitch = config.pitch;
+        c.pitch = moveConfig.pitch;
 
         c.moveSteps = distanceToSteps(nvConfig, distance);
         var d = { cmd: "jog", config: c }
