@@ -420,6 +420,9 @@ export default function App() {
 
               <ConfigUI state={state} machineConfig={machineConfig} 
                 set_state={set_state}
+                moveConfig={moveConfig}
+                set_moveConfig={set_moveConfig}
+                machineConfig={machineConfig}
                 nvConfig={nvConfig} cookie_setters={cookie_setters} />
             </Tab>
             <Tab

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState,useRef } from 'react';
 import { Button, ToggleButton, ButtonGroup, Container } from 'react-bootstrap';
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -13,31 +13,27 @@ import Dropdown from 'react-bootstrap/Dropdown';
 
 export default function Feed({ config, nvConfig, state,machineConfig,moveConfig, set_moveConfig }) {
 
-    const [move_pitch, set_pitch] = useState(moveConfig.movePitch);
+    //const [move_pitch, set_pitch] = useState(moveConfig.movePitch);
     const [reverse, set_reverse] = useState(true);
+    const move_pitchRef = useRef();
 
 
     // turn feed on
     const handleToggle = (data) => {
-        var mc = moveConfig;
-        var p = parseFloat(move_pitch);
+        var c = {};
+        var p = parseFloat(move_pitchRef.current.value);
         if(p == 0 || isNaN(p) || p === undefined){
             console.log("doh pitch was 0")
             state.me.setModalErrorMsg("Pitch can't be 0 ");
             state.me.setShowModalError(true);
             return;
         }
-        var c = moveConfig;
         c.f = !reverse;
-        //c.pitch = parseFloat(pitch);
         c.pitch = p;
-        mc.movePitch = p;
-        // TODO: how to handle feeding_ccw?
-        //mc.f = c.f;
-
+        c.movePitch = p;
 
         // TODO: should send moveConfig on update pitch and leave that out of the cmd
-        set_moveConfig(mc);
+        //set_moveConfig(mc);
         if (state.stats.pos_feed) {
             var d = { cmd: "moveCancel" };
         } else {
@@ -80,8 +76,8 @@ export default function Feed({ config, nvConfig, state,machineConfig,moveConfig,
                                         </InputGroup.Text>
                                         <FormControl aria-label="Small" aria-describedby="inputGroup-sizing-sm"
                                             inputMode='decimal' step='any' type="number"
-                                            placeholder={viewPitch(state,move_pitch)}
-                                            onChange={(e) => set_pitch(e.target.value)}
+                                            defaultValue={moveConfig.movePitch}
+                                            ref={move_pitchRef}
                                         />
                                     </InputGroup>
 

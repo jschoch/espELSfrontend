@@ -9,7 +9,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { send, mmToIn, inToMM, stepsToDistance, mmOrImp, viewPitch } from './util.js';
 import MaxPitch from './MaxPitch.js';
 
-
+this is depricated
 
 export default function ModalMove({ state, show, set_show, moveConfig, set_moveConfig, nvConfig, machineConfig }) {
   const [movePitch, set_movePitch] = useState(moveConfig.movePitch);

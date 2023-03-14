@@ -1,4 +1,4 @@
-import  { useState, useEffect } from 'react';
+import  { useState, useEffect,useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -12,10 +12,12 @@ import MaxPitch from './MaxPitch.js';
 
 export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig,moveConfig,set_moveConfig}) {
 
-  const [distance, set_distance] = useState(0);
-  const [move_pitch, set_move_pitch] = useState(moveConfig.movePitch);
-  const [rapid_pitch, set_rapid_pitch] = useState(moveConfig.rapidPitch);
+  //const [distance, set_distance] = useState(0);
   const [dwell,set_dwell] = useState(0);
+  const [last_distance,set_last_distance] = useState(0);
+  const distanceRef = useRef();
+  const movePitchRef = useRef();
+  const rapidPitchRef = useRef();
 
 
   
@@ -23,20 +25,18 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
   function do_bounce() {
     var mc = moveConfig;
     var c = { 
-      moveSteps: distanceToSteps(state,nvConfig, distance), 
-      rapid: rapid_pitch, 
-      pitch: move_pitch, 
+      moveSteps: distanceToSteps(state,nvConfig, distanceRef.current.value), 
+      rapid: rapidPitchRef.current.value, 
+      pitch: movePitchRef.current.value, 
       dwell: dwell,
       f: true 
     };
     if(state.metric != "true"){
-      c.rapid = inToMM(rapid_pitch);
-      c.pitch = inToMM(move_pitch);
+      c.rapid = inToMM(rapidPitchRef.current.value);
+      c.pitch = inToMM(movePitchRef.current.value);
     }
-    mc.movePitch = c.pitch;
-    mc.rapidPitch = c.rapid;
-    //set_moveConfig(mc);
     var d = { cmd: "bounce", config: c }
+    set_last_distance(distanceRef.current.value)
     send(d);
   }
 
@@ -55,9 +55,9 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
               <InputGroup className="mb-3">
                 <FormControl
                   aria-label="Distance to Move"
-                  value={distance}
+                  defaultValue={last_distance}
                   inputMode='numeric' step='any' type="number"
-                  onChange={e => set_distance(e.target.value)}
+                  ref={distanceRef}
                 />
                 <InputGroup.Text id="notsure">
                   {state.metric == "true" ? "(mm)" : "(in)"}
@@ -78,10 +78,9 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
               <InputGroup className="mb-3">
                 <FormControl
                   aria-label="Bounce Pitch"
-                  //value={() => {viewPitch(moveConfig.movePitch)}}
-                  placeholder={viewPitch(state,moveConfig.movePitch)}
                   inputMode='numeric' step='any' type="number"
-                  onChange={(e) => set_move_pitch( e.target.value)}
+                  defaultValue={viewPitch(state,moveConfig.movePitch)}
+                  ref={movePitchRef}
                 />
                 <InputGroup.Text id="unf">
                   {mmOrImp(state)}
@@ -94,9 +93,9 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
               <InputGroup className="mb-1">
                 <FormControl
                   aria-label="Rapid Pitch"
-                  placeholder={viewPitch(state,moveConfig.rapidPitch)}
+                  defaultValue={viewPitch(state,moveConfig.rapidPitch)}
                   inputMode='numeric' step='any' type="number"
-                  onChange={(e) => set_rapid_pitch( e.target.value)}
+                  ref={rapidPitchRef}
                 />
                 <InputGroup.Text id="rp">
                   {mmOrImp(state)}
