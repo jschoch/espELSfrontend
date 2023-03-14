@@ -6,51 +6,37 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { send,mmToIn,inToMM,stepsToDistance,mmOrImp } from './util.js';
+import { send, mmToIn, inToMM, stepsToDistance, mmOrImp, viewPitch } from './util.js';
 import MaxPitch from './MaxPitch.js';
 
 
 
-export default function ModalMove({ config, setConfig, nvConfig,show,set_show,moveConfig, set_moveConfig }) {
-  const [movePitch, set_movePitch] = useState(config.pitch);
-  const [rapidPitch, set_rapidPitch] = useState(config.rapid);
+export default function ModalMove({ state, show, set_show, moveConfig, set_moveConfig, nvConfig, machineConfig }) {
+  const [movePitch, set_movePitch] = useState(moveConfig.movePitch);
+  const [rapidPitch, set_rapidPitch] = useState(moveConfig.rapidPitch);
   const handleClose = () => {
-    var c = config;
-    if(nvConfig.metric == "true"){
+    var c = moveConfig;
+    if (state.metric == "true") {
       c.pitch = movePitch;
+      c.movePitch = movePitch;
       c.rapid = rapidPitch;
-      set_moveConfig(c);
-    }else{
+      c.rapidPitch = rapidPitch;
+    } else {
       c.pitch = inToMM(movePitch);
+      c.movePitch = inToMM(movePitch);
       c.rapid = inToMM(rapidPitch);
-      set_moveConfig(c);
+      c.rapidPitch = inToMM(rapidPitch);
     }
-    
-    setConfig(c);
-    console.log("pitch, rapid", movePitch, rapidPitch);
+    console.log("ModalMove moveConfig updated", moveConfig);
     set_show(false);
-    var d = { cmd: "sendConfig", config: config }
-    send(d);
-  }
-  const mp = config.pitch;
-  //const ip = (config.pitch * (1/25.4)).toFixed(4);
-  const ip = mmToIn(config.pitch);
-
-  const mr = config.rapid;
-  //const ir = (config.rapid * (1/25.4)).toFixed(4);
-  const ir = mmToIn(config.rapid);
-
-
-  useEffect (() => {
-    if(nvConfig.metric == "true"){
-      set_movePitch( config.pitch);
-      set_movePitch( config.rapid);
-    }else{
-      set_movePitch( mmToIn(config.pitch));
-      set_rapidPitch( mmToIn(config.rapid));
+    var d = { cmd: "sendMoveConfig", config: c }
+    if (Number.isFinite(c.pitch) && Number.isFinite(c.rapid)) {
+      send(d);
+    } else {
+      console.log("MoveModal: bad number error", c)
     }
+  }
 
-  },[nvConfig.metric,config.pitch,config.rapid,moveConfig.pitch,moveConfig.rapid])
 
   return (
 
@@ -60,23 +46,37 @@ export default function ModalMove({ config, setConfig, nvConfig,show,set_show,mo
       <Modal.Header closeButton>
         <Modal.Title>Move Settings</Modal.Title>
       </Modal.Header>
-      <MaxPitch nvConfig={nvConfig}/> {mmOrImp(nvConfig)}
+      <MaxPitch state={state} nvConfig={nvConfig} /> {mmOrImp(state)}
       <Modal.Body>
         <InputGroup size="sm" className="mb-3">
-          <InputGroup.Text id="rapidPitch">Rapid Pitch {mmOrImp(nvConfig)}</InputGroup.Text>
+          <InputGroup.Text id="rapidPitch">
+            Move Pitch {mmOrImp(state)}
+          </InputGroup.Text>
           <FormControl aria-label="Small" aria-describedby="rapidPitch"
             inputMode='decimal' step='any' type="number"
-            placeholder={(nvConfig.metric == "true") ? mr : ir} 
-            onChange={(e) => set_rapidPitch(e.target.value)}
+            placeholder={viewPitch(state, moveConfig.movePitch)}
+            onChange={(e) => {
+              var t = parseFloat(e.target.value);
+              if(Number.isFinite(t)){
+                set_movePitch(parseFloat(e.target.value))}
+              }
+            }
           />
         </InputGroup>
 
         <InputGroup size="sm" className="mb-3">
-          <InputGroup.Text id="movePitch" >Move Pitch {mmOrImp(nvConfig)}</InputGroup.Text>
+          <InputGroup.Text id="movePitch" >
+            Rapid Pitch {mmOrImp(state)}
+          </InputGroup.Text>
           <FormControl aria-label="Small" aria-describedby="inputGroup-sizing-sm"
             inputMode='decimal' step='any' type="number"
-            placeholder={(nvConfig.metric == "true") ? mp : ip} 
-            onChange={(e) => set_movePitch(e.target.value)}
+            placeholder={viewPitch(state, moveConfig.rapidPitch)}
+            onChange={(e) => {
+              var t = parseFloat(e.target.value);
+              if(Number.isFinite(t)){
+                set_rapidPitch(parseFloat(e.target.value))}
+              }
+            } 
           />
         </InputGroup>
 

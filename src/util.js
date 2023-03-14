@@ -14,9 +14,9 @@ export function send(cmd) {
     }
 }
 
-export function distanceToSteps(nvConfig,distance) {
+export function distanceToSteps(state,nvConfig,distance) {
     var r = 0; 
-    if (nvConfig.metric == "true") {
+    if (state.metric == "true") {
        r = distance * stepsPerMM(nvConfig);
     } else {
         r = distance * stepsPerIn(nvConfig);
@@ -34,8 +34,8 @@ export function distanceToSteps(nvConfig,distance) {
     }
 }
 
-export function mmOrImp(nvConfig){
-    if(nvConfig.metric == "true"){
+export function mmOrImp(state){
+    if(state.metric == "true"){
         return "(mm)";
     }else{
         return "(in)";
@@ -58,22 +58,22 @@ export function inToMM(val){
     return val * 25.4;
 }
 
-export function maxPitch(nvConfig){
+export function maxPitch(state,nvConfig){
     var maxSteps =  (nvConfig.spindle_encoder_resolution * nvConfig.lead_screw_pitch)
   
-    return stepsToDistance(nvConfig,maxSteps);
+    return stepsToDistance(state,nvConfig,maxSteps);
 }
 
 
 
-export function stepsToDistance(nvConfig, steps) {
+export function stepsToDistance(state,nvConfig, steps) {
     var r = 0;
-    if (!nvConfig ) {
-        console.log("wtf",nvConfig);
+    if (!nvConfig || !state ) {
+        console.log("wtf",nvConfig,state);
         return 0;
     }
     
-    if (nvConfig.metric == "true") {
+    if (state.metric == "true") {
         r = steps / stepsPerMM(nvConfig);
         //console.log("stepstoDistance" ,stepsPerMM,r);
     }else{
@@ -90,3 +90,13 @@ export function stepsToDistance(nvConfig, steps) {
         return 0;
     }
 }
+
+
+export function viewPitch(state,pitch){
+    if(state.metric == "true"){
+        return pitch;
+    }else{
+        return mmToIn(pitch);
+    }
+}
+

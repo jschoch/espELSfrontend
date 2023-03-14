@@ -5,31 +5,40 @@ import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { mmOrImp, send } from './util.js';
-import { Stats } from 'fs';
+import { mmOrImp, send,mmToIn, viewPitch } from './util.js';
+//import { state.stats } from 'fs';
 //import Card from "react-boostrap/Card";
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
 
-export default function Feed({ config, nvConfig, stats,me }) {
+export default function Feed({ config, nvConfig, state,machineConfig,moveConfig, set_moveConfig }) {
 
-    const [pitch, set_pitch] = useState(config.pitch);
+    const [move_pitch, set_pitch] = useState(moveConfig.movePitch);
     const [reverse, set_reverse] = useState(true);
 
 
     // turn feed on
     const handleToggle = (data) => {
-        var p = parseFloat(pitch);
+        var mc = moveConfig;
+        var p = parseFloat(move_pitch);
         if(p == 0 || isNaN(p) || p === undefined){
             console.log("doh pitch was 0")
-            me.setModalErrorMsg("Pitch can't be 0 ");
-            me.setShowModalError(true);
+            state.me.setModalErrorMsg("Pitch can't be 0 ");
+            state.me.setShowModalError(true);
             return;
         }
-        var c = config;
+        var c = moveConfig;
         c.f = !reverse;
-        c.pitch = parseFloat(pitch);
-        if (stats.pos_feed) {
+        //c.pitch = parseFloat(pitch);
+        c.pitch = p;
+        mc.movePitch = p;
+        // TODO: how to handle feeding_ccw?
+        //mc.f = c.f;
+
+
+        // TODO: should send moveConfig on update pitch and leave that out of the cmd
+        set_moveConfig(mc);
+        if (state.stats.pos_feed) {
             var d = { cmd: "moveCancel" };
         } else {
             var d = { cmd: "feed", config: c };
@@ -39,8 +48,9 @@ export default function Feed({ config, nvConfig, stats,me }) {
         send(d);
     };
 
-    const mp = config.pitch;
-    const ip = (config.pitch * (1 / 25.4)).toFixed(4);
+    const mp = moveConfig.movePitch ;
+    const long_ip = parseFloat(mmToIn(mp));
+    const ip = long_ip.toFixed(4);
 
 
     return (
@@ -56,19 +66,21 @@ export default function Feed({ config, nvConfig, stats,me }) {
                                 size="xxl"
                                 className="mb-4">
                                 <Button onClick={() => { handleToggle("foo"); }}>
-                                    Turn {stats.pos_feed ? "Off" : "On"}
+                                    Turn {state.stats.pos_feed ? "Off" : "On"}
                                 </Button>
                             </ButtonGroup>
                         </div>
-                        {!stats.pos_feed &&
+                        {!state.stats.pos_feed &&
                             <div>
 
                                 <ButtonGroup className="mb-2">
                                     <InputGroup size="sm" className="mb-3">
-                                        <InputGroup.Text id="movePitch" >Feed Pitch {mmOrImp(nvConfig)}</InputGroup.Text>
+                                        <InputGroup.Text id="movePitch" >
+                                            Feed Pitch {mmOrImp(state)}
+                                        </InputGroup.Text>
                                         <FormControl aria-label="Small" aria-describedby="inputGroup-sizing-sm"
                                             inputMode='decimal' step='any' type="number"
-                                            placeholder={(nvConfig.metric == "true") ? mp : ip}
+                                            placeholder={viewPitch(state,move_pitch)}
                                             onChange={(e) => set_pitch(e.target.value)}
                                         />
                                     </InputGroup>
@@ -95,12 +107,9 @@ export default function Feed({ config, nvConfig, stats,me }) {
                             Current Config:
                         </span>
                         <span>
-                            Pitch {config.pitch}
+                            Pitch {moveConfig.movePitch}
                         </span>
-                        <span>
-                            this pitch: {pitch}
-                        </span>
-                        {!stats.pos_feed &&
+                        {!state.stats.pos_feed &&
                             <Button>
                                 Configure Presets
                             </Button>
@@ -110,7 +119,7 @@ export default function Feed({ config, nvConfig, stats,me }) {
                 </Row>
                 <Row>
                     <Col>
-                        {!stats.pos_feed &&
+                        {!state.stats.pos_feed &&
                             <div>
                                 <ButtonGroup className="mb-2">
 

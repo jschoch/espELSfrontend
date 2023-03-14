@@ -12,9 +12,12 @@ var nvConfig = {
     metric: "true"
 }
 
-var nvConfigIn = {
-    lead_screw_pitch: 1,
-    motor_steps: 1000,
+
+var state = {
+    metric: "true"
+}
+
+var stateIn = {
     metric: "false"
 }
 
@@ -26,23 +29,23 @@ test('why is this single quoted', () =>{
     expect(one_in_in_steps).toBe(1000 * 25.4);
 
 
-    var distance = stepsToDistance(nvConfigIn, one_in_in_steps)
+    var distance = stepsToDistance(stateIn,nvConfig, one_in_in_steps)
 
-    var t = distanceToSteps(nvConfigIn, distance)
+    var t = distanceToSteps(stateIn,nvConfig, distance)
 
     expect(t).toBe(one_in_in_steps)
 
-    var mmsteps = distanceToSteps(nvConfig, 1)
+    var mmsteps = distanceToSteps(state,nvConfig, 1)
 
     expect(mmsteps).toBe(1000)
     
-    var t2 = stepsToDistance(nvConfig,mmsteps);
+    var t2 = stepsToDistance(state,nvConfig,mmsteps);
     expect(t2).toBe(1);
 
-    var t3 = mmOrImp(nvConfig)
+    var t3 = mmOrImp(state)
     expect(t3).toBe("(mm)");
 
-    var t4 = mmOrImp(nvConfigIn);
+    var t4 = mmOrImp(stateIn);
     expect(t4).toBe("(in)");
 
 

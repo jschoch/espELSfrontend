@@ -15,13 +15,12 @@ import { distanceToSteps, mmOrImp, mmToIn, send } from './util.js';
 
 
 
-export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, nvConfig,connected }) {
+export default function MoveSyncUI({ state,machineConfig,set_machineConfig,nvConfig,moveConfig,set_moveConfig }) {
     // enable flag for rapid left
     const [enRL, setEnRL] = useState(true);
     // enable flag for enable rapid right
     const [enRR, setEnRR] = useState(true);
     const [showModalMove, set_showModalMove] = useState(false);
-    const [moveConfig, set_moveConfig] = useState({ pitch: config.pitch, rapid: config.rapid });
     const [feedingLeft, set_feedingLeft] = useState(true);
     const [syncStart, set_syncStart] = useState(true);
     // set this to "u" for undefined so we can ensure it was actually set by the operator
@@ -37,13 +36,13 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
 
         */
         console.log("distance", distance);
-        var c = config;
+        var c = moveConfig;
         // TODO: add these to the UI
         c.f = feedingLeft;
         c.s = syncStart;
-        c.pitch = moveConfig.pitch;
+        c.pitch = moveConfig.movePitch;
 
-        c.moveSteps = distanceToSteps(nvConfig, distance);
+        c.moveSteps = distanceToSteps(state,nvConfig, distance);
         var d = { cmd: "jog", config: c }
         send(d);
     }
@@ -52,7 +51,7 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
         c.f = feedingLeft;
         c.s = syncStart;
         c.rapid = moveConfig.rapid;
-        c.moveSteps = distanceToSteps(nvConfig,distance);
+        c.moveSteps = distanceToSteps(state,nvConfig,distance);
         var d = { cmd: "rapid", config: c }
         send(d);
     }
@@ -61,8 +60,8 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
         console.log("Jog or Rapid Clicked", id, distance);
         if (distance == 0) {
             console.log("unf");
-            me.setModalErrorMsg("Can't Move 0 ");
-            me.setShowModalError(true);
+            state.me.setModalErrorMsg("Can't Move 0 ");
+            state.me.setShowModalError(true);
         } else {
             if (id == "rrapid") {
                 console.log("right rapid",distance);
@@ -84,12 +83,12 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
     
     return (
         <div>
-            { (config.m == 2 || config.m == 6) &&
+            { (machineConfig.m == 2 || machineConfig.m == 6) &&
             <Tabs defaultActiveKey="syncMove" id="uncontrolled-tab-example" className="mb-3">
                 <Tab eventKey="syncMove" title="Move slaved to spindle">
                     {
                         // hides controls when pos_feeding is true
-                        !stats["pos_feed"] && !stats["sw"] &&
+                        !state.stats["pos_feed"] && !state.stats["sw"] &&
                         <div>
                             <Row>
                                 <Col>
@@ -105,8 +104,8 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
                             </Row>
                             <Row>
                                 <p className="text-center">
-                                    Current Pitch set to: {(nvConfig.metric == "true" ? config.pitch : mmToIn(config.pitch))}  
-                                    {mmOrImp(nvConfig)}
+                                    Current Pitch set to: {(state.metric == "true" ? moveConfig.movePitch : mmToIn(moveConfig.movePitch))}  
+                                    {mmOrImp(state)}
                                     {(!enRL || !enRR) &&
                                         <span>
                                             Rapid Pitch: {moveConfig.rapid}
@@ -119,8 +118,10 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
                                 <Button className="btn btn-danger btn-block" type="button" size="lg"
                                     onClick={() => { set_showModalMove(!showModalMove) }}>Change Move Settings
                                 </Button>
-                                <ModalMove config={config} setConfig={setConfig}
+                                <ModalMove 
+                                    state={state}
                                     nvConfig={nvConfig}
+                                    machineConfig={machineConfig}
                                     moveConfig={moveConfig} set_moveConfig={set_moveConfig}
                                     show={showModalMove} set_show={set_showModalMove} />
                                 </Col>
@@ -135,7 +136,7 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
                                 <Col>
                                     <InputGroup className="mb-3">
                                         <InputGroup.Text id="notsure">
-                                            ( { mmOrImp(nvConfig)} )
+                                            ( { mmOrImp(state)} )
                                             Move Distance</InputGroup.Text>
                                         <FormControl
                                             placeholder="Distance to Move"
@@ -180,17 +181,27 @@ export default function MoveSyncUI({ config, setConfig, me, stats, sendConfig, n
                         </div>
                     }
                     <Row>
-                        <Moving config={config} stats={stats} nvConfig={nvConfig} />
+                        <Moving 
+                            nvConfig={nvConfig}
+                            machineConfig={machineConfig}
+                            state={state} />
 
                     </Row>
 
 
                 </Tab>
                 <Tab eventKey="bounce" title="Bounce">
-                    <Bounce stats={stats} nvConfig={nvConfig} config={config}></Bounce>
+                    <Bounce 
+                        state={state} 
+                        machineConfig={machineConfig}
+                        set_machineConfig={set_machineConfig}
+                        moveConfig={moveConfig}
+                        set_moveConfig={set_moveConfig}
+                        nvConfig={nvConfig}
+                    ></Bounce>
                 </Tab>
                 <Tab eventKey="FreeJog" title="Jog (non sync)">
-                    TODO:
+                    TODO:...
                 </Tab>
             </Tabs>
             }

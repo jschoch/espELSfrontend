@@ -31,7 +31,7 @@ export default function Info(props) {
           JSON.stringify(props, null, 2) 
           */
         }</pre>
-      {props.stats.t &&  // check stats has values first
+      {props.state.stats.t &&  // check stats has values first
         <div>
           <div className="row">
             <div className="col-md-3">
@@ -42,25 +42,25 @@ export default function Info(props) {
                 <div className="card-body">
                   <p className="card-text">
 
-                    <KV k="Encoder Pulses" v={props.stats.encoderPos} />
-                    <KV k="Encoder revolutions" v={(props.stats.encoderPos / 2400).toFixed(2)} />
-                    <KV k="Tool Position (in steps)" v={props.stats.p} />
-                    <KV k="Pos Stop" v={props.stats.sp.toFixed(3)} />
+                    <KV k="Encoder Pulses" v={props.state.stats.encoderPos} />
+                    <KV k="Encoder revolutions" v={(props.state.stats.encoderPos / 2400).toFixed(2)} />
+                    <KV k="Tool Position (in steps)" v={props.state.stats.p} />
+                    <KV k="Pos Stop" v={props.state.stats.sp.toFixed(3)} />
 
-                    <KV k="Neg Stop" v={props.stats.sn.toFixed(3)} />
-                    <KV k={"steps per " + mmOrImp(props.nvConfig)} v={props.nvConfig.metric == "true" ? stepsPerMM(props.nvConfig) : stepsPerIn(props.nvConfig)} />
+                    <KV k="Neg Stop" v={props.state.stats.sn.toFixed(3)} />
+                    <KV k={"steps per " + mmOrImp(props.state)} v={props.state.metric == "true" ? stepsPerMM(props.nvConfig) : stepsPerIn(props.nvConfig)} />
                     <br />
                     { /* yuck <!--  need to add debug stats here
-          <KV k="Target Tool Position" v={props.stats.targetPos} />
-          <KV k="Target MM" v={props.stats.targetPosMM.toFixed(4)} />
+          <KV k="Target Tool Position" v={props.state.stats.targetPos} />
+          <KV k="Target MM" v={props.state.stats.targetPosMM.toFixed(4)} />
           <br /> 
-          <KV k="delta" v={props.stats.delta} />
+          <KV k="delta" v={props.state.stats.delta} />
           
-          <KV k="DRO" v={props.stats.pmm.toFixed(4)} />
+          <KV k="DRO" v={props.state.stats.pmm.toFixed(4)} />
           
           */
                     }
-                    <KV k="DRO Pulses" v={props.stats.p} />
+                    <KV k="DRO Pulses" v={props.state.stats.p} />
 
 
 
@@ -76,12 +76,12 @@ export default function Info(props) {
                   Flags
                 </h5>
 
-                <KV k="jogging(rename) " v={props.stats.jogging ? "true" : "false"} />
-                <KV k="rapiding " v={props.stats.rap ? "true" : "false"} />
-                <KV k="Motion On: " v={props.stats.pos_feed ? "true" : "false"} />
-                <KV k="Feeding_dir" v={props.stats.fd ? "true" : "false"} />
-                <KV k="Waiting for Sync" v={props.stats.sw ? "true" : "false"} />
-                <KV k={props.nvConfig.metric == "true" ? "Metric": "Imperial"} v="on" />
+                <KV k="jogging(rename) " v={props.state.stats.jogging ? "true" : "false"} />
+                <KV k="rapiding " v={props.state.stats.rap ? "true" : "false"} />
+                <KV k="Motion On: " v={props.state.stats.pos_feed ? "true" : "false"} />
+                <KV k="Feeding_dir" v={props.state.stats.fd ? "true" : "false"} />
+                <KV k="Waiting for Sync" v={props.state.stats.sw ? "true" : "false"} />
+                <KV k={props.state.metric == "true" ? "Metric": "Imperial"} v="on" />
                 <div className="card-body">
                   <p className="card-text">
                     Card content
@@ -96,14 +96,14 @@ export default function Info(props) {
                 </h5>
                 <div className="card-body">
                   <span className="card-text">
-                    <KV k="CPU0" v={props.stats.c0} />
-                    <KV k="CPU1" v={props.stats.c1} />
-                    <KV k="pings" v={props.stats.c} />
-                    <KV k="free heap" v={props.stats.h} />
-                    <KV k="used heap" v={props.stats.ha} />
-                    <KV k="RSSI" v={props.stats.r} />
-                    <KV k="WS clients connected" v={props.stats.cc} />
-                    <KV k="enc avg time" v={props.stats.at} />
+                    <KV k="CPU0" v={props.state.stats.c0} />
+                    <KV k="CPU1" v={props.state.stats.c1} />
+                    <KV k="pings" v={props.state.stats.c} />
+                    <KV k="free heap" v={props.state.stats.h} />
+                    <KV k="used heap" v={props.state.stats.ha} />
+                    <KV k="RSSI" v={props.state.stats.r} />
+                    <KV k="WS clients connected" v={props.state.stats.cc} />
+                    <KV k="enc avg time" v={props.state.stats.at} />
                   </span>
                 </div>
               </div>
@@ -111,7 +111,7 @@ export default function Info(props) {
           </div>
           <div className="row">
             <div>raw config<pre>{JSON.stringify(props.config, null, 2)}</pre></div>
-            <div>raw stats<pre>{JSON.stringify(props.stats, null, 2)}</pre></div>
+            <div>raw stats<pre>{JSON.stringify(props.state.stats, null, 2)}</pre></div>
             <div>raw nvConfig<pre>{JSON.stringify(props.nvConfig, null, 2)}</pre></div>
           </div>
         </div>

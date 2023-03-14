@@ -8,19 +8,23 @@ import Col from "react-bootstrap/Col";
 import { send } from './util.js';
 
 
-export default function Hobbing({ config, setConfig, me, ws, stats }) {
+export default function Hobbing({ moveConfig, set_moveConfig,machineConfig,set_machineConfig,state  }) {
     // feedingLeft is the feed direciton CW/CCW
     const [feedingLeft, set_feedingLeft] = useState(true);
-    const [hobconfig, set_hobconfig] = useState({ pitch: config.pitch, mode: config.m })
+    const [hobconfig, set_hobconfig] = useState({ pitch: moveConfig.movePitch })
     const [syncStart, set_syncStart] = useState(true);
 
+    
     function set_pitch(v) {
+        /* TODO: refeactor, DRY
         var c = config;
         c.pitch = v;
         setConfig(c);
         console.log("hob got ", v);
+        */
     }
     function handleStart() {
+        /*
         console.log("hob start clicked");
         var c = config;
         c.f = feedingLeft;
@@ -29,14 +33,18 @@ export default function Hobbing({ config, setConfig, me, ws, stats }) {
         console.log("hob ws", d, ws);
         //ws.send(JSON.stringify(d));
         send(d, ws);
+        */
     }
     function handleStop() {
+        /*
         console.log("hob start clicked");
         var c = config;
         var d = { cmd: "hobstop", config: c }
         //ws.send(JSON.stringify(d));
         send(d, ws);
+        */
     }
+
 
     return (
         <div>
@@ -59,9 +67,9 @@ export default function Hobbing({ config, setConfig, me, ws, stats }) {
                 </Col>
             </Row>
             <Row>
-                <Button variant="primary" onClick={handleStart} disabled={config.m != 9}>Start</Button>
+                <Button variant="primary" onClick={handleStart} disabled={machineConfig.m != 9}>Start</Button>
                 <Button variant="primary" onClick={handleStop} disabled={false}>Stop</Button>
-                mode {config.m}
+                mode {machineConfig.m}
             </Row>
 
         </div>
