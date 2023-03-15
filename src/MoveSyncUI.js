@@ -124,11 +124,14 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
                                 </Row>
                                 <Row>
                                     <p className="text-center">
-                                        Current Pitch set to: {(state.metric == "true" ? moveConfig.movePitch : mmToIn(moveConfig.movePitch))}
+                                        Current Pitch set to: {
+                                           viewPitch(state,moveConfig.movePitch)
+                                        } mm: {moveConfig.movePitch}
                                         {mmOrImp(state)}
                                         {(!enRL || !enRR) &&
                                             <span>
-                                                Rapid Pitch: {moveConfig.rapid}
+                                                Raw: Rapid Pitch: {viewPitch(state,moveConfig.rapidPitch)}
+                                                metric: {moveConfig.rapidPitch}
                                             </span>
                                         }
                                     </p>
@@ -141,7 +144,11 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
                                                 nvConfig={nvConfig} />
 
                                             {machineConfig.dbg &&
-                                                <span> Current Pitch: {machineConfig.movePitch} Rapid: {machineConfig.rapidPitch} </span>}
+                                              <div>
+                                                <span> Current Pitch: {machineConfig.movePitch}</span>
+                                                <span> Rapid: {machineConfig.rapidPitch} </span>
+                                               </div> 
+                                                }
                                         </span>
                                         <InputGroup className="mb-3">
                                             <FormControl
