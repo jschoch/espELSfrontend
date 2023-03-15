@@ -49,6 +49,7 @@ export default function Info(props) {
 
                     <KV k="Neg Stop" v={props.state.stats.sn.toFixed(3)} />
                     <KV k={"steps per " + mmOrImp(props.state)} v={props.state.metric == "true" ? stepsPerMM(props.nvConfig) : stepsPerIn(props.nvConfig)} />
+                    <KV k={"stepper accel"} v={props.machineConfig.a} />
                     <br />
                     { /* yuck <!--  need to add debug stats here
           <KV k="Target Tool Position" v={props.state.stats.targetPos} />

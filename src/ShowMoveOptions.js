@@ -18,6 +18,7 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
   const [dwell,set_dwell] = useState(0);
   const movePitchRef = useRef();
   const rapidPitchRef = useRef();
+  const accelRef = useRef();
 
   const updateMoveConf = (data) =>{
     const p = movePitchRef.current.value;
@@ -28,6 +29,7 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
       rapidPitch: rp, 
       pitchPitch: p, 
       dwell: dwell,
+      accel: accelRef.current.value,
       f: true 
     };
     if(state.metric != "true"){
@@ -78,6 +80,21 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
                 <InputGroup.Text id="rp">
                   {mmOrImp(state)}
                   Rapid Pitch
+                </InputGroup.Text>
+              </InputGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <InputGroup className="mb-1">
+                <FormControl
+                  aria-label="Rapid Pitch"
+                  inputMode='numeric' step='any' type="number"
+                  defaultValue={200000}
+                  ref={accelRef}
+                />
+                <InputGroup.Text id="rp">
+                  Acceleration steps/s2
                 </InputGroup.Text>
               </InputGroup>
               <Button onClick={updateMoveConf} >

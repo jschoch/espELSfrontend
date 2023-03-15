@@ -97,7 +97,7 @@ export default function App() {
   }
 
 
-  const vsn = "0.0.3";
+  const vsn = "0.0.4";
   const default_moveConfig = {
     movePitch: 0.1,
     rapidPitch: 0.1
