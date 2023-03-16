@@ -1,72 +1,142 @@
-
-import React, { Component, useState, useEffect } from 'react';
+import  { useState, useEffect,useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import { send, distanceToSteps, stepsToDistance,mmToIn, inToMM,viewPitch, mmOrImp } from './util.js';
+import Moving from './Moving.js';
+import MaxPitch from './MaxPitch.js';
 
-export default function Bounce({ws}){
-    const [jog_mm,set_jog_mm] = useState(0);
-    const [jog_pitch, set_jog_pitch] = useState(0.1);
-    const [rapid_pitch, set_rapid_pitch] = useState(1);
 
-    function bounce(distance){
-        var c = {jog_mm: jog_mm,rapid: rapid_pitch,pitch: jog_pitch,f: true};
-        var d = {cmd: "bounce",config: c}
-        console.log("jog ws",d,ws);
-        ws.send(JSON.stringify(d));
+
+export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig,moveConfig,set_moveConfig}) {
+
+  //const [distance, set_distance] = useState(0);
+  const [dwell,set_dwell] = useState(0);
+  const [last_distance,set_last_distance] = useState(0);
+  const distanceRef = useRef();
+  const movePitchRef = useRef();
+  const rapidPitchRef = useRef();
+
+
+  
+
+  function do_bounce() {
+    var mc = moveConfig;
+    var c = { 
+      moveSteps: distanceToSteps(state,nvConfig, distanceRef.current.value), 
+      rapid: rapidPitchRef.current.value, 
+      pitch: movePitchRef.current.value, 
+      dwell: dwell,
+      f: true 
+    };
+    if(state.metric != "true"){
+      c.rapid = inToMM(rapidPitchRef.current.value);
+      c.pitch = inToMM(movePitchRef.current.value);
     }
+    var d = { cmd: "bounce", config: c }
+    set_last_distance(distanceRef.current.value)
+    send(d);
+  }
 
-  return(
+  
+
+  return (
     <div>
-      <Button variant="dark" className="btn-block" > Bounce Settings</Button>
-      <Row>
-          <Col>
-          <span> Set positive for Z+ negative for Z- TODO: is this an issue with number chooser on phone?</span>
-          <InputGroup className="mb-3">
+      {
+        // hides controls when pos_feeding is true
+        ( !state.stats["pos_feed"] && !state.stats["sw"] && machineConfig.m != 6) &&
+        <div>
+          <Button variant="dark" className="btn-block" > Bounce Settings</Button>
+          <Row>
+            <Col>
+              <span> Set positive for Z+ negative for Z- </span>
+              <InputGroup className="mb-3">
                 <FormControl
-                placeholder="Distance to Jog"
-                aria-label="Distance to Jog"
-                aria-describedby="basic-addon2"
-                value={jog_mm}
-                inputMode='decimal' step='any' type="number"
-                onChange={e => set_jog_mm(e.target.value)}
+                  aria-label="Distance to Move"
+                  defaultValue={last_distance}
+                  inputMode='numeric' step='any' type="number"
+                  ref={distanceRef}
                 />
-                <InputGroup.Text id="notsure">(mm) Jog Distance</InputGroup.Text>
-            </InputGroup> 
-          </Col>
+                <InputGroup.Text id="notsure">
+                  {state.metric == "true" ? "(mm)" : "(in)"}
+                  Move Distance</InputGroup.Text>
+              </InputGroup>
+            </Col>
           </Row>
           <Row>
-          <Col>
-          <InputGroup className="mb-3">
-                <FormControl
-                placeholder="Jog Pitch"
-                aria-label="Jog Pitch"
-                aria-describedby="basic-addon2"
-                value={jog_pitch}
-                inputMode='decimal' step='any' type="number"
-                onChange={e => set_jog_pitch(e.target.value)}
-                />
-                <InputGroup.Text >Jog Pitch</InputGroup.Text>
-            </InputGroup> 
-          </Col>
-        </Row>
-        <Row>  
+            <Col>
+            <span>
+              <MaxPitch 
+                state={state}
+                nvConfig={nvConfig} /> 
 
-          <Col>
-          <FormControl
-                placeholder="Rapid Pitch"
-                aria-label="Rapid Pitch"
-                aria-describedby="basic-addon2"
-                value={rapid_pitch}
-                inputMode='decimal' step='any' type="number"
-                onChange={e => set_rapid_pitch(e.target.value)}
+              {machineConfig.dbg &&
+               <span> Current Pitch: {machineConfig.movePitch} Rapid: {machineConfig.rapidPitch} </span>}
+            </span>
+              <InputGroup className="mb-3">
+                <FormControl
+                  aria-label="Bounce Pitch"
+                  inputMode='numeric' step='any' type="number"
+                  defaultValue={viewPitch(state,moveConfig.movePitch)}
+                  ref={movePitchRef}
                 />
-                <InputGroup.Text >Rapid Pitch</InputGroup.Text> 
-          </Col>
+                <InputGroup.Text id="unf">
+                  {mmOrImp(state)}
+                  Move Pitch</InputGroup.Text>
+              </InputGroup>
+            </Col>
           </Row>
-      <Button className="btn-block" onClick={() => bounce()}>Run Bounce</Button>
+          <Row>
+            <Col>
+              <InputGroup className="mb-1">
+                <FormControl
+                  aria-label="Rapid Pitch"
+                  defaultValue={viewPitch(state,moveConfig.rapidPitch)}
+                  inputMode='numeric' step='any' type="number"
+                  ref={rapidPitchRef}
+                />
+                <InputGroup.Text id="rp">
+                  {mmOrImp(state)}
+                  Rapid Pitch
+                </InputGroup.Text>
+              </InputGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <InputGroup className="mb-1">
+                <FormControl
+                  aria-label="Dwell Time"
+                  value={dwell}
+                  inputMode='decimal' step='any' type="number"
+                  onChange={e => set_dwell(parseFloat(e.target.value))}
+                />
+                <InputGroup.Text id="dwell">
+                  Dwell Time (seconds)
+                </InputGroup.Text>
+              </InputGroup>
+            </Col>
+          </Row>
+          <Button className="btn-block" onClick={() => do_bounce()}>Run Bounce</Button>
+        </div>
+      }
+
+      <Row>
+        <Moving 
+          nvConfig={nvConfig}
+          machineConfig={machineConfig}
+          state={state} />
+
+      </Row>
+      { machineConfig.dbg &&
+        <div>
+          <div>raw nvConfig<pre>{JSON.stringify(state.nvConfig, null, 2)}</pre></div>
+          </div>
+      
+      }
+
     </div>
-    )
+  )
 }
