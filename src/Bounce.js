@@ -23,19 +23,17 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
   
 
   function do_bounce() {
-    var mc = moveConfig;
-    var c = { 
-      moveSteps: distanceToSteps(state,nvConfig, distanceRef.current.value), 
-      rapid: rapidPitchRef.current.value, 
-      pitch: movePitchRef.current.value, 
-      dwell: dwell,
-      f: true 
-    };
+    var c = moveConfig;
+    c.moveSteps = distanceToSteps(state,nvConfig, distanceRef.current.value) 
+    c.rapidPitch = parseFloat(rapidPitchRef.current.value)
+    c.movePitch =  parseFloat(movePitchRef.current.value )
+    c.dwell = dwell
+    c.feeding_ccw = true; 
     if(state.metric != "true"){
       c.rapid = inToMM(rapidPitchRef.current.value);
       c.pitch = inToMM(movePitchRef.current.value);
     }
-    var d = { cmd: "bounce", config: c }
+    var d = { cmd: "bounce", moveConfig: c }
     set_last_distance(distanceRef.current.value)
     send(d);
   }

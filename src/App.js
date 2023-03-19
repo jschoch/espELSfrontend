@@ -99,8 +99,13 @@ export default function App() {
 
   const vsn = "0.0.4";
   const default_moveConfig = {
-    movePitch: 0.1,
-    rapidPitch: 0.1
+    "movePitch": 1,
+    "rapidPitch": 1.1,
+    "accel": 100000,
+    "dwell": 1,
+    "distance": 1,
+    "startSync": true,
+    "f": true
   }
 
 
@@ -193,19 +198,29 @@ export default function App() {
       else if (msg["t"] == "state") {
         console.log("updating config", msg);
         set_machineConfig(msg);
-        var mc = moveConfig;
-        mc.movePitch = msg.pitch;
-        mc.pitch = msg.pitch;
-        mc.rapidPitch = msg.rapid;
-        mc.rapid = msg.rapid;
-        set_moveConfig(mc);
         console.log("machineConfig", machineConfig,moveConfig)
+      }
+      else if(msg["t"] == "moveConfigDoc"){
+        console.log("updating moveConfig", msg);
+        var mc = moveConfig;
+        mc.movePitch = msg.movePitch;
+        mc.rapidPitch = msg.rapidPitch;
+        //mc.moveDirection = msg.
+        mc.accel = msg.accel;
+        mc.dwell = msg.dwell;
+        set_moveConfig(mc);
       }
       else if (msg["t"] == "log") {
         console.log("stuff", msg);
         if (msg["level"] == 0) {
-          setModalErrorMsg(msg["msg"]);
-          setShowModalError(true);
+          if(showModalError){
+            // append the new message
+            var o = msg["msg"]
+            setModalErrorMsg( o + " --- " + modalErrorMsg);
+          }else{
+            setModalErrorMsg(msg["msg"]);
+            setShowModalError(true);
+          }
         }
       }
       else if (msg["t"] == "dbg_st") {
@@ -375,7 +390,10 @@ export default function App() {
               tabClassName={state.dbg ? "" : "d-none"}
               eventKey="debug_tab" title="Debug"
               >
-                <Debug state={state} machineConfig={machineConfig} nvConfig={nvConfig} />
+                <Debug state={state} 
+                  moveConfig={moveConfig}
+                  machineConfig={machineConfig} 
+                  nvConfig={nvConfig} />
             </Tab>
           </Tabs>
 

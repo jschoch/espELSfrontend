@@ -5,7 +5,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Info from './info.js';
 
-export default function Debug({ state,machineConfig,nvConfig }) {
+export default function Debug({ state,machineConfig,nvConfig,moveConfig }) {
 
   const [encSpeed, set_encSpeed] = useState(0);
   const [numTicks, set_numTicks] = useState(10);
@@ -38,7 +38,7 @@ export default function Debug({ state,machineConfig,nvConfig }) {
 
         </Tab>
         <Tab eventKey="state.stats" title="state.stats">
-                - <Info state={state} machineConfig={machineConfig} nvConfig={nvConfig} /> -
+                - <Info state={state} machineConfig={machineConfig} nvConfig={nvConfig} moveConfig={moveConfig} /> -
         </Tab>
       </Tabs>
       <h5> Full Revolution</h5>
