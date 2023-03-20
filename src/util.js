@@ -108,13 +108,13 @@ export const useEventSource = (url) => {
           
           source.onmessage = function logEvents(event) {      
             var d = "";
-            console.log("bah", event);
+            //console.log("bah", event);
             try{
                 d = JSON.parse(event.data);
-                console.log("Event: ",d);
+                //console.log("Event: ",d);
                 updateData(d);
             }catch(e){
-                console.log("non json event", event)
+                //console.log("non json event", event)
             }
             
           }
