@@ -175,6 +175,24 @@ export default function App() {
     }
   }
 
+  // sse events
+
+  useEffect(() => {
+    if(sse_events && sse_events.p){
+      setDRO(stepsToDistance(state,nvConfig, sse_events.p));
+      setRPM(sse_events.rpm);
+      var s = state.stats;
+      var merged = {};
+      Object.assign(merged, stats, sse_events);
+      set_state({
+        ...state,
+        stats: merged
+      }
+        );
+
+    }
+  },[sse_events]);
+
   // all the msg handling goes here 
   useEffect(() => {
     //console.log("moar",msg);
@@ -266,7 +284,7 @@ export default function App() {
             }
             DRO: <span className="badge bg-warning">{dro.toFixed(4)} {mmOrImp(state)}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
-            <Rev state={state} />
+            <Rev sse_events={sse_events} />
               <span
                 className="badge bg-success"
                 size="sm"
