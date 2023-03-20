@@ -20,24 +20,22 @@ export default function Feed({ config, nvConfig, state,machineConfig,moveConfig,
 
     // turn feed on
     const handleToggle = (data) => {
-        var c = {};
-        var p = parseFloat(move_pitchRef.current.value);
-        if(p == 0 || isNaN(p) || p === undefined){
+        var c = moveConfig;
+        c.movePitch = parseFloat(move_pitchRef.current.value);
+        if(c.movePitch == 0 || isNaN(c.movePitch) || c.movePitch === undefined){
             console.log("doh pitch was 0")
             state.me.setModalErrorMsg("Pitch can't be 0 ");
             state.me.setShowModalError(true);
             return;
         }
-        c.f = !reverse;
-        c.pitch = p;
-        c.movePitch = p;
+        c.feeding_ccw = !reverse;
 
         // TODO: should send moveConfig on update pitch and leave that out of the cmd
         //set_moveConfig(mc);
         if (state.stats.pos_feed) {
             var d = { cmd: "moveCancel" };
         } else {
-            var d = { cmd: "feed", config: c };
+            var d = { cmd: "feed", moveConfig: c };
         }
 
 
@@ -61,12 +59,15 @@ export default function Feed({ config, nvConfig, state,machineConfig,moveConfig,
                             <ButtonGroup
                                 size="xxl"
                                 className="mb-4">
-                                <Button onClick={() => { handleToggle("foo"); }}>
+                                <Button 
+                                    variant={state.stats.pos_feed ? "danger": "success"}
+                                    onClick={() => { handleToggle("foo"); }}>
+                                    
                                     Turn {state.stats.pos_feed ? "Off" : "On"}
                                 </Button>
                             </ButtonGroup>
                         </div>
-                        {!state.stats.pos_feed &&
+                        
                             <div>
 
                                 <ButtonGroup className="mb-2">
@@ -94,7 +95,6 @@ export default function Feed({ config, nvConfig, state,machineConfig,moveConfig,
                                     </ToggleButton>
                                 </ButtonGroup>
                             </div>
-                        }
 
 
                     </Col>

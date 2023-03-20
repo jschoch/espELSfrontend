@@ -2,6 +2,8 @@
 import React, { Component, useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Badge from 'react-bootstrap/Badge'
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 import {mmOrImp, stepsPerIn,stepsPerMM} from './util.js';
 
 var magic = true;
@@ -49,6 +51,7 @@ export default function Info(props) {
 
                     <KV k="Neg Stop" v={props.state.stats.sn.toFixed(3)} />
                     <KV k={"steps per " + mmOrImp(props.state)} v={props.state.metric == "true" ? stepsPerMM(props.nvConfig) : stepsPerIn(props.nvConfig)} />
+                    <KV k={"stepper accel"} v={props.machineConfig.a} />
                     <br />
                     { /* yuck <!--  need to add debug stats here
           <KV k="Target Tool Position" v={props.state.stats.targetPos} />
@@ -109,11 +112,25 @@ export default function Info(props) {
               </div>
             </div>
           </div>
-          <div className="row">
-            <div>raw config<pre>{JSON.stringify(props.config, null, 2)}</pre></div>
+          <Row>
+            <Col>
+            <div>raw machine config<pre>{JSON.stringify(props.machineConfig, null, 2)}</pre></div>
+            </Col>
+            <Col>
+            <div>raw moveConfig<pre>{JSON.stringify(props.moveConfig, null, 2)}</pre></div>
+            </Col>
+            <Col>
             <div>raw stats<pre>{JSON.stringify(props.state.stats, null, 2)}</pre></div>
+
+            </Col>
+            <Col>
             <div>raw nvConfig<pre>{JSON.stringify(props.nvConfig, null, 2)}</pre></div>
-          </div>
+            </Col>
+            
+            
+            
+            
+            </Row>
         </div>
       }
     </div>

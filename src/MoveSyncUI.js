@@ -23,7 +23,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
     const [enRR, setEnRR] = useState(true);
     const [showModalMove, set_showModalMove] = useState(false);
     const [feedingLeft, set_feedingLeft] = useState(true);
-    const [syncStart, set_syncStart] = useState(true);
+    const [startSync, set_startSync] = useState(true);
     const [last_distance, set_last_distance] = useState(0);
 
     const distanceRef = useRef();
@@ -41,38 +41,45 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
 
         */
         console.log("distance", distanceRef.current.value, state);
-        var c = {};
+        var c = moveConfig;
         // TODO: add these to the UI
         c.f = feedingLeft;
-        c.s = syncStart;
-        c.pitch = movePitchRef.current.value;
+        c.startSync = startSync;
+        c.feeding_ccw = true;
+        c.movePitch = parseFloat(movePitchRef.current.value);
+        c.rapidPitch = parseFloat(rapidPitchRef.current.value)
         if (state.metric != "true") {
-            c.pitch = inToMM(c.pitch);
+            c.movePitch = inToMM(c.movePitch);
+            c.rapidPitch = inToMM(c.rapidPitch);
         }
         // sets direction
-        c.pitch = Math.abs(c.pitch)
+        c.movePitch = Math.abs(c.movePitch)
         set_last_distance(Math.abs(distanceRef.current.value))
         var d = Math.abs(distanceRef.current.value) * modifier;
         c.moveSteps = distanceToSteps(state, nvConfig, d);
-        var d = { cmd: "jog", config: c }
+        var d = { cmd: "moveSync", moveConfig: c }
         send(d);
     }
     function rapid(modifier) {
-        var c = {};
+        var c = moveConfig;
         c.f = feedingLeft;
-        c.s = syncStart;
-        c.rapid = rapidPitchRef.current.value
+        c.feeding_ccw = true;
+        c.startSync = startSync;
+        c.rapidPitch = parseFloat(rapidPitchRef.current.value)
+        c.movePitch = parseFloat(movePitchRef.current.value)
         // TODO: do we need to ensure this is positive?
         if (state.metric != "true") {
-            c.rapid = inToMM(c.rapid);
+            c.movePitch = inToMM(c.movePitch);
+            c.rapidPitch = inToMM(c.rapidPitch);
         }
         // sets direction
-        c.rapid = Math.abs(c.rapid)
+        c.rapidPitch = Math.abs(c.rapidPitch)
+        // this is for the UI state
         set_last_distance(Math.abs(distanceRef.current.value))
         var d = Math.abs(distanceRef.current.value) * modifier;
         c.moveSteps = distanceToSteps(state, nvConfig, d);
         console.log("rapid: ", c, state);
-        var d = { cmd: "rapid", config: c }
+        var d = { cmd: "rapid", moveConfig: c }
         send(d);
     }
 
