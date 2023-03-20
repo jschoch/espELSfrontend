@@ -28,7 +28,7 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import Rev from './Rev.js';
 import Hobbing from './hobbing.js';
-import { send, stepsToDistance, mmOrImp, distanceToSteps } from './util.js';
+import { send, stepsToDistance, mmOrImp, useEventSource} from './util.js';
 import { Wifi, WifiOff } from 'react-bootstrap-icons';
 import useCookie from './useCookie.js';
 
@@ -75,8 +75,9 @@ const ModalError = ({ showModalError, modalErrorMsg, setShowModalError }) => {
 
 var default_ws_url = "ws://192.168.100.100/els";
 export default function App() {
-  const { register, handleSubmit, watch, errors } = useForm();
+  //const { register, handleSubmit, watch, errors } = useForm();
 
+  const sse_events = useEventSource('http://192.168.1.87/events');
 
   const handleModeSelect = data => {
     var c = machineConfig;
@@ -460,6 +461,11 @@ export default function App() {
         setShowModalError={setShowModalError}
 
       />
+      <Row>
+        <Col>
+          {JSON.stringify(sse_events)}
+        </Col>
+      </Row>
     </Container>
   )
 };
