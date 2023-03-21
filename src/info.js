@@ -33,7 +33,7 @@ export default function Info(props) {
           JSON.stringify(props, null, 2) 
           */
         }</pre>
-      {props.state.stats.t &&  // check stats has values first
+      {props.state.stats.t && props.moveConfig&&  // check stats has values first
         <div>
           <div className="row">
             <div className="col-md-3">
@@ -82,6 +82,7 @@ export default function Info(props) {
                 <KV k="jogging(rename) " v={props.state.stats.jogging ? "true" : "false"} />
                 <KV k="rapiding " v={props.state.stats.rap ? "true" : "false"} />
                 <KV k="Motion On: " v={props.state.stats.pos_feed ? "true" : "false"} />
+                <KV k="Feeding_CCW" v={props.moveConfig.feeding_ccw ? "true": "false"} />
                 <KV k="Feeding_dir" v={props.state.stats.fd ? "true" : "false"} />
                 <KV k="Waiting for Sync" v={props.state.stats.sw ? "true" : "false"} />
                 <KV k={props.state.metric == "true" ? "Metric": "Imperial"} v="on" />

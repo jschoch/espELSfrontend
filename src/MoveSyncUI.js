@@ -63,7 +63,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
     }
     function rapid(modifier) {
         var c = moveConfig;
-        c.f = feedingLeft;
+        //c.f = feedingLeft;
         c.feeding_ccw = true;
         c.startSync = startSync;
         c.rapidPitch = parseFloat(rapidPitchRef.current.value)

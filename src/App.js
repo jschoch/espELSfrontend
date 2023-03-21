@@ -32,6 +32,12 @@ import { send, stepsToDistance, mmOrImp, useEventSource} from './util.js';
 import { Wifi, WifiOff } from 'react-bootstrap-icons';
 import useCookie from './useCookie.js';
 
+//import {Chart} from 'chart.js';
+//import 'chartjs-adapter-luxon';
+//import ChartStreaming from 'chartjs-plugin-streaming';
+
+//Chart.register(ChartStreaming);
+
 
 // TODO: refactor, why so many modes unused here?
 //  original intent was to map modes to the YASM states in the firmware
