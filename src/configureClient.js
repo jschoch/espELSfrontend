@@ -4,20 +4,22 @@ import { Form, InputGroup, Col, Grid, Row, Button } from 'react-bootstrap';
 
 export default function ConfigureClient(set_ws_url,  connected, cookie, updateCookie) {
 
-    const [thisurl, set_thisurl] = useState(cookie);
     const [submitConnecting,set_submitCOnnecting] = useState(false);
+    const ip_or_hostname = useRef();
 
 
     const handleSubmit = (e) => {
 
         e.preventDefault();
-        console.log("network submitted", thisurl);
-        set_ws_url(thisurl);
-        updateCookie(thisurl, 1000);
+       
+        var cv = ip_or_hostname.current.value
+        var this_ws_url = "ws://"+cv+"/els"
+        var this_events_url = "http://"+cv+"/events"
+        set_ws_url(this_ws_url);
+        var x = updateCookie(cv, 1000);
+        console.log("updating cookie: x",x,cv)
+        console.log("network submitted", cv);
         set_submitCOnnecting(true);
-    };
-    const onChangeHandler = event => {
-        set_thisurl(event.target.value);
     };
 
 
@@ -29,10 +31,11 @@ export default function ConfigureClient(set_ws_url,  connected, cookie, updateCo
             <div>
             <Form onSubmit={handleSubmit}>
 
-                <label htmlFor="url">example: ws://192.168.0.100/els </label>
+                <label htmlFor="url">Enter Hostname or IP example: 192.168.0.100</label>
                 <input  className="form-control" type="text"
                     name="url"
-                    onChange={onChangeHandler}
+                    //onChange={onChangeHandler}
+                    ref={ip_or_hostname}
                     defaultValue={cookie} />
                 <br />
                 <Button type="submit">Submit Connection Url</Button>

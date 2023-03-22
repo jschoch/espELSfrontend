@@ -1,4 +1,4 @@
-
+import React from 'react';
 
 export function send(cmd) {
     if (window.wsclient && window.wsclient.readyState === 1) {
@@ -100,3 +100,25 @@ export function viewPitch(state,pitch){
     }
 }
 
+export const useEventSource = (url) => {
+        const [data, updateData] = React.useState(null);
+    
+        React.useEffect(() => {
+          const source = new EventSource(url);
+          
+          source.onmessage = function logEvents(event) {      
+            var d = "";
+            //console.log("bah", event);
+            try{
+                d = JSON.parse(event.data);
+                //console.log("Event: ",d);
+                updateData(d);
+            }catch(e){
+                //console.log("non json event", event)
+            }
+            
+          }
+        }, [])
+    
+        return data
+    }

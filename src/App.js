@@ -28,9 +28,15 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import Rev from './Rev.js';
 import Hobbing from './hobbing.js';
-import { send, stepsToDistance, mmOrImp, distanceToSteps } from './util.js';
+import { send, stepsToDistance, mmOrImp, useEventSource} from './util.js';
 import { Wifi, WifiOff } from 'react-bootstrap-icons';
 import useCookie from './useCookie.js';
+
+//import {Chart} from 'chart.js';
+//import 'chartjs-adapter-luxon';
+//import ChartStreaming from 'chartjs-plugin-streaming';
+
+//Chart.register(ChartStreaming);
 
 
 // TODO: refactor, why so many modes unused here?
@@ -75,8 +81,9 @@ const ModalError = ({ showModalError, modalErrorMsg, setShowModalError }) => {
 
 var default_ws_url = "ws://192.168.100.100/els";
 export default function App() {
-  const { register, handleSubmit, watch, errors } = useForm();
+  //const { register, handleSubmit, watch, errors } = useForm();
 
+  
 
   const handleModeSelect = data => {
     var c = machineConfig;
@@ -118,10 +125,11 @@ export default function App() {
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
   const [metric_cookie, set_metric_cookie] = useCookie("metric", "true");
-  const [cookie, updateCookie] = useCookie("url", default_ws_url);
-  const [ws_url, set_ws_url] = useState(cookie);
+  const [cookie, updateCookie] = useCookie("ip_or_hostname", "192.168.100.100");
+  const [ws_url, set_ws_url] = useState("ws://"+cookie+"/els");
   const me = { setModalErrorMsg: setModalErrorMsg, setShowModalError: setShowModalError };
   // espWS setup
+  const sse_events = useEventSource("http://"+ cookie + "/events");
   const [msg, set_msg] = useState(null);
   const [vencState, set_vencState] = useState(false);
   const [modetabkey, set_modetabkey] = useState('moveSync_tab');
@@ -173,6 +181,25 @@ export default function App() {
       set_metric_cookie(val, 1000);
     }
   }
+
+  // sse events
+
+  useEffect(() => {
+    if(sse_events && sse_events.p){
+      setDRO(stepsToDistance(state,nvConfig, sse_events.p));
+      setRPM(sse_events.rpm);
+      var s = state.stats;
+      var merged = {};
+      Object.assign(merged, s, sse_events);
+      //Object.assign(merged, sse_events,stats);
+      set_state({
+        ...state,
+        stats: merged
+      }
+        );
+
+    }
+  },[sse_events]);
 
   // all the msg handling goes here 
   useEffect(() => {
@@ -237,21 +264,6 @@ export default function App() {
     //}
   }, [msg, set_msg, nvConfig, set_nvConfig, dro, setDRO]);
 
-  // handle changes from metric to imperial and back
-  /*
-  useEffect( () =>{
-    if(state.metric == "true"){
-      //set_move_pitch(moveConfig.movePitch);
-      //set_rapid_pitch(moveConfig.rapidPitch);
-      console.log("useEffect in app: metric");
-    }else{
-      //set_move_pitch(mmToIn(moveConfig.movePitch));
-      //set_rapid_pitch(mmToIn(moveConfig.rapidPitch));
-      console.log("useEffect in app: imp");
-    }
-  },[state.metric,nvConfig.lead_screw_pitch,state.connected])
-  */
-
 
   return (
     <Container fluid>
@@ -265,7 +277,10 @@ export default function App() {
             }
             DRO: <span className="badge bg-warning">{dro.toFixed(4)} {mmOrImp(state)}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
-            <Rev state={state} />
+            Ang: <span className="badge bg-dark">{sse_events && 
+              ((360/nvConfig.spindle_encoder_resolution) *(sse_events.encoderPos % nvConfig.spindle_encoder_resolution)).toFixed(2)
+              }</span>
+            <Rev sse_events={sse_events} />
               <span
                 className="badge bg-success"
                 size="sm"
@@ -440,7 +455,6 @@ export default function App() {
                 set_state={set_state}
                 moveConfig={moveConfig}
                 set_moveConfig={set_moveConfig}
-                machineConfig={machineConfig}
                 nvConfig={nvConfig} cookie_setters={cookie_setters} />
             </Tab>
             <Tab
@@ -460,6 +474,11 @@ export default function App() {
         setShowModalError={setShowModalError}
 
       />
+      <Row>
+        <Col>
+          {JSON.stringify(sse_events)}
+        </Col>
+      </Row>
     </Container>
   )
 };

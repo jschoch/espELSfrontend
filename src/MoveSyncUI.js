@@ -1,5 +1,6 @@
 import React, { Component, useState, useEffect, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { ArrowBarLeft, ArrowLeft, ArrowRight, ArrowBarRight } from 'react-bootstrap-icons';
@@ -62,7 +63,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
     }
     function rapid(modifier) {
         var c = moveConfig;
-        c.f = feedingLeft;
+        //c.f = feedingLeft;
         c.feeding_ccw = true;
         c.startSync = startSync;
         c.rapidPitch = parseFloat(rapidPitchRef.current.value)
@@ -149,6 +150,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
                                             <MaxPitch
                                                 state={state}
                                                 nvConfig={nvConfig} />
+                                                <hr />
 
                                             {machineConfig.dbg &&
                                               <div>
@@ -214,27 +216,45 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
 
                                 </Row>
                                 <Row>
-                                    <Col xs={5} >
-                                        <Button type="button" className="btn btn-danger spaceBtn " disabled={enRL} id="lrapid"
+                                    <Col xs='5' >
+                                        <ButtonGroup
+                                            vertical={true}
+                                            size='lg'
+                                            className="w-100"
+                                        >
+
+                                       
+                                        <Button 
+                                            type="button" className="btn btn-danger spaceBtn" disabled={enRL} id="lrapid"
                                             onClick={() => handleJogClick("lrapid")}>
-                                            <ArrowBarLeft />|<br />Rapid Z-
+                                            <ArrowBarLeft />Rapid Z-
                                         </Button>
                                         <Button type="button" className="btn btn-outline-dark spaceBtn" id="ljog"
                                             onClick={() => handleJogClick("ljog")}>
-                                            <ArrowBarLeft /><br />
+                                            <ArrowBarLeft />
                                             Move
                                         </Button>
+                                        </ButtonGroup>
+                                    </Col>
+                                    <Col xs={1}>
                                     </Col>
 
-                                    <Col xs='auto'>
-                                        <Button type="button" className="btn btn-outline-dark spaceBtn" id="rjog"
-                                            onClick={() => handleJogClick("rjog")}>
-                                            <ArrowBarRight /><br />Move
-                                        </Button>
+                                    <Col xs='5'>
+                                    <ButtonGroup 
+                                        vertical={true}
+                                        className="w-100"
+                                        size='lg'
+                                        >
+                                       
                                         <Button type="button" className="btn btn-danger spaceBtn " disabled={enRR} id="rrapid"
                                             onClick={() => handleJogClick("rrapid")}>
-                                            |<ArrowBarRight /><br />Rapid Z+
+                                            <ArrowBarRight />Rapid Z+
                                         </Button>
+                                        <Button type="button" className="btn btn-outline-dark spaceBtn" id="rjog"
+                                            onClick={() => handleJogClick("rjog")}>
+                                            <ArrowBarRight />Move
+                                        </Button>
+                                        </ButtonGroup>
 
                                     </Col>
                                 </Row>
