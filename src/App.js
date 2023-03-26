@@ -112,6 +112,8 @@ export default function App() {
     "dwell": 1,
     "distance": 1,
     "startSync": true,
+    "feeding_ccw": true,
+    "moveSpeed" : 5000,
     "f": true
   }
 

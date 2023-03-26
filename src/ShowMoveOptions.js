@@ -54,6 +54,7 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
   const rapidPitchRef = useRef();
   const accelRef = useRef();
   const distanceRef = useRef();
+  const speedRef = useRef();
 
   const testThing = (data) =>{
     var c = moveConfig;
@@ -70,9 +71,9 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
     //c.feeding_ccw = (c.moveSteps > 0);
     //c.moveSteps = stepsInt;
     c.moveSteps = distanceToSteps(state,nvConfig, distanceRef.current.value);
-    c.feeding_ccw = !(c.moveSteps > 0);
-    //c.feeding_ccw = true;
+    c.feeding_ccw = true;
     c.accel = parseInt(accelRef.current.value);
+    c.moveSpeed = parseInt(speedRef.current.value);
 
     var d = {cmd: "moveAsync",moveConfig: c};
     console.log("cmd",d);
@@ -151,7 +152,6 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
             <Col>
               <InputGroup className="mb-1">
                 <FormControl
-                  aria-label="Rapid Pitch"
                   inputMode='numeric' step='any' type="number"
                   defaultValue={200000}
                   ref={accelRef}
@@ -159,26 +159,22 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
                 <InputGroup.Text id="rp">
                   Acceleration steps/s2
                 </InputGroup.Text>
-                <Button onClick={updateMoveConf} >
-                Update Pitch Settings
-              </Button>
+               
               </InputGroup>
               </Col>
-              </Row>
-              <Row>
-                <Col>
-              
-
-              <Button onClick={testThing} >
-                Test the thing
-              </Button>
-              {state.stats.sr &&
-              <Button 
-                variant="danger"
-                onClick={cancelThing}>
-                Cancel Move Async
-              </Button>
-              }
+              <Col>
+              <InputGroup className="mb-1">
+                <FormControl
+                  inputMode='numeric' step='any' type="number"
+                  defaultValue={moveConfig.moveSpeed ? moveConfig.moveSpeed : 5000}
+                  ref={speedRef}
+                />
+                <InputGroup.Text id="speed">
+                  Move Speed (hz)
+                </InputGroup.Text>
+              </InputGroup>
+              </Col>
+              <Col>
               <InputGroup className="mb-1">
                 <FormControl
                   inputMode='numeric' step='any' type="number"
@@ -189,13 +185,42 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
                   Distance to Jog
                 </InputGroup.Text>
               </InputGroup>
+              </Col>
+
+              </Row>
+              <Row>
+                <Col>
+              
+
+              <Button onClick={testThing} >
+                Do Jog
+              </Button>
+              
+              {state.stats.sr != 0 &&
+              <Button 
+                variant="danger"
+                onClick={cancelThing}>
+                Cancel Move Async
+              </Button>
+              }
             </Col>
+            <Col>
+            <Button onClick={updateMoveConf} bg="info" >
+                Just set move Config
+              </Button>
+              </Col>
           </Row>
           <Row>
-          <KVB k="Running" v={state.stats.sr} />
+            <hr></hr>
+          </Row>
+          <Row>
+            <Col>
+            <KVB k="Running" v={state.stats.sr} />
           <KV k="Accel State" v={state.stats.as} />
           <KV k="frequency" v= {state.stats.av} />
           <KV k="Steps delta" v={state.stats.asd} />
+            </Col>
+          
           </Row>
 
 
