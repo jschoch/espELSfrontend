@@ -185,13 +185,16 @@ export default function App() {
   // sse events
 
   useEffect(() => {
-    if(sse_events && sse_events.p){
+    if(sse_events){
+    //if(sse_events && sse_events.p){
+
       setDRO(stepsToDistance(state,nvConfig, sse_events.p));
       setRPM(sse_events.rpm);
       var s = state.stats;
       var merged = {};
       Object.assign(merged, s, sse_events);
       //Object.assign(merged, sse_events,stats);
+      //console.log("sse_evnt",merged)
       set_state({
         ...state,
         stats: merged
