@@ -10,7 +10,7 @@ export function send(cmd) {
         window.wsclient.send(json);
     } else {
         //alert("not connected");
-        console.log("not connected");
+        console.log("not connected",window.wsclient);
     }
 }
 
@@ -112,10 +112,10 @@ export const useEventSource = (url,setter) => {
             //console.log("bah", event);
             try{
                 d = JSON.parse(event.data);
-                console.log("Event: ",d,source);
+                //console.log("Event: ",d,source);
                 updateData(d);
             }catch(e){
-                //console.log("non json event", event)
+                console.log("non json event", event)
             }
             
           }

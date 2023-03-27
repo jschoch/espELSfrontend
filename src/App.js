@@ -30,7 +30,8 @@ import Rev from './Rev.js';
 import Hobbing from './hobbing.js';
 import { send, stepsToDistance, mmOrImp, useEventSource} from './util.js';
 import { Asterisk, AppIndicator, Wifi, WifiOff } from 'react-bootstrap-icons';
-import useCookie from './useCookie.js';
+//import useCookie from './useCookie.js';
+import { CookiesProvider,useCookies } from 'react-cookie';
 
 //import {Chart} from 'chart.js';
 //import 'chartjs-adapter-luxon';
@@ -80,6 +81,10 @@ const ModalError = ({ showModalError, modalErrorMsg, setShowModalError }) => {
 }
 
 var default_ws_url = "ws://192.168.100.100/els";
+const default_ip = "192.168.100.100"
+
+
+
 export default function App() {
   //const { register, handleSubmit, watch, errors } = useForm();
 
@@ -117,7 +122,7 @@ export default function App() {
     "f": true
   }
 
-
+  
   const [machineConfig,set_machineConfig] = useState({m: 0});
   const [connected, set_connected] = useState(false);
   const [dro, setDRO] = useState(0.0);
@@ -126,13 +131,15 @@ export default function App() {
   const [nvConfig, set_nvConfig] = useState({ error: true, motor_steps: 0 });
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
-  const [metric_cookie, set_metric_cookie] = useCookie("metric", "true");
-  const [cookie, updateCookie] = useCookie("ip_or_hostname", "192.168.100.100");
-  const [ws_url, set_ws_url] = useState("ws://"+cookie+"/els");
+  //const [metric_cookie, set_metric_cookie] = useCookie("metric", "true");
+  //const [cookie, updateCookie] = useCookie("ip_or_hostname", default_ip );
+  const [cookies, setCookie ] = useCookies(['ip_or_hostname','metric']);
+  const [ws_url, set_ws_url] = useState("ws://"+cookies.ip_or_hostname+"/els");
   const me = { setModalErrorMsg: setModalErrorMsg, setShowModalError: setShowModalError };
   // espWS setup
   const [sse_source, set_sse_source] = useState();
-  const sse_events = useEventSource("http://"+ cookie + "/events",set_sse_source);
+  const sse_events = useEventSource("http://"+ cookies.ip_or_hostname+ "/events",set_sse_source);
+  //const sse_events = null;
   const [msg, set_msg] = useState(null);
   const [vencState, set_vencState] = useState(false);
   const [modetabkey, set_modetabkey] = useState('moveSync_tab');
@@ -145,11 +152,23 @@ export default function App() {
     set_connected: set_connected,
     // modal error thingy
     me: me,
-    metric: metric_cookie,
+    metric: cookies.metric,
     dbg: true,
     vsn: vsn
   });
 
+  // Runs only one time
+  useEffect(() => {
+    console.log("cookies",cookies);
+    if(cookies.ip_or_hostname != default_ip){
+      set_ws_url("ws://"+cookies.ip_or_hostname+"/els");
+      //sse_events = useEventSource("http://"+ cookie + "/events",set_sse_source);
+    }else{
+      console.log("using default url",ws_url,cookies.ip_or_hostname);
+      //setCookie()
+    }
+    
+  }, []);
 
   const handleVenc = (data) => {
     var c = {};
@@ -175,14 +194,6 @@ export default function App() {
     set_modetabkey(key);
     if (key== "config_tab") {
       // what is this?
-    }
-  }
-
-  // yuck
-  const cookie_setters = {
-    metric: (val) => {
-      console.log("toggle metric", val);
-      set_metric_cookie(val, 1000);
     }
   }
 
@@ -273,6 +284,7 @@ export default function App() {
 
 
   return (
+    <CookiesProvider>
     <Container fluid>
       <div >
         <Row >
@@ -402,15 +414,17 @@ export default function App() {
                 set_state={set_state}
                 moveConfig={moveConfig}
                 set_moveConfig={set_moveConfig}
-                cookie_setters={cookie_setters} />
+                cookies={cookies}
+                setCookie = {setCookie}
+                 />
             </Tab>
             <Tab eventKey="net_tab" title="Network">
               <Network
                 ws_url={ws_url}
                 set_ws_url={set_ws_url}
-                cookie={cookie}
+                cookie={cookies.ip_or_hostname}
                 state={state}
-                updateCookie={updateCookie}
+                setCookie={setCookie}
                 machineConfig={machineConfig} connected={connected} />
 
             </Tab>
@@ -455,8 +469,8 @@ export default function App() {
             </Tab>
             <Tab eventKey="net_tab" title="Network">
               <Network
-                cookie={cookie}
-                updateCookie={updateCookie}
+                cookie={cookies.ip_or_hostname}
+                setCookie={setCookie}
                 state={state}
                 ws_url={ws_url}
                 set_ws_url={set_ws_url}
@@ -469,7 +483,8 @@ export default function App() {
                 set_state={set_state}
                 moveConfig={moveConfig}
                 set_moveConfig={set_moveConfig}
-                nvConfig={nvConfig} cookie_setters={cookie_setters} />
+                cookies={cookies}
+                nvConfig={nvConfig} setCookie={setCookie} />
             </Tab>
             <Tab
               tabClassName={state.dbg ? "" : "d-none"}
@@ -482,6 +497,7 @@ export default function App() {
       <EspWS msg={msg} set_msg={set_msg} connected={connected}
         vsn={vsn}
         ws_url={ws_url}
+        set_ws_url={set_ws_url}
         set_connected={set_connected} machineConfig={machineConfig} />
       <ModalError showModalError={showModalError}
         modalErrorMsg={modalErrorMsg}
@@ -494,5 +510,6 @@ export default function App() {
         </Col>
       </Row>
     </Container>
+    </CookiesProvider>
   )
 };
