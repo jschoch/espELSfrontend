@@ -287,6 +287,7 @@ export default function App() {
     <CookiesProvider>
     <Container fluid>
       <div >
+        <h1>FIgure out how to set event source, make optional in cookie</h1>
         <Row >
           <Col xs={10} >
             {
@@ -415,6 +416,7 @@ export default function App() {
                 moveConfig={moveConfig}
                 set_moveConfig={set_moveConfig}
                 cookies={cookies}
+                set_sse_source={set_sse_source}
                 setCookie = {setCookie}
                  />
             </Tab>
@@ -423,6 +425,7 @@ export default function App() {
                 ws_url={ws_url}
                 set_ws_url={set_ws_url}
                 cookie={cookies.ip_or_hostname}
+                set_sse_source={set_sse_source}
                 state={state}
                 setCookie={setCookie}
                 machineConfig={machineConfig} connected={connected} />
@@ -472,6 +475,7 @@ export default function App() {
                 cookie={cookies.ip_or_hostname}
                 setCookie={setCookie}
                 state={state}
+                set_sse_source={set_sse_source}
                 ws_url={ws_url}
                 set_ws_url={set_ws_url}
                 machineConfig={machineConfig} connected={connected} />
@@ -483,6 +487,7 @@ export default function App() {
                 set_state={set_state}
                 moveConfig={moveConfig}
                 set_moveConfig={set_moveConfig}
+                set_sse_source={set_sse_source}
                 cookies={cookies}
                 nvConfig={nvConfig} setCookie={setCookie} />
             </Tab>

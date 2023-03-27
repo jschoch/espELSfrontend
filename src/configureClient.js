@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Form, InputGroup, Col, Grid, Row, Button } from 'react-bootstrap';
 
 
-export default function ConfigureClient(set_ws_url,  connected, cookie, setCookie,sse_source) {
+export default function ConfigureClient(set_ws_url,set_sse_source,  connected, cookie, setCookie,sse_source) {
 
     const [submitConnecting,set_submitConnecting] = useState(false);
     const ip_or_hostnameRef = useRef();
@@ -16,6 +16,8 @@ export default function ConfigureClient(set_ws_url,  connected, cookie, setCooki
         var this_ws_url = "ws://"+cv+"/els"
         var this_events_url = "http://"+cv+"/events"
         //source.open
+        let source = new EventSource(this_events_url)
+        set_sse_source(source);
         set_ws_url(this_ws_url);
         var x = setCookie("ip_or_hostname",cv);
         console.log("updating cookie: x",x,cv)
