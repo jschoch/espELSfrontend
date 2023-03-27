@@ -100,18 +100,19 @@ export function viewPitch(state,pitch){
     }
 }
 
-export const useEventSource = (url) => {
+export const useEventSource = (url,setter) => {
         const [data, updateData] = React.useState(null);
     
         React.useEffect(() => {
           const source = new EventSource(url);
+          setter(source);
           
           source.onmessage = function logEvents(event) {      
             var d = "";
             //console.log("bah", event);
             try{
                 d = JSON.parse(event.data);
-                //console.log("Event: ",d);
+                console.log("Event: ",d,source);
                 updateData(d);
             }catch(e){
                 //console.log("non json event", event)

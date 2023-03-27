@@ -29,7 +29,7 @@ import Tooltip from "react-bootstrap/Tooltip";
 import Rev from './Rev.js';
 import Hobbing from './hobbing.js';
 import { send, stepsToDistance, mmOrImp, useEventSource} from './util.js';
-import { Wifi, WifiOff } from 'react-bootstrap-icons';
+import { Asterisk, AppIndicator, Wifi, WifiOff } from 'react-bootstrap-icons';
 import useCookie from './useCookie.js';
 
 //import {Chart} from 'chart.js';
@@ -131,11 +131,13 @@ export default function App() {
   const [ws_url, set_ws_url] = useState("ws://"+cookie+"/els");
   const me = { setModalErrorMsg: setModalErrorMsg, setShowModalError: setShowModalError };
   // espWS setup
-  const sse_events = useEventSource("http://"+ cookie + "/events");
+  const [sse_source, set_sse_source] = useState();
+  const sse_events = useEventSource("http://"+ cookie + "/events",set_sse_source);
   const [msg, set_msg] = useState(null);
   const [vencState, set_vencState] = useState(false);
   const [modetabkey, set_modetabkey] = useState('moveSync_tab');
   const [moveConfig,set_moveConfig] = useState(default_moveConfig);
+  
   const [state,set_state] = useState( { 
     nvConfig:  nvConfig,
     stats: stats,
@@ -279,6 +281,13 @@ export default function App() {
               connected ?
                 <span className="badge bg-success"><Wifi /> </span>
                 : <span className="badge bg-danger"><WifiOff /></span>
+            }
+            {
+              //sse_source.
+              (sse_source && sse_source.readyState == 1) ?
+              <span><AppIndicator /></span>
+              :
+              <span><Asterisk /></span>
             }
             DRO: <span className="badge bg-warning">{dro.toFixed(4)} {mmOrImp(state)}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
