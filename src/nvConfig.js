@@ -1,5 +1,5 @@
 
-import React, { Component, useState, useEffect } from 'react';
+import React, { Component, useState, useEffect,useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import { Form, InputGroup, Col, Grid, Row } from 'react-bootstrap';
 import FormControl from 'react-bootstrap/FormControl';
@@ -7,29 +7,28 @@ import { useForm } from 'react-hook-form';
 import { send } from './util.js';
 
 export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
-    const { register, handleSubmit, watch, errors } = useForm();
+    //const { register, handleSubmit, watch, errors } = useForm();
+    const lspRef = useRef();
+    const microstepsRef = useRef();
+    const spindleEncoderRef = useRef();
 
-    const onSubmitNvConfig = (data) => {
+    const submitNvClick = (data) => {
+        data.preventDefault()
         console.log("submit nvdata",data);
-        var merged = {};
-
         // data should ovveride any conflicts 
        
         var nv = nvConfig;
         //Object.assign(merged,data,nv);
-        Object.assign(merged,nvConfig,data)
-        delete merged.id;
-        delete merged.t;
-        delete merged.motor_steps;
-        merged.microsteps = parseInt(merged.microsteps);
-        merged.spindle_encoder_resolution = parseInt(merged.spindle_encoder_resolution);
-        merged.lead_screw_pitch = parseFloat(merged.lead_screw_pitch);
-        var d = {cmd: "setNvConfig",config: merged};
+        nv.microsteps = parseInt(microstepsRef.current.value);
+        nv.spindle_encoder_resolution = parseInt(spindleEncoderRef.current.value);
+        nv.lead_screw_pitch = parseFloat(lspRef.current.value);
+        var d = {cmd: "setNvConfig",config: nv};
         console.log(d);
         send(d);
       }
 
-    const handleResetNvConfig = (data) => {
+    const resetNv = (data) => {
+        data.preventDefault()
         console.log("resetting config");
         var d = {cmd: "resetNvConfig"};
         //ws.send(JSON.stringify(d));
@@ -47,7 +46,7 @@ export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
                             NV Config
                         </div>
                         <div className="card-body">
-                            <Form inline onSubmit={handleSubmit(onSubmitNvConfig)} >
+                            <Form inline >
                                 <Row>
                                     <InputGroup className="mb-2 mr-sm-2">
                                         <Col xs={8}>
@@ -56,6 +55,7 @@ export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
                                                 <Form.Control id="lead_screw_pitch" name="lead_screw_pitch" type="number"
                                                     required
                                                     defaultValue={nvConfig["lead_screw_pitch"]}
+                                                    ref={lspRef}
                                                     inputMode='decimal' step='any' placeholder={nvConfig["lead_screw_pitch"]} />
 
                                             </InputGroup>
@@ -64,6 +64,7 @@ export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
                                                 <button type="button" className="btn btn-secondary" data-toggle="tooltip" title="this is the microstepping mutliplier 1,2,4,8,16 etc">?</button>
                                                 <Form.Control id="microsteps" name="microsteps" type="number"
                                                     required
+                                                    ref={microstepsRef}
                                                     defaultValue={nvConfig["microsteps"]}
                                                     inputMode='decimal' step='any' placeholder={nvConfig["microsteps"]} />
 
@@ -72,6 +73,7 @@ export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
                                                 <InputGroup.Text>Spindle Encoder Resolution (CPR) {nvConfig["spindle_encoder_resolution"]}</InputGroup.Text>
                                                 <Form.Control id="spindle_encoder_resolution" name="spindle_encoder_resolution" type="number"
                                                     required
+                                                    ref={spindleEncoderRef}
                                                     defaultValue={nvConfig["spindle_encoder_resolution"]}
                                                     inputMode='decimal' step='any' placeholder={nvConfig["spindle_encoder_resolution"]} />
 
@@ -80,6 +82,8 @@ export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
                                                 <InputGroup.Text>Encoder Pin A: {nvConfig["EA"]}</InputGroup.Text>
                                                 <Form.Control id="EA" name="EA" type="number"
                                                     required
+                                                    readOnly
+                                                    disabled
                                                     defaultValue={nvConfig["EA"]}
                                                     inputMode='decimal' step='any' placeholder={nvConfig["EA"]} />
 
@@ -88,6 +92,8 @@ export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
                                                 <InputGroup.Text>Encoder Pin B: {nvConfig["EB"]}</InputGroup.Text>
                                                 <Form.Control id="EB" name="EB" type="number"
                                                     required
+                                                    readOnly
+                                                    disabled
                                                     defaultValue={nvConfig["EB"]}
                                                     inputMode='decimal' step='any' placeholder={nvConfig["EB"]} />
 
@@ -108,15 +114,17 @@ export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
                                         </Col>
 
                                         <Col>
-                                            <Button type="submit" className="mb-2">
+                                            <Button type="submit" className="mb-2" onClick={submitNvClick}>
                                                 Save Config!
                                             </Button>
                                         </Col>
                                     </InputGroup>
                                 </Row>
                             </Form>
-                            <Form onSubmit={handleSubmit(handleResetNvConfig)}>
-                                <Button type="submit" className="mb-2">
+                            <Form >
+                                <Button 
+                                    onClick={resetNv}
+                                    type="submit" className="mb-2">
                                     Reset Config to defaults.
                                 </Button>
                             </Form>
