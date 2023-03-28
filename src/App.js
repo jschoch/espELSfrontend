@@ -118,6 +118,7 @@ export default function App() {
     "distance": 1,
     "startSync": true,
     "feeding_ccw": true,
+    "moveSteps" : 0,
     "moveSpeed" : 5000,
     "f": true
   }
@@ -287,7 +288,6 @@ export default function App() {
     <CookiesProvider>
     <Container fluid>
       <div >
-        <h1>FIgure out how to set event source, make optional in cookie</h1>
         <Row >
           <Col xs={10} >
             {
