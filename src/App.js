@@ -109,7 +109,7 @@ export default function App() {
   }
 
 
-  const vsn = "0.0.4";
+  const vsn = "0.0.5";
   const default_moveConfig = {
     "movePitch": 1,
     "rapidPitch": 1.1,
@@ -119,6 +119,7 @@ export default function App() {
     "startSync": true,
     "feeding_ccw": true,
     "moveSpeed" : 5000,
+    "moveSteps" : 0,
     "f": true
   }
 
@@ -287,7 +288,6 @@ export default function App() {
     <CookiesProvider>
     <Container fluid>
       <div >
-        <h1>FIgure out how to set event source, make optional in cookie</h1>
         <Row >
           <Col xs={10} >
             {

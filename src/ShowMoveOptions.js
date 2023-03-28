@@ -196,7 +196,7 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
                 Do Jog
               </Button>
               
-              {state.stats.sr != 0 &&
+              { state.stats.sr  &&
               <Button 
                 variant="danger"
                 onClick={cancelThing}>
