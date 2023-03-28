@@ -29,8 +29,9 @@ import Tooltip from "react-bootstrap/Tooltip";
 import Rev from './Rev.js';
 import Hobbing from './hobbing.js';
 import { send, stepsToDistance, mmOrImp, useEventSource} from './util.js';
-import { Wifi, WifiOff } from 'react-bootstrap-icons';
-import useCookie from './useCookie.js';
+import { Asterisk, AppIndicator, Wifi, WifiOff } from 'react-bootstrap-icons';
+//import useCookie from './useCookie.js';
+import { CookiesProvider,useCookies } from 'react-cookie';
 
 //import {Chart} from 'chart.js';
 //import 'chartjs-adapter-luxon';
@@ -80,6 +81,10 @@ const ModalError = ({ showModalError, modalErrorMsg, setShowModalError }) => {
 }
 
 var default_ws_url = "ws://192.168.100.100/els";
+const default_ip = "192.168.100.100"
+
+
+
 export default function App() {
   //const { register, handleSubmit, watch, errors } = useForm();
 
@@ -112,10 +117,12 @@ export default function App() {
     "dwell": 1,
     "distance": 1,
     "startSync": true,
+    "feeding_ccw": true,
+    "moveSpeed" : 5000,
     "f": true
   }
 
-
+  
   const [machineConfig,set_machineConfig] = useState({m: 0});
   const [connected, set_connected] = useState(false);
   const [dro, setDRO] = useState(0.0);
@@ -124,16 +131,20 @@ export default function App() {
   const [nvConfig, set_nvConfig] = useState({ error: true, motor_steps: 0 });
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
-  const [metric_cookie, set_metric_cookie] = useCookie("metric", "true");
-  const [cookie, updateCookie] = useCookie("ip_or_hostname", "192.168.100.100");
-  const [ws_url, set_ws_url] = useState("ws://"+cookie+"/els");
+  //const [metric_cookie, set_metric_cookie] = useCookie("metric", "true");
+  //const [cookie, updateCookie] = useCookie("ip_or_hostname", default_ip );
+  const [cookies, setCookie ] = useCookies(['ip_or_hostname','metric']);
+  const [ws_url, set_ws_url] = useState("ws://"+cookies.ip_or_hostname+"/els");
   const me = { setModalErrorMsg: setModalErrorMsg, setShowModalError: setShowModalError };
   // espWS setup
-  const sse_events = useEventSource("http://"+ cookie + "/events");
+  const [sse_source, set_sse_source] = useState();
+  const sse_events = useEventSource("http://"+ cookies.ip_or_hostname+ "/events",set_sse_source);
+  //const sse_events = null;
   const [msg, set_msg] = useState(null);
   const [vencState, set_vencState] = useState(false);
   const [modetabkey, set_modetabkey] = useState('moveSync_tab');
   const [moveConfig,set_moveConfig] = useState(default_moveConfig);
+  
   const [state,set_state] = useState( { 
     nvConfig:  nvConfig,
     stats: stats,
@@ -141,11 +152,23 @@ export default function App() {
     set_connected: set_connected,
     // modal error thingy
     me: me,
-    metric: metric_cookie,
+    metric: cookies.metric,
     dbg: true,
     vsn: vsn
   });
 
+  // Runs only one time
+  useEffect(() => {
+    console.log("cookies",cookies);
+    if(cookies.ip_or_hostname != default_ip){
+      set_ws_url("ws://"+cookies.ip_or_hostname+"/els");
+      //sse_events = useEventSource("http://"+ cookie + "/events",set_sse_source);
+    }else{
+      console.log("using default url",ws_url,cookies.ip_or_hostname);
+      //setCookie()
+    }
+    
+  }, []);
 
   const handleVenc = (data) => {
     var c = {};
@@ -174,24 +197,19 @@ export default function App() {
     }
   }
 
-  // yuck
-  const cookie_setters = {
-    metric: (val) => {
-      console.log("toggle metric", val);
-      set_metric_cookie(val, 1000);
-    }
-  }
-
   // sse events
 
   useEffect(() => {
-    if(sse_events && sse_events.p){
+    if(sse_events){
+    //if(sse_events && sse_events.p){
+
       setDRO(stepsToDistance(state,nvConfig, sse_events.p));
       setRPM(sse_events.rpm);
       var s = state.stats;
       var merged = {};
       Object.assign(merged, s, sse_events);
       //Object.assign(merged, sse_events,stats);
+      //console.log("sse_evnt",merged)
       set_state({
         ...state,
         stats: merged
@@ -266,14 +284,23 @@ export default function App() {
 
 
   return (
+    <CookiesProvider>
     <Container fluid>
       <div >
+        <h1>FIgure out how to set event source, make optional in cookie</h1>
         <Row >
           <Col xs={10} >
             {
               connected ?
                 <span className="badge bg-success"><Wifi /> </span>
                 : <span className="badge bg-danger"><WifiOff /></span>
+            }
+            {
+              //sse_source.
+              (sse_source && sse_source.readyState == 1) ?
+              <span><AppIndicator /></span>
+              :
+              <span><Asterisk /></span>
             }
             DRO: <span className="badge bg-warning">{dro.toFixed(4)} {mmOrImp(state)}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
@@ -388,15 +415,19 @@ export default function App() {
                 set_state={set_state}
                 moveConfig={moveConfig}
                 set_moveConfig={set_moveConfig}
-                cookie_setters={cookie_setters} />
+                cookies={cookies}
+                set_sse_source={set_sse_source}
+                setCookie = {setCookie}
+                 />
             </Tab>
             <Tab eventKey="net_tab" title="Network">
               <Network
                 ws_url={ws_url}
                 set_ws_url={set_ws_url}
-                cookie={cookie}
+                cookie={cookies.ip_or_hostname}
+                set_sse_source={set_sse_source}
                 state={state}
-                updateCookie={updateCookie}
+                setCookie={setCookie}
                 machineConfig={machineConfig} connected={connected} />
 
             </Tab>
@@ -441,9 +472,10 @@ export default function App() {
             </Tab>
             <Tab eventKey="net_tab" title="Network">
               <Network
-                cookie={cookie}
-                updateCookie={updateCookie}
+                cookie={cookies.ip_or_hostname}
+                setCookie={setCookie}
                 state={state}
+                set_sse_source={set_sse_source}
                 ws_url={ws_url}
                 set_ws_url={set_ws_url}
                 machineConfig={machineConfig} connected={connected} />
@@ -455,7 +487,9 @@ export default function App() {
                 set_state={set_state}
                 moveConfig={moveConfig}
                 set_moveConfig={set_moveConfig}
-                nvConfig={nvConfig} cookie_setters={cookie_setters} />
+                set_sse_source={set_sse_source}
+                cookies={cookies}
+                nvConfig={nvConfig} setCookie={setCookie} />
             </Tab>
             <Tab
               tabClassName={state.dbg ? "" : "d-none"}
@@ -468,6 +502,7 @@ export default function App() {
       <EspWS msg={msg} set_msg={set_msg} connected={connected}
         vsn={vsn}
         ws_url={ws_url}
+        set_ws_url={set_ws_url}
         set_connected={set_connected} machineConfig={machineConfig} />
       <ModalError showModalError={showModalError}
         modalErrorMsg={modalErrorMsg}
@@ -480,5 +515,6 @@ export default function App() {
         </Col>
       </Row>
     </Container>
+    </CookiesProvider>
   )
 };

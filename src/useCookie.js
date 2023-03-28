@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 
-const getItem = key =>
-  document.cookie.split("; ").reduce((total, currentCookie) => {
-    const item = currentCookie.split("=");
-    const storedKey = item[0];
-    const storedValue = item[1];
-    //console.log("getItem ran, please",item,storedValue);
+const getItem = key => {
+  if(typeof document !== 'undefined'){
 
-    return key === storedKey ? decodeURIComponent(storedValue) : total;
-  }, "");
+    document.cookie.split("; ").reduce((total, currentCookie) => {
+      const item = currentCookie.split("=");
+      const storedKey = item[0];
+      const storedValue = item[1];
+      console.log("getItem ran, please",item,storedValue);
+
+      return key === storedKey ? decodeURIComponent(storedValue) : total;
+    }, "");
+  }
+}
 
 const setItem = (key, value, numberOfDays) => {
   const now = new Date();

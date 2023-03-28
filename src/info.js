@@ -82,6 +82,7 @@ export default function Info(props) {
                 <KV k="jogging(rename) " v={props.state.stats.jogging ? "true" : "false"} />
                 <KV k="rapiding " v={props.state.stats.rap ? "true" : "false"} />
                 <KV k="Motion On: " v={props.state.stats.pos_feed ? "true" : "false"} />
+                <KV k="event doc Feeding_ccw" v={props.state.stats.fccw ? "true" : "false"} />
                 <KV k="Feeding_CCW" v={props.moveConfig.feeding_ccw ? "true": "false"} />
                 <KV k="Feeding_dir" v={props.state.stats.fd ? "true" : "false"} />
                 <KV k="Waiting for Sync" v={props.state.stats.sw ? "true" : "false"} />

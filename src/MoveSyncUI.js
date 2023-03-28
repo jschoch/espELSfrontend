@@ -45,8 +45,9 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
         var c = moveConfig;
         // TODO: add these to the UI
         c.f = feedingLeft;
-        c.startSync = startSync;
         c.feeding_ccw = true;
+        c.startSync = startSync;
+        
         c.movePitch = parseFloat(movePitchRef.current.value);
         c.rapidPitch = parseFloat(rapidPitchRef.current.value)
         if (state.metric != "true") {
@@ -58,6 +59,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
         set_last_distance(Math.abs(distanceRef.current.value))
         var d = Math.abs(distanceRef.current.value) * modifier;
         c.moveSteps = distanceToSteps(state, nvConfig, d);
+        //c.feeding_ccw = (c.moveSteps > 0);
         var d = { cmd: "moveSync", moveConfig: c }
         send(d);
     }

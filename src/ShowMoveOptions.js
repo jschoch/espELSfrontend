@@ -1,6 +1,7 @@
 import React, { Component, useState, useEffect,useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import Badge from 'react-bootstrap/Badge'
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import FormControl from 'react-bootstrap/FormControl';
@@ -10,6 +11,39 @@ import MaxPitch from './MaxPitch.js';
 
 
 
+const KV = (props) => {
+  const { k, v } = props;
+  return (
+
+    <span className="margin-left">
+      <Button variant="primary margin-left">
+        {k}<Badge variant="light">{v}</Badge>
+        <span className="sr-only"></span>
+      </Button>
+    </span>
+
+  );
+};
+
+
+const KVB = (props) => {
+  const { k, v } = props;
+  return (
+
+    <span className="margin-left">
+      <Button variant="primary margin-left">
+        {k}
+        <Badge bg="info">
+          { v == true ? "On" : "Off"}
+          </Badge>
+        <span className="sr-only">
+
+        </span>
+      </Button>
+    </span>
+
+  );
+};
 
 export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConfig,machineConfig}){
   const [move_pitch, set_move_pitch] = useState(moveConfig.movePitch);
@@ -19,6 +53,36 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
   const movePitchRef = useRef();
   const rapidPitchRef = useRef();
   const accelRef = useRef();
+  const distanceRef = useRef();
+  const speedRef = useRef();
+
+  const testThing = (data) =>{
+    var c = moveConfig;
+    c.startSync = false;
+    c.movePitch = parseFloat(movePitchRef.current.value);
+    c.rapidPitch = parseFloat(rapidPitchRef.current.value)
+    if (state.metric != "true") {
+        c.movePitch = inToMM(c.movePitch);
+        c.rapidPitch = inToMM(c.rapidPitch);
+    }
+
+    //var d = Math.abs(distanceRef.current.value) * modifier;
+    //c.moveSteps = distanceToSteps(state, nvConfig, d);
+    //c.feeding_ccw = (c.moveSteps > 0);
+    //c.moveSteps = stepsInt;
+    c.moveSteps = distanceToSteps(state,nvConfig, distanceRef.current.value);
+    c.feeding_ccw = true;
+    c.accel = parseInt(accelRef.current.value);
+    c.moveSpeed = parseInt(speedRef.current.value);
+
+    var d = {cmd: "moveAsync",moveConfig: c};
+    console.log("cmd",d);
+    send(d);
+  }
+
+  const cancelThing = () => {
+    send({cmd: "moveCancel"})
+  }
 
   const updateMoveConf = (data) =>{
     const p = movePitchRef.current.value;
@@ -88,7 +152,6 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
             <Col>
               <InputGroup className="mb-1">
                 <FormControl
-                  aria-label="Rapid Pitch"
                   inputMode='numeric' step='any' type="number"
                   defaultValue={200000}
                   ref={accelRef}
@@ -96,11 +159,68 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
                 <InputGroup.Text id="rp">
                   Acceleration steps/s2
                 </InputGroup.Text>
+               
               </InputGroup>
-              <Button onClick={updateMoveConf} >
-                Update Pitch Settings
+              </Col>
+              <Col>
+              <InputGroup className="mb-1">
+                <FormControl
+                  inputMode='numeric' step='any' type="number"
+                  defaultValue={moveConfig.moveSpeed ? moveConfig.moveSpeed : 5000}
+                  ref={speedRef}
+                />
+                <InputGroup.Text id="speed">
+                  Move Speed (hz)
+                </InputGroup.Text>
+              </InputGroup>
+              </Col>
+              <Col>
+              <InputGroup className="mb-1">
+                <FormControl
+                  inputMode='numeric' step='any' type="number"
+                  defaultValue={moveConfig.distance}
+                  ref={distanceRef}
+                />
+                <InputGroup.Text id="rp">
+                  Distance to Jog
+                </InputGroup.Text>
+              </InputGroup>
+              </Col>
+
+              </Row>
+              <Row>
+                <Col>
+              
+
+              <Button onClick={testThing} >
+                Do Jog
               </Button>
+              
+              {state.stats.sr != 0 &&
+              <Button 
+                variant="danger"
+                onClick={cancelThing}>
+                Cancel Move Async
+              </Button>
+              }
             </Col>
+            <Col>
+            <Button onClick={updateMoveConf} bg="info" >
+                Just set move Config
+              </Button>
+              </Col>
+          </Row>
+          <Row>
+            <hr></hr>
+          </Row>
+          <Row>
+            <Col>
+            <KVB k="Running" v={state.stats.sr} />
+          <KV k="Accel State" v={state.stats.as} />
+          <KV k="frequency" v= {state.stats.av} />
+          <KV k="Steps delta" v={state.stats.asd} />
+            </Col>
+          
           </Row>
 
 

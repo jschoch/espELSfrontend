@@ -12,11 +12,11 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import { send } from './util.js';
 
 
-export default function ConfigUI({ state, set_state, machineConfig, nvConfig, cookie_setters, moveConfig, set_moveConfig }) {
+export default function ConfigUI({ state, set_state, machineConfig, nvConfig, cookies,setCookie, moveConfig, set_moveConfig }) {
     const [show_stats_interval, set_show_stats_interval] = useState(false);
 
     const handleStatsClick = () => {
-        console.log("statsclick");
+        console.log("statsclick",cookies);
         set_show_stats_interval(true);
     }
 
@@ -48,7 +48,8 @@ export default function ConfigUI({ state, set_state, machineConfig, nvConfig, co
 
                                 </Button>
 
-                                <Button onClick={() => {
+                                <Button onClick={(e) => {
+                                    e.preventDefault();
                                     var m_string = "true";
                                     if (state.metric == "true") {
                                         m_string = "false"
@@ -57,19 +58,9 @@ export default function ConfigUI({ state, set_state, machineConfig, nvConfig, co
                                         ...state,
                                         metric: m_string
                                     });
+                                    
+                                    state.metric == "true" ? setCookie("metric","false") : setCookie("metric","true")
 
-                                    state.metric == "true" ? cookie_setters.metric("false") : cookie_setters.metric("true")
-
-                                    var temp_config = {
-                                        ...moveConfig,
-                                        movePitch: 0.1,
-                                        pitch: 0.1,
-                                        rapidPitch: 0.1,
-                                        rapid: 0.1
-                                    }
-                                    set_moveConfig(temp_config);
-                                    var d = { cmd: "sendMoveConfig", config: temp_config };
-                                    send(d);
                                 }
                                 }>
 
@@ -108,6 +99,7 @@ export default function ConfigUI({ state, set_state, machineConfig, nvConfig, co
             </Tabs>
             {state.dbg &&
                 <div>
+                    <span> metric cookie: {cookies ? cookies.metric : "Null"} ip or host: {cookies ?cookies.ip_or_hostname : "null"} </span>
                     <div>raw config<pre>{JSON.stringify(machineConfig, null, 2)}</pre></div>
                     <div>raw nvConfig<pre>{JSON.stringify(nvConfig, null, 2)}</pre></div>
                 </div>

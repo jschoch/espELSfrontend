@@ -9,7 +9,7 @@ import { send } from './util.js';
 
 
 
-export default function EspWS({ ws_url, set_msg, connected, set_connected, vsn }) {
+export default function EspWS({ ws_url, set_msg, connected, set_connected, vsn,set_ws_url }) {
     //const [ws_connected,set_ws_connected] = useState(false);
     const ws = useRef(null);
     
@@ -40,11 +40,13 @@ export default function EspWS({ ws_url, set_msg, connected, set_connected, vsn }
     useEffect(() => {
 
         if (waitingToReconnect) {
+          console.log("waiting for reconnection");
           return;
         }
     
         // Only set up the websocket once
-        if (!ws.current) {
+        if (!ws.current && ws_url) {
+          console.log("setting up websocket");
           const client = new WebSocket(ws_url);
           ws.current = client;
     
@@ -110,7 +112,7 @@ export default function EspWS({ ws_url, set_msg, connected, set_connected, vsn }
           }
         }
     
-      }, [waitingToReconnect]);
+      }, [waitingToReconnect,ws_url,set_ws_url]);
 
 
 
