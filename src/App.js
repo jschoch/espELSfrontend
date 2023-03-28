@@ -109,7 +109,7 @@ export default function App() {
   }
 
 
-  const vsn = "0.0.4";
+  const vsn = "0.0.5";
   const default_moveConfig = {
     "movePitch": 1,
     "rapidPitch": 1.1,
@@ -120,6 +120,7 @@ export default function App() {
     "feeding_ccw": true,
     "moveSteps" : 0,
     "moveSpeed" : 5000,
+    "moveSteps" : 0,
     "f": true
   }
 
