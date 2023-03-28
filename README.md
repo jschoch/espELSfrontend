@@ -17,7 +17,17 @@ npm start
 # building
 
 ```
+# install serve to serve production build
+
+#build local
 npm run build
+
+#build optimized production
+npm run build -p
+
+#run built production
+
+serve ./build 
 # bundle all files
 npx gulp
 ```
