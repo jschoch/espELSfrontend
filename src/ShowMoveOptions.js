@@ -55,6 +55,7 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
   const accelRef = useRef();
   const distanceRef = useRef();
   const speedRef = useRef();
+  const dwellRef = useRef();
 
   const testThing = (data) =>{
     var c = moveConfig;
@@ -78,6 +79,27 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
     var d = {cmd: "moveAsync",moveConfig: c};
     console.log("cmd",d);
     send(d);
+  }
+
+  const doAsyncDwellBounce = (e) => {
+    var c = moveConfig
+    c.startSync = false;
+    c.movePitch = parseFloat(movePitchRef.current.value);
+    c.rapidPitch = parseFloat(rapidPitchRef.current.value)
+    if (state.metric != "true") {
+        c.movePitch = inToMM(c.movePitch);
+        c.rapidPitch = inToMM(c.rapidPitch);
+    }
+
+    c.moveSteps = distanceToSteps(state,nvConfig, distanceRef.current.value);
+    c.feeding_ccw = true;
+    c.accel = parseInt(accelRef.current.value);
+    c.moveSpeed = parseInt(speedRef.current.value);
+    c.dwell = parseInt(dwellRef.current.value);
+    var d = {cmd: "bounceAsync",moveConfig: c};
+    console.log("cmd",d);
+    send(d);
+
   }
 
   const cancelThing = () => {
@@ -153,7 +175,7 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
               <InputGroup className="mb-1">
                 <FormControl
                   inputMode='numeric' step='any' type="number"
-                  defaultValue={200000}
+                  defaultValue={moveConfig.accel ? moveConfig.accel : 50000}
                   ref={accelRef}
                 />
                 <InputGroup.Text id="rp">
@@ -166,7 +188,7 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
               <InputGroup className="mb-1">
                 <FormControl
                   inputMode='numeric' step='any' type="number"
-                  defaultValue={moveConfig.moveSpeed ? moveConfig.moveSpeed : 5000}
+                  defaultValue={moveConfig.moveSpeed ? moveConfig.moveSpeed : 8000}
                   ref={speedRef}
                 />
                 <InputGroup.Text id="speed">
@@ -211,6 +233,28 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
               </Col>
           </Row>
           <Row>
+            <Col>
+            
+            <InputGroup className="mb-1">
+                <FormControl
+                  inputMode='numeric' step='any' type="number"
+                  defaultValue={moveConfig.dwell}
+                  ref={dwellRef}
+                />
+                <InputGroup.Text id="rp">
+                  Dwell timer in ms
+                </InputGroup.Text>
+              </InputGroup> 
+            </Col>
+            <Col>
+            <Button onClick={doAsyncDwellBounce}>
+              Async Dwell Bounce 
+            </Button>
+            </Col>
+            </Row>
+            <Row>
+
+            
             <hr></hr>
           </Row>
           <Row>

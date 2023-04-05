@@ -108,18 +108,22 @@ export default function App() {
     }
   }
 
-
+  const handleCancel = (e)=> {
+    e.preventDefault();
+    var d = { cmd: "moveCancel" };
+    send(d);
+  }
   const vsn = "0.0.5";
   const default_moveConfig = {
     "movePitch": 1,
     "rapidPitch": 1.1,
-    "accel": 100000,
+    "accel": 50000,
     "dwell": 1,
     "distance": 1,
     "startSync": true,
     "feeding_ccw": true,
     "moveSteps" : 0,
-    "moveSpeed" : 5000,
+    "moveSpeed" : 7000,
     "moveSteps" : 0,
     "f": true
   }
@@ -330,9 +334,18 @@ export default function App() {
           </Col>
         </Row>
         <Row>
+          <Col>
+          <Button
+            className="w-100"
+            onClick={handleCancel}
+           variant="danger">
+            E-Stop
+          </Button>
+          </Col>
         <Col>
             <ModeSel 
               handleModeSelect={handleModeSelect} 
+              className="w-100"
               modes={modes} 
               machineConfig={machineConfig}></ModeSel>
           </Col>
