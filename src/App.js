@@ -309,9 +309,9 @@ export default function App() {
             }
             DRO: <span className="badge bg-warning">{dro.toFixed(4)} {mmOrImp(state)}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
-            Ang: <span className="badge bg-dark">{sse_events && 
+            Ang(deg): <span className="badge bg-dark">{sse_events && 
               ((360/nvConfig.spindle_encoder_resolution) *(sse_events.encoderPos % nvConfig.spindle_encoder_resolution)).toFixed(2)
-              }</span>
+              }*</span>
             <Rev sse_events={sse_events} />
               <span
                 className="badge bg-success"
