@@ -285,7 +285,6 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
                         ></Bounce>
                     </Tab>
                     <Tab eventKey="FreeJog" title="Jog (non sync)">
-                        TODO:...
                         <ShowMoveOptions
                             state={state}
                             machineConfig={machineConfig}

@@ -56,6 +56,7 @@ export default function Debug({ state,machineConfig,nvConfig,moveConfig }) {
         Decrement virtual encoder 1 tick
       </Button>
       <div>
+        <h1> TODO: make venc direction configurable</h1>
         <h5>Virtual Spindle Speed</h5>
         <span> will run the enconder contstantly at the set speed</span>
         <input type="range" className="custom-range" min="0" max="500"
