@@ -168,6 +168,8 @@ export default function ShowMoveOptions({ state, moveConfig, set_moveConfig, nvC
             </InputGroup.Text>
           </InputGroup>
         </Col>
+      </Row>
+      <Row>
         <Col>
           <InputGroup className="mb-1">
             <FormControl
@@ -183,25 +185,25 @@ export default function ShowMoveOptions({ state, moveConfig, set_moveConfig, nvC
 
       </Row>
 
-      
-          <Row>
-            <Col>
+
+      <Row>
+        <Col>
 
 
-              <Button onClick={testThing} >
-                Do Jog
-              </Button>
+          <Button onClick={testThing} >
+            Do Jog
+          </Button>
 
-              {state.stats.sr &&
-                <Button
-                  variant="danger"
-                  onClick={cancelThing}>
-                  Cancel Move Async
-                </Button>
-              }
-            </Col>
-          </Row>
-          <Row>
+          {state.stats.sr &&
+            <Button
+              variant="danger"
+              onClick={cancelThing}>
+              Cancel Move Async
+            </Button>
+          }
+        </Col>
+      </Row>
+      <Row>
         <Col>
 
           <InputGroup className="mb-1">
@@ -215,28 +217,28 @@ export default function ShowMoveOptions({ state, moveConfig, set_moveConfig, nvC
             </InputGroup.Text>
           </InputGroup>
         </Col>
-        </Row>
-          <Row>
-            <Col>
-              <Button onClick={doAsyncDwellBounce}>
-                Async Dwell Bounce
-              </Button>
-            </Col>
-          </Row>
-          <Row>
+      </Row>
+      <Row>
+        <Col>
+          <Button onClick={doAsyncDwellBounce}>
+            Async Dwell Bounce
+          </Button>
+        </Col>
+      </Row>
+      <Row>
 
 
-            <hr></hr>
-          </Row>
-          <Row>
-            <Col>
-              <KVB k="Running" v={state.stats.sr} />
-              <KV k="Accel State" v={state.stats.as} />
-              <KV k="frequency" v={state.stats.av} />
-              <KV k="Steps delta" v={state.stats.asd} />
-            </Col>
+        <hr></hr>
+      </Row>
+      <Row>
+        <Col>
+          <KVB k="Running" v={state.stats.sr} />
+          <KV k="Accel State" v={state.stats.as} />
+          <KV k="frequency" v={state.stats.av} />
+          <KV k="Steps delta" v={state.stats.asd} />
+        </Col>
 
-          </Row>
+      </Row>
 
 
     </div>
