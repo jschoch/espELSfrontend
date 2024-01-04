@@ -114,7 +114,7 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
                   inputMode='decimal' step='any' type="number"
                 />
                 <InputGroup.Text id="dwell">
-                  Dwell Time (seconds)
+                  Dwell Time (ms (micro seconds))
                 </InputGroup.Text>
               </InputGroup>
             </Col>

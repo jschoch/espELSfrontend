@@ -132,6 +132,9 @@ export default function ShowMoveOptions({ state, moveConfig, set_moveConfig, nvC
     <div>
       <Row>
         <Col>
+        <h3>
+          Not Well Tested, default acceleration may not work for your machine.  Hard to repeat startup bug where it does not stop, hit e-stop to halt.
+        </h3>
           <span>
             <MaxPitch
               state={state}
@@ -191,7 +194,7 @@ export default function ShowMoveOptions({ state, moveConfig, set_moveConfig, nvC
 
 
           <Button onClick={testThing} >
-            Do Jog
+            Do Jog (not slaved to spindle)
           </Button>
 
           {state.stats.sr &&
@@ -205,7 +208,7 @@ export default function ShowMoveOptions({ state, moveConfig, set_moveConfig, nvC
       </Row>
       <Row>
         <Col>
-
+        <h3> the below async dwell bounce mode will bounce back and forth until you hit the estop or cancel button</h3>
           <InputGroup className="mb-1">
             <FormControl
               inputMode='numeric' step='any' type="number"
@@ -220,6 +223,7 @@ export default function ShowMoveOptions({ state, moveConfig, set_moveConfig, nvC
       </Row>
       <Row>
         <Col>
+        
           <Button onClick={doAsyncDwellBounce}>
             Async Dwell Bounce
           </Button>
