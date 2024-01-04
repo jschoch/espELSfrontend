@@ -13,9 +13,10 @@ import MaxPitch from './MaxPitch.js';
 export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig,moveConfig,set_moveConfig}) {
 
   //const [distance, set_distance] = useState(0);
-  const [dwell,set_dwell] = useState(0);
+  //const [dwell,set_dwell] = useState(0);
   const [last_distance,set_last_distance] = useState(0);
   const distanceRef = useRef();
+  const dwellRef = useRef();
   const movePitchRef = useRef();
   const rapidPitchRef = useRef();
 
@@ -27,7 +28,8 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
     c.moveSteps = distanceToSteps(state,nvConfig, distanceRef.current.value) 
     c.rapidPitch = parseFloat(rapidPitchRef.current.value)
     c.movePitch =  parseFloat(movePitchRef.current.value )
-    c.dwell = dwell
+    c.dwell = parseInt(dwellRef.current.value);
+    //c.dwell = dwell
     c.feeding_ccw = true; 
     if(state.metric != "true"){
       c.rapid = inToMM(rapidPitchRef.current.value);
@@ -107,9 +109,9 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
               <InputGroup className="mb-1">
                 <FormControl
                   aria-label="Dwell Time"
-                  value={dwell}
+                  defaultValue={moveConfig.dwell}
+                  ref={dwellRef}
                   inputMode='decimal' step='any' type="number"
-                  onChange={e => set_dwell(parseFloat(e.target.value))}
                 />
                 <InputGroup.Text id="dwell">
                   Dwell Time (seconds)

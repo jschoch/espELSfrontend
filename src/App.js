@@ -108,18 +108,22 @@ export default function App() {
     }
   }
 
-
-  const vsn = "0.0.5";
+  const handleCancel = (e)=> {
+    e.preventDefault();
+    var d = { cmd: "moveCancel" };
+    send(d);
+  }
+  const vsn = "0.0.6";
   const default_moveConfig = {
     "movePitch": 1,
     "rapidPitch": 1.1,
-    "accel": 100000,
+    "accel": 50000,
     "dwell": 1,
     "distance": 1,
     "startSync": true,
     "feeding_ccw": true,
     "moveSteps" : 0,
-    "moveSpeed" : 5000,
+    "moveSpeed" : 7000,
     "moveSteps" : 0,
     "f": true
   }
@@ -271,10 +275,12 @@ export default function App() {
         }
       }
       else if (msg["t"] == "dbg_st") {
-        var s = stats;
         var merged = {};
-        Object.assign(merged, stats, msg);
-        set_stats(merged);
+        Object.assign(merged, state.stats, msg);
+        console.log("merged",merged,state.stats);
+        set_state({
+          ...state,
+          stats: merged});
 
       }
       else {
@@ -305,9 +311,9 @@ export default function App() {
             }
             DRO: <span className="badge bg-warning">{dro.toFixed(4)} {mmOrImp(state)}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
-            Ang: <span className="badge bg-dark">{sse_events && 
+            Ang(deg): <span className="badge bg-dark">{sse_events && 
               ((360/nvConfig.spindle_encoder_resolution) *(sse_events.encoderPos % nvConfig.spindle_encoder_resolution)).toFixed(2)
-              }</span>
+              }*</span>
             <Rev sse_events={sse_events} />
               <span
                 className="badge bg-success"
@@ -330,9 +336,18 @@ export default function App() {
           </Col>
         </Row>
         <Row>
+          <Col>
+          <Button
+            className="w-100"
+            onClick={handleCancel}
+           variant="danger">
+            E-Stop
+          </Button>
+          </Col>
         <Col>
             <ModeSel 
               handleModeSelect={handleModeSelect} 
+              className="w-100"
               modes={modes} 
               machineConfig={machineConfig}></ModeSel>
           </Col>

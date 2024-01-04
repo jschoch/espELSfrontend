@@ -12,7 +12,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import { send } from './util.js';
 
 
-export default function ConfigUI({ state, set_state, machineConfig, nvConfig, cookies,setCookie, moveConfig, set_moveConfig }) {
+export default function ConfigUI({ state, set_state, set_sse_source,machineConfig, nvConfig, cookies,setCookie, moveConfig, set_moveConfig }) {
     const [show_stats_interval, set_show_stats_interval] = useState(false);
 
     const handleStatsClick = () => {
