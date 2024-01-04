@@ -60,8 +60,8 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
   const testThing = (data) =>{
     var c = moveConfig;
     c.startSync = false;
-    c.movePitch = parseFloat(movePitchRef.current.value);
-    c.rapidPitch = parseFloat(rapidPitchRef.current.value)
+    //c.movePitch = parseFloat(movePitchRef.current.value);
+    //c.rapidPitch = parseFloat(rapidPitchRef.current.value)
     if (state.metric != "true") {
         c.movePitch = inToMM(c.movePitch);
         c.rapidPitch = inToMM(c.rapidPitch);
@@ -138,36 +138,6 @@ export default function ShowMoveOptions({state,moveConfig,set_moveConfig, nvConf
               {machineConfig.dbg &&
                <span> Current Pitch: {machineConfig.movePitch} Rapid: {machineConfig.rapidPitch} </span>}
             </span>
-              <InputGroup className="mb-3">
-                <FormControl
-                  aria-label="Bounce Pitch"
-                  //value={() => {viewPitch(moveConfig.movePitch)}}
-                  placeholder={viewPitch(state,moveConfig.movePitch)}
-                  inputMode='numeric' step='any' type="number"
-                  defaultValue={viewPitch(state,moveConfig.movePitch)}
-                  ref={movePitchRef}
-                />
-                <InputGroup.Text id="unf">
-                  {mmOrImp(state)}
-                  Move Pitch</InputGroup.Text>
-              </InputGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <InputGroup className="mb-1">
-                <FormControl
-                  aria-label="Rapid Pitch"
-                  placeholder={viewPitch(state,moveConfig.rapidPitch)}
-                  inputMode='numeric' step='any' type="number"
-                  defaultValue={viewPitch(state,moveConfig.rapidPitch)}
-                  ref={rapidPitchRef}
-                />
-                <InputGroup.Text id="rp">
-                  {mmOrImp(state)}
-                  Rapid Pitch
-                </InputGroup.Text>
-              </InputGroup>
             </Col>
           </Row>
           <Row>

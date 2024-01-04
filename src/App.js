@@ -113,7 +113,7 @@ export default function App() {
     var d = { cmd: "moveCancel" };
     send(d);
   }
-  const vsn = "0.0.5";
+  const vsn = "0.0.6";
   const default_moveConfig = {
     "movePitch": 1,
     "rapidPitch": 1.1,
@@ -275,10 +275,12 @@ export default function App() {
         }
       }
       else if (msg["t"] == "dbg_st") {
-        var s = stats;
         var merged = {};
-        Object.assign(merged, stats, msg);
-        set_stats(merged);
+        Object.assign(merged, state.stats, msg);
+        console.log("merged",merged,state.stats);
+        set_state({
+          ...state,
+          stats: merged});
 
       }
       else {
