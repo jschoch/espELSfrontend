@@ -144,8 +144,8 @@ export default function App() {
   const me = { setModalErrorMsg: setModalErrorMsg, setShowModalError: setShowModalError };
   // espWS setup
   const [sse_source, set_sse_source] = useState();
-  const sse_events = useEventSource("http://"+ cookies.ip_or_hostname+ "/events",set_sse_source);
-  //const sse_events = null;
+  //const sse_events = useEventSource("http://"+ cookies.ip_or_hostname+ "/events",set_sse_source);
+  const sse_events = null;
   const [msg, set_msg] = useState(null);
   const [vencState, set_vencState] = useState(false);
   const [modetabkey, set_modetabkey] = useState('moveSync_tab');
@@ -166,7 +166,7 @@ export default function App() {
   // Runs only one time
   useEffect(() => {
     console.log("cookies",cookies);
-    if(cookies.ip_or_hostname != default_ip){
+    if(cookies.ip_or_hostname != default_ip || cookies.ip_or_hostname != undefined){
       set_ws_url("ws://"+cookies.ip_or_hostname+"/els");
       //sse_events = useEventSource("http://"+ cookie + "/events",set_sse_source);
     }else{
@@ -444,7 +444,8 @@ export default function App() {
                 set_sse_source={set_sse_source}
                 state={state}
                 setCookie={setCookie}
-                machineConfig={machineConfig} connected={connected} />
+                machineConfig={machineConfig} 
+                connected={connected} />
 
             </Tab>
 

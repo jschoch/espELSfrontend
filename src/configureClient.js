@@ -5,7 +5,7 @@ import { Form, InputGroup, Col, Grid, Row, Button } from 'react-bootstrap';
 export default function ConfigureClient(set_ws_url,set_sse_source,  connected, cookie, setCookie,sse_source) {
 
     const [submitConnecting,set_submitConnecting] = useState(false);
-    const ip_or_hostnameRef = useRef();
+    const ip_or_hostnameRef = useRef("please_enter_the_ip_of_the_espels");
 
 
     const handleSubmit = (e) => {
@@ -19,8 +19,8 @@ export default function ConfigureClient(set_ws_url,set_sse_source,  connected, c
         let source = new EventSource(this_events_url)
         set_sse_source(source);
         set_ws_url(this_ws_url);
-        var x = setCookie("ip_or_hostname",cv);
-        console.log("updating cookie: x",x,cv)
+        setCookie("ip_or_hostname",cv);
+        console.log("updating cookie: ",cookie,cv)
         console.log("network submitted", cv);
         set_submitConnecting(true);
     };

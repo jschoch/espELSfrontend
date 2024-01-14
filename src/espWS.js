@@ -43,6 +43,11 @@ export default function EspWS({ ws_url, set_msg, connected, set_connected, vsn,s
           console.log("waiting for reconnection");
           return;
         }
+
+        if(ws_url == "ws://undefined/els"){
+          console.log("ws not configured");
+          return;
+        }
     
         // Only set up the websocket once
         if (!ws.current && ws_url) {
