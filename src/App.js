@@ -30,15 +30,7 @@ import Rev from './Rev.js';
 import Hobbing from './hobbing.js';
 import { send, stepsToDistance, mmOrImp, useEventSource} from './util.js';
 import { Asterisk, AppIndicator, Wifi, WifiOff } from 'react-bootstrap-icons';
-//import useCookie from './useCookie.js';
 import { CookiesProvider,useCookies } from 'react-cookie';
-
-//import {Chart} from 'chart.js';
-//import 'chartjs-adapter-luxon';
-//import ChartStreaming from 'chartjs-plugin-streaming';
-
-//Chart.register(ChartStreaming);
-
 
 // TODO: refactor, why so many modes unused here?
 //  original intent was to map modes to the YASM states in the firmware
@@ -86,9 +78,6 @@ const default_ip = "192.168.100.100"
 
 
 export default function App() {
-  //const { register, handleSubmit, watch, errors } = useForm();
-
-  
 
   const handleModeSelect = data => {
     var c = machineConfig;
@@ -137,8 +126,6 @@ export default function App() {
   const [nvConfig, set_nvConfig] = useState({ error: true, motor_steps: 0 });
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
-  //const [metric_cookie, set_metric_cookie] = useCookie("metric", "true");
-  //const [cookie, updateCookie] = useCookie("ip_or_hostname", default_ip );
   const [cookies, setCookie ] = useCookies(['ip_or_hostname','metric']);
   const [ws_url, set_ws_url] = useState("ws://"+cookies.ip_or_hostname+"/els");
   const me = { setModalErrorMsg: setModalErrorMsg, setShowModalError: setShowModalError };
@@ -168,10 +155,8 @@ export default function App() {
     console.log("cookies",cookies);
     if(cookies.ip_or_hostname != default_ip || cookies.ip_or_hostname != undefined){
       set_ws_url("ws://"+cookies.ip_or_hostname+"/els");
-      //sse_events = useEventSource("http://"+ cookie + "/events",set_sse_source);
     }else{
       console.log("using default url",ws_url,cookies.ip_or_hostname);
-      //setCookie()
     }
     
   }, []);
@@ -207,19 +192,15 @@ export default function App() {
 
   useEffect(() => {
     if(sse_events){
-    //if(sse_events && sse_events.p){
-
       setDRO(stepsToDistance(state,nvConfig, sse_events.p));
       setRPM(sse_events.rpm);
       var s = state.stats;
       var merged = {};
       Object.assign(merged, s, sse_events);
-      //Object.assign(merged, sse_events,stats);
-      //console.log("sse_evnt",merged)
       set_state({
-        ...state,
-        stats: merged
-      }
+            ...state,
+            stats: merged
+          }
         );
 
     }
@@ -227,7 +208,6 @@ export default function App() {
 
   // all the msg handling goes here 
   useEffect(() => {
-    //console.log("moar",msg);
     if (msg === null) return;
     if ("t" in msg) {
       if (msg["t"] == "status") {
@@ -243,7 +223,6 @@ export default function App() {
       }
       else if (msg["t"] == "nvConfig") {
         console.log("got nv configuration", msg);
-        //msg.metric = metric;
         set_nvConfig(msg);
       }
       else if (msg["t"] == "state") {
@@ -287,7 +266,6 @@ export default function App() {
         console.log("unknown msg:", msg)
       }
     }
-    //}
   }, [msg, set_msg, nvConfig, set_nvConfig, dro, setDRO]);
 
 
@@ -305,10 +283,10 @@ export default function App() {
             {
               //sse_source.
               (sse_source && sse_source.readyState == 1) ?
-              <span><AppIndicator /></span>
-              :
-              <span><Asterisk /></span>
-            }
+                    <span>SSE-</span>
+                    :
+                    <span>WS-</span>
+                  }
             DRO: <span className="badge bg-warning">{dro.toFixed(4)} {mmOrImp(state)}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
             Ang(deg): <span className="badge bg-dark">{sse_events && 
@@ -528,7 +506,6 @@ export default function App() {
       />
       <Row>
         <Col>
-          {JSON.stringify(sse_events)}
         </Col>
       </Row>
     </Container>
