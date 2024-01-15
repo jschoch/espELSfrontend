@@ -131,8 +131,8 @@ export default function App() {
   const me = { setModalErrorMsg: setModalErrorMsg, setShowModalError: setShowModalError };
   // espWS setup
   const [sse_source, set_sse_source] = useState();
-  //const sse_events = useEventSource("http://"+ cookies.ip_or_hostname+ "/events",set_sse_source);
-  const sse_events = null;
+  const sse_events = useEventSource("http://"+ cookies.ip_or_hostname+ "/events",set_sse_source);
+  //const sse_events = null;
   const [msg, set_msg] = useState(null);
   const [vencState, set_vencState] = useState(false);
   const [modetabkey, set_modetabkey] = useState('moveSync_tab');
