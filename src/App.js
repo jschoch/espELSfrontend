@@ -166,60 +166,73 @@ export default function App() {
    
     const params = new URLSearchParams(urlSearchString);
    
-   
-        let search_ip = params.get('ip');
-        if(search_ip != null || search_ip != undefined){
+    var url = null;
+    let search_ip = params.get('ip');
+    if(search_ip != null || search_ip != undefined){
 
-          console.log("serch params" ,search_ip);
-          set_ip(search_ip);
-          var headers = {
-            headers: {
-              'Access-Control-Request-Private-Network': 'true',
-              'Access-Control-Request-Origin': '*',
-              'Access-Control-Request-Method': 'GET',
-              'Access-Control-Request-Headers': '*'
-            }
-          }
-          var url = "http://"+ cookies.ip_or_hostname+ "/events"
-          var source = new EventSourcePolyfill(url,headers);
-          set_sse_source(source);
-          set_ws_url("ws://"+search_ip+"/els")
-          console.log("ws url updated to: ",ws_url);
+      console.log("serch params" ,search_ip);
+      set_ip(search_ip);
+      setCookie("ip_or_hostname",search_ip)
+      var headers = {
+        headers: {
+          'Access-Control-Request-Private-Network': 'true',
+          'Access-Control-Request-Origin': '*',
+          'Access-Control-Request-Method': 'GET',
+          'Access-Control-Request-Headers': '*'
+        }
+      }
+      url = "http://"+ search_ip + "/events"
+      
+    }else{
+      console.log("no ip in url");
+      
 
-          source.onopen = () => {
-            console.log("eventsource opened");
-          }
-          
-          source.onmessage = function logEvents(event) {      
-            var d = "";
-            //console.log("bah", event);
-            try{
-                d = JSON.parse(event.data);
-                //console.log("Event: ",d,source);
-                //updateData(d);
-                set_sse_events(d);
-            }catch(e){
-                console.log("non json event", event)
-            }
-          }
-        }else{
-          console.log("no ip in url");
-   
-   
-          
-          if(cookies.ip_or_hostname != default_ip || cookies.ip_or_hostname != undefined){
-            set_ws_url("ws://"+cookies.ip_or_hostname+"/els");
-          }else{
-            console.log("using default url",ws_url,cookies.ip_or_hostname);
-          }
+      
+      if(cookies.ip_or_hostname != default_ip || cookies.ip_or_hostname != undefined){
+        set_ws_url("ws://"+cookies.ip_or_hostname+"/els");
+      }else{
+        console.log("using default url",ws_url,cookies.ip_or_hostname);
+      }
+      url = "http://"+ cookies.ip_or_hostname + "/events"
     }
     console.log("cookies",cookies);
+    if(url != "http://undefined/events"){
+    var source = new EventSourcePolyfill(url,headers);
+    set_sse_source(source);
+    set_ws_url("ws://"+cookies.ip_or_hostname+"/els")
+    console.log("ws url updated to: ",ws_url);
+
+    source.onopen = () => {
+      console.log("eventsource opened");
+    }
+    
+    source.onmessage = function logEvents(event) {      
+      var d = "";
+      //console.log("bah", event);
+      try{
+          d = JSON.parse(event.data);
+          //console.log("Event: ",d,source);
+          //updateData(d);
+          set_sse_events(d);
+      }catch(e){
+          console.log("non json event", event)
+      }
+    }
+    }
+    else{
+      console.log("SSE url not initialized yet");
+    }
+    if(!cookies.hasOwnProperty('metric')){
+      
+      setCookie("metric","true");
+      console.log('no metric cookie, setting default to metric',cookies);
+    }
     set_state({
       ...state,
       metric: cookies.metric
     })
     
-  }, []);
+  }, [cookies.ip_or_hostname]);
 
   const handleVenc = (data) => {
     var c = {};
