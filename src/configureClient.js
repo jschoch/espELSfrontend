@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Form, InputGroup, Col, Grid, Row, Button } from 'react-bootstrap';
+import EventSource from 'extended-eventsource';
 
 
 export default function ConfigureClient(set_ws_url,set_sse_source,  connected, cookie, setCookie,sse_source) {
@@ -16,7 +17,13 @@ export default function ConfigureClient(set_ws_url,set_sse_source,  connected, c
         var this_ws_url = "ws://"+cv+"/els"
         var this_events_url = "http://"+cv+"/events"
         //source.open
-        let source = new EventSource(this_events_url)
+        //let source = new EventSource(this_events_url)
+        const source = new EventSource('/events', {
+            headers: {
+              Authorization: 'Bearer token',
+            },
+            retry: 3000,
+          });
         set_sse_source(source);
         set_ws_url(this_ws_url);
         setCookie("ip_or_hostname",cv);

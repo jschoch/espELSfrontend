@@ -106,6 +106,10 @@ export const useEventSource = (url,setter) => {
         React.useEffect(() => {
           const source = new EventSource(url);
           setter(source);
+
+          source.onopen = () => {
+            console.log("eventsource opened");
+          }
           
           source.onmessage = function logEvents(event) {      
             var d = "";
