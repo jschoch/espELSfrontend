@@ -17,7 +17,7 @@ export function send(cmd) {
 
 export function distanceToSteps(state,nvConfig,distance) {
     var r = 0; 
-    if (state.metric == "true") {
+    if (state.metric == true) {
        r = distance * stepsPerMM(nvConfig);
     } else {
         r = distance * stepsPerIn(nvConfig);
@@ -36,7 +36,7 @@ export function distanceToSteps(state,nvConfig,distance) {
 }
 
 export function mmOrImp(state){
-    if(state.metric == "true"){
+    if(state.metric == true){
         return "(mm)";
     }else{
         return "(in)";
@@ -74,7 +74,7 @@ export function stepsToDistance(state,nvConfig, steps) {
         return 0;
     }
     
-    if (state.metric == "true") {
+    if (state.metric == true) {
         r = steps / stepsPerMM(nvConfig);
         //console.log("stepstoDistance" ,stepsPerMM,r);
     }else{
@@ -94,7 +94,7 @@ export function stepsToDistance(state,nvConfig, steps) {
 
 
 export function viewPitch(state,pitch){
-    if(state.metric == "true"){
+    if(state.metric == true){
         return pitch;
     }else{
         return mmToIn(pitch);

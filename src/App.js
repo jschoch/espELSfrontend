@@ -206,13 +206,18 @@ export default function App() {
           console.log("no ip in url");
    
    
-          console.log("cookies",cookies);
+          
           if(cookies.ip_or_hostname != default_ip || cookies.ip_or_hostname != undefined){
             set_ws_url("ws://"+cookies.ip_or_hostname+"/els");
           }else{
             console.log("using default url",ws_url,cookies.ip_or_hostname);
           }
     }
+    console.log("cookies",cookies);
+    set_state({
+      ...state,
+      metric: cookies.metric
+    })
     
   }, []);
 

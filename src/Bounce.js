@@ -31,7 +31,7 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
     c.dwell = parseInt(dwellRef.current.value);
     //c.dwell = dwell
     c.feeding_ccw = true; 
-    if(state.metric != "true"){
+    if(state.metric != true){
       c.rapid = inToMM(rapidPitchRef.current.value);
       c.pitch = inToMM(movePitchRef.current.value);
     }
@@ -60,7 +60,7 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
                   ref={distanceRef}
                 />
                 <InputGroup.Text id="notsure">
-                  {state.metric == "true" ? "(mm)" : "(in)"}
+                  {state.metric == true ? "(mm)" : "(in)"}
                   Move Distance</InputGroup.Text>
               </InputGroup>
             </Col>

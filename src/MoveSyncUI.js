@@ -50,7 +50,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
         
         c.movePitch = parseFloat(movePitchRef.current.value);
         c.rapidPitch = parseFloat(rapidPitchRef.current.value)
-        if (state.metric != "true") {
+        if (state.metric != true) {
             c.movePitch = inToMM(c.movePitch);
             c.rapidPitch = inToMM(c.rapidPitch);
         }
@@ -71,7 +71,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
         c.rapidPitch = parseFloat(rapidPitchRef.current.value)
         c.movePitch = parseFloat(movePitchRef.current.value)
         // TODO: do we need to ensure this is positive?
-        if (state.metric != "true") {
+        if (state.metric != true) {
             c.movePitch = inToMM(c.movePitch);
             c.rapidPitch = inToMM(c.rapidPitch);
         }

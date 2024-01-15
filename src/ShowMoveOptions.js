@@ -62,7 +62,7 @@ export default function ShowMoveOptions({ state, moveConfig, set_moveConfig, nvC
     c.startSync = false;
     //c.movePitch = parseFloat(movePitchRef.current.value);
     //c.rapidPitch = parseFloat(rapidPitchRef.current.value)
-    if (state.metric != "true") {
+    if (state.metric != true) {
       c.movePitch = inToMM(c.movePitch);
       c.rapidPitch = inToMM(c.rapidPitch);
     }
@@ -120,7 +120,7 @@ export default function ShowMoveOptions({ state, moveConfig, set_moveConfig, nvC
       accel: accelRef.current.value,
       f: true
     };
-    if (state.metric != "true") {
+    if (state.metric != true) {
       c.rapidPitch = inToMM(rp);
       c.pitchPitch = inToMM(p);
     }
