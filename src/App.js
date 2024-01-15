@@ -161,7 +161,7 @@ export default function App() {
   // get params from url and setup/check cookies
 
   useEffect(( ) => {
-
+    document.title = 'http not https';
     const urlSearchString = window.location.search;
    
     const params = new URLSearchParams(urlSearchString);
@@ -339,6 +339,7 @@ export default function App() {
         console.log("unknown msg:", msg)
       }
     }
+    document.title = 'espELS';
   }, [msg, set_msg, nvConfig, set_nvConfig, dro, setDRO]);
 
 
