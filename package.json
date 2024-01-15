@@ -7,8 +7,6 @@
     "@testing-library/user-event": "^12.5.0",
     "bootstrap": "^5.2.3",
     "brunch": "^4.0.2",
-    "chart.js": "^4.2.1",
-    "chartjs-plugin-streaming": "^2.0.0",
     "react": "^17.0.1",
     "react-bootstrap": "^2.7.0",
     "react-bootstrap-icons": "^1.10.0",
