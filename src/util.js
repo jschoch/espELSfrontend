@@ -1,4 +1,5 @@
 import React from 'react';
+import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
 
 export function send(cmd) {
     if (window.wsclient && window.wsclient.readyState === 1) {
@@ -99,12 +100,13 @@ export function viewPitch(state,pitch){
         return mmToIn(pitch);
     }
 }
-
+/*  
 export const useEventSource = (url,setter) => {
         const [data, updateData] = React.useState(null);
     
         React.useEffect(() => {
-          const source = new EventSource(url);
+          var headers = {headers: {'Access-Control-Request-Private-Network': 'true'}}
+          var source = new EventSourcePolyfill(url,headers);
           setter(source);
 
           source.onopen = () => {
@@ -127,3 +129,5 @@ export const useEventSource = (url,setter) => {
     
         return data
     }
+
+*/

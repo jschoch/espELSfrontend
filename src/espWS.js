@@ -51,7 +51,7 @@ export default function EspWS({ ws_url, set_msg, connected, set_connected, vsn,s
     
         // Only set up the websocket once
         if (!ws.current && ws_url) {
-          console.log("setting up websocket");
+          console.log("setting up websocket",ws_url);
           const client = new WebSocket(ws_url);
           ws.current = client;
     
