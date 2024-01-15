@@ -6,17 +6,23 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import { Form, InputGroup, Col, Grid, Row } from 'react-bootstrap';
 import FormControl from 'react-bootstrap/FormControl';
 import Card from 'react-bootstrap/Card';
-import { useForm } from 'react-hook-form';
+//import { useForm } from 'react-hook-form';
 
 var magic = true;
 
 
+//  TODO:  get this working again, remove deps on react-hook-form
 
 export default function ThreadView({ moveConfig,set_moveConfig,machineConfig, state }) {
-  const { register, handleSubmit, watch, errors } = useForm();
+  //const { register, handleSubmit, watch, errors } = useForm();
 
 
+  const handleSubmit = () => {
 
+  }
+  const register = () => {
+
+  }
 
   const passes = () => {
     let p = Math.ceil(Math.pow(((moveConfig.pitch * 0.614) / firstThreadDepth), 2));

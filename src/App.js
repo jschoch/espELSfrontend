@@ -10,7 +10,6 @@ import Feed from './feed.js';
 import ConfigUI from './configUI.js'
 import Network from './Network.js'
 import React, { Component, useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
