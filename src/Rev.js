@@ -15,7 +15,7 @@ export default function Rev({ sse_events}) {
         <span>
             { (sse_events !== null)  && 
             <span>
-            rev {(sse_events.encoderPos / 2400).toFixed(4) - revOff}
+            rev {sse_events && sse_events.hasOwnProperty('sse_events') && (sse_events.encoderPos / 2400).toFixed(4) - revOff}
             <Button type="button" id="lwtf"
                 variant="outline-warning"
                 size="sm"

@@ -3,7 +3,6 @@ import React, { Component, useState, useEffect,useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import { Form, InputGroup, Col, Grid, Row } from 'react-bootstrap';
 import FormControl from 'react-bootstrap/FormControl';
-import { useForm } from 'react-hook-form';
 import { send } from './util.js';
 
 export default function ShowNvConfig({ nvConfig, state, machineConfig }) {

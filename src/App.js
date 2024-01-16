@@ -10,27 +10,28 @@ import Feed from './feed.js';
 import ConfigUI from './configUI.js'
 import Network from './Network.js'
 import React, { Component, useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import DropdownButton from 'react-bootstrap/DropdownButton';
-import Dropdown from 'react-bootstrap/Dropdown';
+//import DropdownButton from 'react-bootstrap/DropdownButton';
+//import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
 import { Form, InputGroup, Col, Grid, Row,Container } from 'react-bootstrap';
-import FormControl from 'react-bootstrap/FormControl';
+//import FormControl from 'react-bootstrap/FormControl';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Modal from 'react-bootstrap/Modal';
 
-import ButtonGroup from "react-bootstrap/ButtonGroup";
-import Spinner from 'react-bootstrap/Spinner';
+//import ButtonGroup from "react-bootstrap/ButtonGroup";
+//import Spinner from 'react-bootstrap/Spinner';
 
-import ListGroup from 'react-bootstrap/ListGroup';
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Tooltip from "react-bootstrap/Tooltip";
+//import ListGroup from 'react-bootstrap/ListGroup';
+//import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+//import Tooltip from "react-bootstrap/Tooltip";
 import Rev from './Rev.js';
 import Hobbing from './hobbing.js';
-import { send, stepsToDistance, mmOrImp, useEventSource} from './util.js';
+//import { send, stepsToDistance, mmOrImp, useEventSource} from './util.js';
+import {send, stepsToDistance, mmOrImp } from './util.js'
 import { Asterisk, AppIndicator, Wifi, WifiOff } from 'react-bootstrap-icons';
 import { CookiesProvider,useCookies } from 'react-cookie';
+import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
 
 // TODO: refactor, why so many modes unused here?
 //  original intent was to map modes to the YASM states in the firmware
@@ -127,16 +128,20 @@ export default function App() {
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
   const [cookies, setCookie ] = useCookies(['ip_or_hostname','metric']);
-  const [ws_url, set_ws_url] = useState("ws://"+cookies.ip_or_hostname+"/els");
+  const [ip,set_ip] = useState("127.0.0.1");
+  const [ws_url, set_ws_url] = useState(null);
   const me = { setModalErrorMsg: setModalErrorMsg, setShowModalError: setShowModalError };
   // espWS setup
   const [sse_source, set_sse_source] = useState();
-  const sse_events = useEventSource("http://"+ cookies.ip_or_hostname+ "/events",set_sse_source);
+  //const sse_events = useEventSource("http://"+ cookies.ip_or_hostname+ "/events",set_sse_source);
+  const [sse_events,set_sse_events] = useState();
+
   //const sse_events = null;
   const [msg, set_msg] = useState(null);
   const [vencState, set_vencState] = useState(false);
   const [modetabkey, set_modetabkey] = useState('moveSync_tab');
   const [moveConfig,set_moveConfig] = useState(default_moveConfig);
+  //const [data, updateData] = React.useState(null);
   
   const [state,set_state] = useState( { 
     nvConfig:  nvConfig,
@@ -151,15 +156,83 @@ export default function App() {
   });
 
   // Runs only one time
-  useEffect(() => {
-    console.log("cookies",cookies);
-    if(cookies.ip_or_hostname != default_ip || cookies.ip_or_hostname != undefined){
-      set_ws_url("ws://"+cookies.ip_or_hostname+"/els");
+
+
+  // get params from url and setup/check cookies
+
+  useEffect(( ) => {
+    document.title = 'http not https';
+    const urlSearchString = window.location.search;
+   
+    const params = new URLSearchParams(urlSearchString);
+   
+    var url = null;
+    let search_ip = params.get('ip');
+    if(search_ip != null || search_ip != undefined){
+
+      console.log("serch params" ,search_ip);
+      set_ip(search_ip);
+      setCookie("ip_or_hostname",search_ip)
+      var headers = {
+        headers: {
+          'Access-Control-Request-Private-Network': 'true',
+          'Access-Control-Request-Origin': '*',
+          'Access-Control-Request-Method': 'GET',
+          'Access-Control-Request-Headers': '*'
+        }
+      }
+      url = "http://"+ search_ip + "/events"
+      
     }else{
-      console.log("using default url",ws_url,cookies.ip_or_hostname);
+      console.log("no ip in url");
+      
+
+      
+      if(cookies.ip_or_hostname != default_ip || cookies.ip_or_hostname != undefined){
+        set_ws_url("ws://"+cookies.ip_or_hostname+"/els");
+      }else{
+        console.log("using default url",ws_url,cookies.ip_or_hostname);
+      }
+      url = "http://"+ cookies.ip_or_hostname + "/events"
+    }
+    console.log("cookies",cookies);
+    if(url != "http://undefined/events"){
+    var source = new EventSourcePolyfill(url,headers);
+    set_sse_source(source);
+    set_ws_url("ws://"+cookies.ip_or_hostname+"/els")
+    console.log("ws url updated to: ",ws_url);
+
+    source.onopen = () => {
+      console.log("eventsource opened");
     }
     
-  }, []);
+    source.onmessage = function logEvents(event) {      
+      var d = "";
+      //console.log("bah", event);
+      try{
+          d = JSON.parse(event.data);
+          //console.log("Event: ",d,source);
+          //updateData(d);
+          set_sse_events(d);
+      }catch(e){
+          console.log("non json event", event)
+      }
+    }
+    }
+    else{
+      console.log("SSE url not initialized yet");
+    }
+    if(!cookies.hasOwnProperty('metric')){
+      
+      setCookie("metric","true");
+      console.log('no metric cookie, setting default to metric',cookies);
+    }
+    set_state({
+      ...state,
+      metric: cookies.metric
+    })
+    
+  }, [cookies.ip_or_hostname]);
 
   const handleVenc = (data) => {
     var c = {};
@@ -266,6 +339,7 @@ export default function App() {
         console.log("unknown msg:", msg)
       }
     }
+    document.title = 'espELS';
   }, [msg, set_msg, nvConfig, set_nvConfig, dro, setDRO]);
 
 
@@ -289,7 +363,7 @@ export default function App() {
                   }
             DRO: <span className="badge bg-warning">{dro.toFixed(4)} {mmOrImp(state)}</span>
             RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
-            Ang(deg): <span className="badge bg-dark">{sse_events && 
+            Ang(deg): <span className="badge bg-dark">{sse_events && sse_events.hasOwnProperty('encoderPos') &&
               ((360/nvConfig.spindle_encoder_resolution) *(sse_events.encoderPos % nvConfig.spindle_encoder_resolution)).toFixed(2)
               }*</span>
             <Rev sse_events={sse_events} />

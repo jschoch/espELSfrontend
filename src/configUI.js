@@ -36,7 +36,10 @@ export default function ConfigUI({ state, set_state, set_sse_source,machineConfi
             <hr />
             <Tabs defaultActiveKey="UIsettings" id="configtabs" className="mb-3">
                 <Tab eventKey="UIsettings" title="Settings">
-                    working UISettings
+                    working UISettings 
+                    <h4>
+                        Current Units: {state.metric == true ? "Metric" : "Imperial"}
+                        </h4> 
                     <Row>
                         <Col>
                             <ButtonGroup>
@@ -50,21 +53,26 @@ export default function ConfigUI({ state, set_state, set_sse_source,machineConfi
 
                                 <Button onClick={(e) => {
                                     e.preventDefault();
-                                    var m_string = "true";
-                                    if (state.metric == "true") {
-                                        m_string = "false"
-                                    }
                                     set_state({
                                         ...state,
-                                        metric: m_string
+                                        metric: true
                                     });
                                     
-                                    state.metric == "true" ? setCookie("metric","false") : setCookie("metric","true")
+                                    state.metric == true ? setCookie("metric","false") : setCookie("metric","true")
 
                                 }
                                 }>
 
-                                    Units Toggle: {state.metric == "true" ? "Metric" : "Imperial"}
+                                    Set Units To Metric: 
+                                </Button>
+                                <Button onClick={(e) => {
+                                    set_state({
+                                        ...state,
+                                        metric: false
+                                    })
+                                }}
+                                >
+                                    Set Units To Imperial: 
                                 </Button>
                                 <Button>
                                     Debug: {state.dbg ? "On" : "Off"}
@@ -99,7 +107,10 @@ export default function ConfigUI({ state, set_state, set_sse_source,machineConfi
             </Tabs>
             {state.dbg &&
                 <div>
-                    <span> metric cookie: {cookies ? cookies.metric : "Null"} ip or host: {cookies ?cookies.ip_or_hostname : "null"} </span>
+                    <span> 
+                        metric cookie: {JSON.stringify(cookies.metric)} ... { cookies.metric} {JSON.stringify(cookies)} 
+                        ip or host: {cookies ?cookies.ip_or_hostname : "null"} 
+                    </span>
                     <div>raw config<pre>{JSON.stringify(machineConfig, null, 2)}</pre></div>
                     <div>raw nvConfig<pre>{JSON.stringify(nvConfig, null, 2)}</pre></div>
                 </div>

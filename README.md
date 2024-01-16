@@ -32,3 +32,8 @@ serve ./build
 npx gulp
 ```
 
+# updated version 
+
+this is living in your ubuntu wsl 22 instance
+`/home/schoch/dev/espELSfrontend`
+
