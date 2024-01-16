@@ -1,4 +1,6 @@
 //#use react and stuff
+// Depricated 1/16/24
+/*
 import React, { Component, useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import { Form, InputGroup, Col, Grid, Row } from 'react-bootstrap';
@@ -56,3 +58,5 @@ export default function MoveSyncAbs({ config, stats, ws }) {
 
   )
 }
+
+*/

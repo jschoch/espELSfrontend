@@ -2,7 +2,7 @@
 
 
 
-
+/* Depricated 1/16/24
 
 export default function OldJob({ config, stats, ws }) {
   const onSubmitJog = (data) => {
@@ -184,3 +184,5 @@ export default function OldJob({ config, stats, ws }) {
     </Tab>
   )
 }
+
+*/
