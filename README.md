@@ -1,8 +1,11 @@
 Frontend for [https://github.com/jschoch/ESPels]
 
-release v0.0.3 build: [http://espels.s3-us-west-2.amazonaws.com/release_0_0_3/index.html]
+release v0.0.6 build: Only currently working on Firefox (PC) or "Firefox Beta" (google play store)
+[[http://espels.s3-us-west-2.amazonaws.com/release_0_0_3/index.html](http://espels.s3.us-west-2.amazonaws.com/dev0_0_5/index-cors3.html)]
 
-uses react and websockets to make awesome
+uses react websockets and EventSource SSE
+
+Updated to use React 18 and Node v20.11.0
 
 # running
 
