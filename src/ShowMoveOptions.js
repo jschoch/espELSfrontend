@@ -132,9 +132,10 @@ export default function ShowMoveOptions({ state, moveConfig, set_moveConfig, nvC
     <div>
       <Row>
         <Col>
-        <h3>
+        <h4>Moving this way will lose spindle sync</h4>
+        <span>
           Not Well Tested, default acceleration may not work for your machine.  Hard to repeat startup bug where it does not stop, hit e-stop to halt.
-        </h3>
+        </span>
           <span>
             <MaxPitch
               state={state}
