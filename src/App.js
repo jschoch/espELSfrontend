@@ -13,7 +13,7 @@ import React, { Component, useState, useEffect } from 'react';
 //import DropdownButton from 'react-bootstrap/DropdownButton';
 //import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
-import { Form, InputGroup, Col, Grid, Row,Container } from 'react-bootstrap';
+import { Form, InputGroup, Col, Grid, Row, Container } from 'react-bootstrap';
 //import FormControl from 'react-bootstrap/FormControl';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
@@ -28,10 +28,10 @@ import Modal from 'react-bootstrap/Modal';
 import Rev from './Rev.js';
 import Hobbing from './hobbing.js';
 //import { send, stepsToDistance, mmOrImp, useEventSource} from './util.js';
-import {send, stepsToDistance, mmOrImp } from './util.js'
+import { send, stepsToDistance, mmOrImp } from './util.js'
 import { Asterisk, AppIndicator, Wifi, WifiOff } from 'react-bootstrap-icons';
-import { CookiesProvider,useCookies } from 'react-cookie';
-import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
+import { CookiesProvider, useCookies } from 'react-cookie';
+//import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
 
 // TODO: refactor, why so many modes unused here?
 //  original intent was to map modes to the YASM states in the firmware
@@ -90,15 +90,15 @@ export default function App() {
       setShowModalError(true);
     }
     sendConfig();
-    if(data == 2){
+    if (data == 2) {
       set_modetabkey("moveSync_tab");
     }
-    if(data == 14){
+    if (data == 14) {
       set_modetabkey("feed_tab");
     }
   }
 
-  const handleCancel = (e)=> {
+  const handleCancel = (e) => {
     e.preventDefault();
     var d = { cmd: "moveCancel" };
     send(d);
@@ -112,14 +112,14 @@ export default function App() {
     "distance": 1,
     "startSync": true,
     "feeding_ccw": true,
-    "moveSteps" : 0,
-    "moveSpeed" : 7000,
-    "moveSteps" : 0,
+    "moveSteps": 0,
+    "moveSpeed": 7000,
+    "moveSteps": 0,
     "f": true
   }
 
-  
-  const [machineConfig,set_machineConfig] = useState({m: 0});
+
+  const [machineConfig, set_machineConfig] = useState({ m: 0 });
   const [connected, set_connected] = useState(false);
   const [dro, setDRO] = useState(0.0);
   const [rpm, setRPM] = useState(0);
@@ -127,24 +127,24 @@ export default function App() {
   const [nvConfig, set_nvConfig] = useState({ error: true, motor_steps: 0 });
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
-  const [cookies, setCookie ] = useCookies(['ip_or_hostname','metric']);
-  const [ip,set_ip] = useState("127.0.0.1");
+  const [cookies, setCookie] = useCookies(['ip_or_hostname', 'metric']);
+  const [ip, set_ip] = useState("127.0.0.1");
   const [ws_url, set_ws_url] = useState(null);
   const me = { setModalErrorMsg: setModalErrorMsg, setShowModalError: setShowModalError };
   // espWS setup
   const [sse_source, set_sse_source] = useState();
   //const sse_events = useEventSource("http://"+ cookies.ip_or_hostname+ "/events",set_sse_source);
-  const [sse_events,set_sse_events] = useState();
+  const [sse_events, set_sse_events] = useState();
 
   //const sse_events = null;
   const [msg, set_msg] = useState(null);
   const [vencState, set_vencState] = useState(false);
   const [modetabkey, set_modetabkey] = useState('moveSync_tab');
-  const [moveConfig,set_moveConfig] = useState(default_moveConfig);
+  const [moveConfig, set_moveConfig] = useState(default_moveConfig);
   //const [data, updateData] = React.useState(null);
-  
-  const [state,set_state] = useState( { 
-    nvConfig:  nvConfig,
+
+  const [state, set_state] = useState({
+    nvConfig: nvConfig,
     stats: stats,
     connected: connected,
     set_connected: set_connected,
@@ -156,23 +156,21 @@ export default function App() {
   });
 
   // Runs only one time
-
-
   // get params from url and setup/check cookies
 
-  useEffect(( ) => {
+  useEffect(() => {
     document.title = 'http not https';
     const urlSearchString = window.location.search;
-   
+
     const params = new URLSearchParams(urlSearchString);
-   
+
     var url = null;
     let search_ip = params.get('ip');
-    if(search_ip != null || search_ip != undefined){
+    if (search_ip != null || search_ip != undefined) {
 
-      console.log("serch params" ,search_ip);
+      console.log("serch params", search_ip);
       set_ip(search_ip);
-      setCookie("ip_or_hostname",search_ip)
+      setCookie("ip_or_hostname", search_ip)
       var headers = {
         headers: {
           'Access-Control-Request-Private-Network': 'true',
@@ -181,82 +179,83 @@ export default function App() {
           'Access-Control-Request-Headers': '*'
         }
       }
-      url = "http://"+ search_ip + "/events"
-      
-    }else{
+      url = "http://" + search_ip + "/events"
+
+    } else {
       console.log("no ip in url");
-      
 
-      
-      if(cookies.ip_or_hostname != default_ip || cookies.ip_or_hostname != undefined){
-        set_ws_url("ws://"+cookies.ip_or_hostname+"/els");
-      }else{
-        console.log("using default url",ws_url,cookies.ip_or_hostname);
+
+
+      if (cookies.ip_or_hostname != default_ip || cookies.ip_or_hostname != undefined) {
+        set_ws_url("ws://" + cookies.ip_or_hostname + "/els");
+      } else {
+        console.log("using default url", ws_url, cookies.ip_or_hostname);
       }
-      url = "http://"+ cookies.ip_or_hostname + "/events"
+      url = "http://" + cookies.ip_or_hostname + "/events"
     }
-    console.log("cookies",cookies);
-    if(url != "http://undefined/events"){
-    var source = new EventSourcePolyfill(url,headers);
-    set_sse_source(source);
-    set_ws_url("ws://"+cookies.ip_or_hostname+"/els")
-    console.log("ws url updated to: ",ws_url);
+    console.log("cookies", cookies);
+    if (url != "http://undefined/events") {
+      //var source = new EventSourcePolyfill(url,headers);
+      var source = new EventSource(url);
+      set_sse_source(source);
+      set_ws_url("ws://" + cookies.ip_or_hostname + "/els")
+      console.log("ws url updated to: ", ws_url);
 
-    source.onopen = () => {
-      console.log("eventsource opened");
-    }
-    
-    source.onmessage = function logEvents(event) {      
-      var d = "";
-      //console.log("bah", event);
-      try{
+      source.onopen = () => {
+        console.log("eventsource opened");
+      }
+
+      source.onmessage = function logEvents(event) {
+        var d = "";
+        //console.log("bah", event);
+        try {
           d = JSON.parse(event.data);
           //console.log("Event: ",d,source);
           //updateData(d);
           set_sse_events(d);
-      }catch(e){
+        } catch (e) {
           console.log("non json event", event)
+        }
       }
     }
-    }
-    else{
+    else {
       console.log("SSE url not initialized yet");
     }
-    if(!cookies.hasOwnProperty('metric')){
-      
-      setCookie("metric","true");
-      console.log('no metric cookie, setting default to metric',cookies);
+    if (!cookies.hasOwnProperty('metric')) {
+
+      setCookie("metric", "true");
+      console.log('no metric cookie, setting default to metric', cookies);
     }
     set_state({
       ...state,
       metric: cookies.metric
     })
-    
+
   }, [cookies.ip_or_hostname]);
 
   const handleVenc = (data) => {
     var c = {};
-      if(vencState){
-        c.encSpeed = 0;
-        set_vencState(false);
-      }else{
-        c.encSpeed = 1;
-        set_vencState(true);
-      }
-      var d = { cmd: "updateEncSpeed", config: c }
-      send(d);
-  
+    if (vencState) {
+      c.encSpeed = 0;
+      set_vencState(false);
+    } else {
+      c.encSpeed = 1;
+      set_vencState(true);
+    }
+    var d = { cmd: "updateEncSpeed", config: c }
+    send(d);
+
   }
 
   function sendConfig() {
-    var d = { cmd: "sendConfig", config: machineConfig}
+    var d = { cmd: "sendConfig", config: machineConfig }
     send(d);
   }
 
-  const handleTabSelect = (key)=> {
+  const handleTabSelect = (key) => {
     console.log("select tab", key);
     set_modetabkey(key);
-    if (key== "config_tab") {
+    if (key == "config_tab") {
       // what is this?
     }
   }
@@ -264,20 +263,20 @@ export default function App() {
   // sse events
 
   useEffect(() => {
-    if(sse_events){
-      setDRO(stepsToDistance(state,nvConfig, sse_events.p));
+    if (sse_events) {
+      setDRO(stepsToDistance(state, nvConfig, sse_events.p));
       setRPM(sse_events.rpm);
       var s = state.stats;
       var merged = {};
       Object.assign(merged, s, sse_events);
       set_state({
-            ...state,
-            stats: merged
-          }
-        );
+        ...state,
+        stats: merged
+      }
+      );
 
     }
-  },[sse_events]);
+  }, [sse_events]);
 
   // all the msg handling goes here 
   useEffect(() => {
@@ -287,11 +286,11 @@ export default function App() {
         // hacky 
         var merged = {}
         Object.assign(merged, stats, msg);
-        set_state( {
-            ...state,
-            stats: merged
-          })
-        setDRO(stepsToDistance(state,nvConfig, msg.p));
+        set_state({
+          ...state,
+          stats: merged
+        })
+        setDRO(stepsToDistance(state, nvConfig, msg.p));
         setRPM(msg.rpm);
       }
       else if (msg["t"] == "nvConfig") {
@@ -301,9 +300,9 @@ export default function App() {
       else if (msg["t"] == "state") {
         console.log("updating config", msg);
         set_machineConfig(msg);
-        console.log("machineConfig", machineConfig,moveConfig)
+        console.log("machineConfig", machineConfig, moveConfig)
       }
-      else if(msg["t"] == "moveConfigDoc"){
+      else if (msg["t"] == "moveConfigDoc") {
         console.log("updating moveConfig", msg);
         var mc = moveConfig;
         mc.movePitch = msg.movePitch;
@@ -316,11 +315,11 @@ export default function App() {
       else if (msg["t"] == "log") {
         console.log("stuff", msg);
         if (msg["level"] == 0) {
-          if(showModalError){
+          if (showModalError) {
             // append the new message
             var o = msg["msg"]
-            setModalErrorMsg( o + " --- " + modalErrorMsg);
-          }else{
+            setModalErrorMsg(o + " --- " + modalErrorMsg);
+          } else {
             setModalErrorMsg(msg["msg"]);
             setShowModalError(true);
           }
@@ -329,10 +328,11 @@ export default function App() {
       else if (msg["t"] == "dbg_st") {
         var merged = {};
         Object.assign(merged, state.stats, msg);
-        console.log("merged",merged,state.stats);
+        console.log("merged", merged, state.stats);
         set_state({
           ...state,
-          stats: merged});
+          stats: merged
+        });
 
       }
       else {
@@ -345,244 +345,248 @@ export default function App() {
 
   return (
     <CookiesProvider>
-    <Container fluid>
-      <div >
-        <Row >
-          <Col xs={10} >
-            {
-              connected ?
-                <span className="badge bg-success"><Wifi /> </span>
-                : <span className="badge bg-danger"><WifiOff /></span>
-            }
-            {
-              //sse_source.
-              (sse_source && sse_source.readyState == 1) ?
-                    <span>SSE-</span>
-                    :
-                    <span>WS-</span>
-                  }
-            DRO: <span className="badge bg-warning">{dro.toFixed(4)} {mmOrImp(state)}</span>
-            RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
-            Ang(deg): <span className="badge bg-dark">{sse_events && sse_events.hasOwnProperty('encoderPos') &&
-              ((360/nvConfig.spindle_encoder_resolution) *(sse_events.encoderPos % nvConfig.spindle_encoder_resolution)).toFixed(2)
+      <Container fluid>
+        <div >
+          <Row >
+            <Col xs={10} >
+              {
+                connected ?
+                  <span className="badge bg-success"><Wifi /> </span>
+                  : <span className="badge bg-danger"><WifiOff /></span>
+              }
+              {
+                //sse_source.
+                (sse_source && sse_source.OPEN == 1) ?
+                  <span>ES-</span>
+                  :
+                  <span>WS-</span>
+              }
+              DRO: <span className="badge bg-warning">{dro.toFixed(4)} {mmOrImp(state)}</span>
+              RPM: <span className="badge bg-info">{rpm.toFixed(4)}</span>
+              Ang(deg): <span className="badge bg-dark">{sse_events && sse_events.hasOwnProperty('encoderPos') &&
+                ((360 / nvConfig.spindle_encoder_resolution) * (sse_events.encoderPos % nvConfig.spindle_encoder_resolution)).toFixed(2)
               }*</span>
-            <Rev sse_events={sse_events} />
+              <Rev sse_events={sse_events} />
               <span
                 className="badge bg-success"
                 size="sm"
-                onClick={() => { 
+                onClick={() => {
                   //set_dbg(!dbg); 
                   set_state({
                     ...state,
-                    dbg: !state.dbg});
-                  }}>
+                    dbg: !state.dbg
+                  });
+                  var d = { cmd: "sendDebug" };
+                  send(d);
+                }}>
                 Dbg: {state.dbg ? "On" : "Off"}
               </span>
               {state.dbg &&
-                <span 
-                 onClick={() => {handleVenc()}}
-                className="badge bg-danger">
+                <span
+                  onClick={() => { handleVenc() }}
+                  className="badge bg-danger">
                   venc {vencState ? "On" : "Off"}
                 </span>
               }
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-          <Button
-            className="w-100"
-            onClick={handleCancel}
-           variant="danger">
-            E-Stop
-          </Button>
-          </Col>
-        <Col>
-            <ModeSel 
-              handleModeSelect={handleModeSelect} 
-              className="w-100"
-              modes={modes} 
-              machineConfig={machineConfig}></ModeSel>
-          </Col>
-        </Row>
+              {state.stats.ws_c},{state.stats.es_c}
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Button
+                className="w-100"
+                onClick={handleCancel}
+                variant="danger">
+                E-Stop
+              </Button>
+            </Col>
+            <Col>
+              <ModeSel
+                handleModeSelect={handleModeSelect}
+                className="w-100"
+                modes={modes}
+                machineConfig={machineConfig}></ModeSel>
+            </Col>
+          </Row>
 
-      </div>
-      {
-        //  only disply when we are not in startup mode
-        machineConfig.m != 0 &&
-        <div>
-          <Tabs
-            defaultActiveKey="moveSync_tab"
-            activeKey={modetabkey}
-            id="uncontrolled-tab-example"
-            onSelect={(key) => handleTabSelect(key)}
-            transition={false}>
+        </div>
+        {
+          //  only disply when we are not in startup mode
+          machineConfig.m != 0 &&
+          <div>
+            <Tabs
+              defaultActiveKey="moveSync_tab"
+              activeKey={modetabkey}
+              id="uncontrolled-tab-example"
+              onSelect={(key) => handleTabSelect(key)}
+              transition={false}>
 
-            <Tab
-              tabClassName={(machineConfig.m == "2" || machineConfig.m == "4" || machineConfig.m == "6") ? "" : "d-none"}
-              eventKey="moveSync_tab" title="MoveSync">
-              <div>
-                <div className="card-body">
-                  {machineConfig.m == 0 &&
-                    <div>
+              <Tab
+                tabClassName={(machineConfig.m == "2" || machineConfig.m == "4" || machineConfig.m == "6") ? "" : "d-none"}
+                eventKey="moveSync_tab" title="MoveSync">
+                <div>
+                  <div className="card-body">
+                    {machineConfig.m == 0 &&
+                      <div>
 
-                      Select a mode above
-                    </div>
-                  }
-                  {machineConfig.m != 0 &&
-                    <MoveSyncUI
-                      state={state}
-                      nvConfig={nvConfig}
-                      machineConfig={machineConfig}
-                      moveConfig={moveConfig}
-                      set_moveConfig={set_moveConfig}
-                      set_machineConfig={set_machineConfig}
-                    />
+                        Select a mode above
+                      </div>
+                    }
+                    {machineConfig.m != 0 &&
+                      <MoveSyncUI
+                        state={state}
+                        nvConfig={nvConfig}
+                        machineConfig={machineConfig}
+                        moveConfig={moveConfig}
+                        set_moveConfig={set_moveConfig}
+                        set_machineConfig={set_machineConfig}
+                      />
+                    }
+                  </div>
+                </div>
+              </Tab>
+
+
+              <Tab
+                tabClassName={(machineConfig.m == "14" || machineConfig.m == "4") ? "" : "d-none"}
+                eventKey="feed_tab" title="Feed">
+                <Feed
+                  state={state}
+                  moveConfig={moveConfig}
+                  set_moveConfig={set_moveConfig}
+                  machineConfig={machineConfig} nvConfig={nvConfig} />
+              </Tab>
+
+
+
+              <Tab
+                tabClassName={(machineConfig.m == "15" || machineConfig.m == "4") ? "" : "d-none"}
+                eventKey="thread_tab" title="Thread">
+
+                <ThreadView state={state}
+                  moveConfig={moveConfig}
+                  set_moveConfig={set_moveConfig}
+                  machineConfig={machineConfig}
+                  stats={stats} />
+
+              </Tab>
+              <Tab
+                tabClassName={(machineConfig.m == "9" || machineConfig.m == "4") ? "" : "d-none"}
+                eventKey="hob_tab" title="Hobbing">
+                <Hobbing
+                  moveConfig={moveConfig}
+                  set_moveConfig={set_moveConfig}
+                  machineConfig={machineConfig}
+                  set_machineConfig={set_machineConfig}
+                  state={state} ></Hobbing>
+              </Tab>
+              <Tab eventKey="config_tab" title="Conf">
+
+                <ConfigUI state={state} machineConfig={machineConfig}
+                  nvConfig={nvConfig}
+                  set_state={set_state}
+                  moveConfig={moveConfig}
+                  set_moveConfig={set_moveConfig}
+                  cookies={cookies}
+                  set_sse_source={set_sse_source}
+                  setCookie={setCookie}
+                />
+              </Tab>
+              <Tab eventKey="net_tab" title="Network">
+                <Network
+                  ws_url={ws_url}
+                  set_ws_url={set_ws_url}
+                  cookie={cookies.ip_or_hostname}
+                  set_sse_source={set_sse_source}
+                  state={state}
+                  setCookie={setCookie}
+                  machineConfig={machineConfig}
+                  connected={connected} />
+
+              </Tab>
+
+              <Tab
+                tabClassName={state.dbg ? "" : "d-none"}
+                eventKey="debug_tab" title="Debug"
+              >
+                <Debug state={state}
+                  moveConfig={moveConfig}
+                  machineConfig={machineConfig}
+                  nvConfig={nvConfig} />
+              </Tab>
+            </Tabs>
+
+          </div>
+        }
+        {
+          // Startup mode home
+          (machineConfig.m == undefined || machineConfig.m == 0) &&
+          <div>
+            <Tabs defaultActiveKey="home_tab" id="uncontrolled-tab-example"
+              onSelect={(key) => handleTabSelect(key)}
+              transition={false}>
+
+
+
+              <Tab eventKey="home_tab" title="Home">
+                <div>
+                  Connection Status: {
+                    connected ?
+                      <span className="badge bg-success">"True"</span>
+                      : <span className="badge bg-danger">"False"</span>
                   }
                 </div>
-              </div>
-            </Tab>
+                <div>
+                  <span>
+                    Welcome!  Select a mode to get started.
+                    <ModeSel handleModeSelect={handleModeSelect} modes={modes} machineConfig={machineConfig}></ModeSel>
+                  </span>
+                </div>
+              </Tab>
+              <Tab eventKey="net_tab" title="Network">
+                <Network
+                  cookie={cookies.ip_or_hostname}
+                  setCookie={setCookie}
+                  state={state}
+                  set_sse_source={set_sse_source}
+                  ws_url={ws_url}
+                  set_ws_url={set_ws_url}
+                  machineConfig={machineConfig} connected={connected} />
 
+              </Tab>
+              <Tab eventKey="config_tab" title="Conf">
 
-            <Tab
-              tabClassName={(machineConfig.m == "14" || machineConfig.m == "4") ? "" : "d-none"}
-              eventKey="feed_tab" title="Feed">
-              <Feed 
-                state={state} 
-                moveConfig={moveConfig}
-                set_moveConfig={set_moveConfig}
-                machineConfig={machineConfig} nvConfig={nvConfig}  />
-            </Tab>
-
-
-
-            <Tab
-              tabClassName={(machineConfig.m == "15" || machineConfig.m == "4") ? "" : "d-none"}
-              eventKey="thread_tab" title="Thread">
-
-              <ThreadView state={state} 
-                moveConfig={moveConfig}
-                set_moveConfig={set_moveConfig}
-                machineConfig={machineConfig} 
-                stats={stats} />
-
-            </Tab>
-            <Tab
-              tabClassName={(machineConfig.m == "9" || machineConfig.m == "4") ? "" : "d-none"}
-              eventKey="hob_tab" title="Hobbing">
-              <Hobbing 
-                moveConfig={moveConfig}
-                set_moveConfig={set_moveConfig}
-                machineConfig={machineConfig} 
-                set_machineConfig={set_machineConfig} 
-                state={state} ></Hobbing>
-            </Tab>
-            <Tab eventKey="config_tab" title="Conf">
-
-              <ConfigUI state={state} machineConfig={machineConfig} 
-                nvConfig={nvConfig} 
-                set_state={set_state}
-                moveConfig={moveConfig}
-                set_moveConfig={set_moveConfig}
-                cookies={cookies}
-                set_sse_source={set_sse_source}
-                setCookie = {setCookie}
-                 />
-            </Tab>
-            <Tab eventKey="net_tab" title="Network">
-              <Network
-                ws_url={ws_url}
-                set_ws_url={set_ws_url}
-                cookie={cookies.ip_or_hostname}
-                set_sse_source={set_sse_source}
-                state={state}
-                setCookie={setCookie}
-                machineConfig={machineConfig} 
-                connected={connected} />
-
-            </Tab>
-
-            <Tab
-              tabClassName={state.dbg ? "" : "d-none"}
-              eventKey="debug_tab" title="Debug"
-              >
-                <Debug state={state} 
+                <ConfigUI state={state} machineConfig={machineConfig}
+                  set_state={set_state}
                   moveConfig={moveConfig}
-                  machineConfig={machineConfig} 
-                  nvConfig={nvConfig} />
-            </Tab>
-          </Tabs>
-
-        </div>
-      }
-      {
-        // Startup mode home
-        (machineConfig.m == undefined || machineConfig.m == 0) &&
-        <div>
-          <Tabs defaultActiveKey="home_tab" id="uncontrolled-tab-example"
-            onSelect={(key) => handleTabSelect(key)}
-            transition={false}>
-
-
-
-            <Tab eventKey="home_tab" title="Home">
-              <div>
-                Connection Status: {
-                  connected ?
-                    <span className="badge bg-success">"True"</span>
-                    : <span className="badge bg-danger">"False"</span>
-                }
-              </div>
-              <div>
-                <span>
-                  Welcome!  Select a mode to get started.
-                  <ModeSel handleModeSelect={handleModeSelect} modes={modes} machineConfig={machineConfig}></ModeSel>
-                </span>
-              </div>
-            </Tab>
-            <Tab eventKey="net_tab" title="Network">
-              <Network
-                cookie={cookies.ip_or_hostname}
-                setCookie={setCookie}
-                state={state}
-                set_sse_source={set_sse_source}
-                ws_url={ws_url}
-                set_ws_url={set_ws_url}
-                machineConfig={machineConfig} connected={connected} />
-
-            </Tab>
-            <Tab eventKey="config_tab" title="Conf">
-
-              <ConfigUI state={state} machineConfig={machineConfig} 
-                set_state={set_state}
-                moveConfig={moveConfig}
-                set_moveConfig={set_moveConfig}
-                set_sse_source={set_sse_source}
-                cookies={cookies}
-                nvConfig={nvConfig} setCookie={setCookie} />
-            </Tab>
-            <Tab
-              tabClassName={state.dbg ? "" : "d-none"}
-              eventKey="debug_tab" title="Debug">
+                  set_moveConfig={set_moveConfig}
+                  set_sse_source={set_sse_source}
+                  cookies={cookies}
+                  nvConfig={nvConfig} setCookie={setCookie} />
+              </Tab>
+              <Tab
+                tabClassName={state.dbg ? "" : "d-none"}
+                eventKey="debug_tab" title="Debug">
                 <Debug state={state} machineConfig={machineConfig} nvConfig={nvConfig} />
-            </Tab>
-          </Tabs>
-        </div>
-      }
-      <EspWS msg={msg} set_msg={set_msg} connected={connected}
-        vsn={vsn}
-        ws_url={ws_url}
-        set_ws_url={set_ws_url}
-        set_connected={set_connected} machineConfig={machineConfig} />
-      <ModalError showModalError={showModalError}
-        modalErrorMsg={modalErrorMsg}
-        setShowModalError={setShowModalError}
+              </Tab>
+            </Tabs>
+          </div>
+        }
+        <EspWS msg={msg} set_msg={set_msg} connected={connected}
+          vsn={vsn}
+          ws_url={ws_url}
+          set_ws_url={set_ws_url}
+          set_connected={set_connected} machineConfig={machineConfig} />
+        <ModalError showModalError={showModalError}
+          modalErrorMsg={modalErrorMsg}
+          setShowModalError={setShowModalError}
 
-      />
-      <Row>
-        <Col>
-        </Col>
-      </Row>
-    </Container>
+        />
+        <Row>
+          <Col>
+          </Col>
+        </Row>
+      </Container>
     </CookiesProvider>
   )
 };

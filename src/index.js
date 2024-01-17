@@ -13,7 +13,8 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 );
-*/
+
+// removing this because strict mode render twice and creates 2 event streams
 document.addEventListener("DOMContentLoaded", (event) => {
   const root = createRoot(document.getElementById("root"));
   root.render(
@@ -22,7 +23,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
     </React.StrictMode>
   );
 });  
+*/
 
+document.addEventListener("DOMContentLoaded", (event) => {
+  const root = createRoot(document.getElementById("root"));
+  root.render(
+      <App />
+  );
+});  
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals

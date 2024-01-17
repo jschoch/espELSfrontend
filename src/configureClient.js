@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Form, InputGroup, Col, Grid, Row, Button } from 'react-bootstrap';
-import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
+//import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
 
 
 export default function ConfigureClient(set_ws_url,set_sse_source,  connected, cookie, setCookie,sse_source) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
+//import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
 
 export function send(cmd) {
     if (window.wsclient && window.wsclient.readyState === 1) {
