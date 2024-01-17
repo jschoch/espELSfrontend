@@ -232,9 +232,7 @@ export default function App() {
     }
   }
 
-  // sse events
-
-  useEffect(() => {
+  function handleEventMsgs(){
     if (sse_events) {
       setDRO(stepsToDistance(state, nvConfig, sse_events.p));
       setRPM(sse_events.rpm);
@@ -246,8 +244,19 @@ export default function App() {
         stats: merged
       }
       );
+      if(sse_events.m != s.m){
+        console.log("Machine state changed", msg["m"]);
+        set_machineConfig({m: msg["m"]});
+        console.log("machineConfig", machineConfig, moveConfig)
+      }
 
     }
+  }
+
+  // sse events
+
+  useEffect(() => {
+    handleEventMsgs(); 
   }, [sse_events]);
 
   // all the msg handling goes here 
@@ -255,24 +264,13 @@ export default function App() {
     if (msg === null) return;
     if ("t" in msg) {
       if (msg["t"] == "status") {
-        // hacky 
-        var merged = {}
-        Object.assign(merged, stats, msg);
-        set_state({
-          ...state,
-          stats: merged
-        })
-        setDRO(stepsToDistance(state, nvConfig, msg.p));
-        setRPM(msg.rpm);
+
+       handleEventMsgs(); 
+        
       }
       else if (msg["t"] == "nvConfig") {
         console.log("got nv configuration", msg);
         set_nvConfig(msg);
-      }
-      else if (msg["t"] == "state") {
-        console.log("updating config", msg);
-        set_machineConfig(msg);
-        console.log("machineConfig", machineConfig, moveConfig)
       }
       else if (msg["t"] == "moveConfigDoc") {
         console.log("updating moveConfig", msg);

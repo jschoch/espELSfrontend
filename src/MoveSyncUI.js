@@ -47,6 +47,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
         c.f = feedingLeft;
         c.feeding_ccw = true;
         c.startSync = startSync;
+        c.useStops = true;
         
         c.movePitch = parseFloat(movePitchRef.current.value);
         c.rapidPitch = parseFloat(rapidPitchRef.current.value)
