@@ -161,7 +161,6 @@ export default function App() {
   useEffect(() => {
     document.title = 'http not https';
     const urlSearchString = window.location.search;
-
     const params = new URLSearchParams(urlSearchString);
 
     var url = null;
@@ -183,44 +182,17 @@ export default function App() {
 
     } else {
       console.log("no ip in url");
-
-
-
       if (cookies.ip_or_hostname != default_ip || cookies.ip_or_hostname != undefined) {
         set_ws_url("ws://" + cookies.ip_or_hostname + "/els");
       } else {
         console.log("using default url", ws_url, cookies.ip_or_hostname);
       }
       url = "http://" + cookies.ip_or_hostname + "/events"
+      set_ip(cookies.ip_or_hostname);
     }
+
     console.log("cookies", cookies);
-    if (url != "http://undefined/events") {
-      //var source = new EventSourcePolyfill(url,headers);
-      var source = new EventSource(url);
-      set_sse_source(source);
-      set_ws_url("ws://" + cookies.ip_or_hostname + "/els")
-      console.log("ws url updated to: ", ws_url);
-
-      source.onopen = () => {
-        console.log("eventsource opened");
-      }
-
-      source.onmessage = function logEvents(event) {
-        var d = "";
-        //console.log("bah", event);
-        try {
-          d = JSON.parse(event.data);
-          //console.log("Event: ",d,source);
-          //updateData(d);
-          set_sse_events(d);
-        } catch (e) {
-          console.log("non json event", event)
-        }
-      }
-    }
-    else {
-      console.log("SSE url not initialized yet");
-    }
+    
     if (!cookies.hasOwnProperty('metric')) {
 
       setCookie("metric", "true");
@@ -574,6 +546,11 @@ export default function App() {
         }
         <EspWS msg={msg} set_msg={set_msg} connected={connected}
           vsn={vsn}
+          set_sse_source={set_sse_source}
+          set_sse_events={set_sse_events}
+          sse_source={sse_source}
+          cookies={cookies}
+          ip={ip}
           ws_url={ws_url}
           set_ws_url={set_ws_url}
           set_connected={set_connected} machineConfig={machineConfig} />
