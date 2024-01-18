@@ -29,7 +29,7 @@ import Rev from './Rev.js';
 import Hobbing from './hobbing.js';
 //import { send, stepsToDistance, mmOrImp, useEventSource} from './util.js';
 import { send, stepsToDistance, mmOrImp } from './util.js'
-import { Asterisk, AppIndicator, Wifi, WifiOff } from 'react-bootstrap-icons';
+import { Asterisk, AppIndicator, Wifi, WifiOff, SortNumericUpAlt } from 'react-bootstrap-icons';
 import { CookiesProvider, useCookies } from 'react-cookie';
 //import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
 
@@ -89,13 +89,14 @@ export default function App() {
       setModalErrorMsg("Mode not implemented yet");
       setShowModalError(true);
     }
-    sendConfig();
     if (data == 2) {
       set_modetabkey("moveSync_tab");
     }
     if (data == 14) {
       set_modetabkey("feed_tab");
     }
+    sendConfig();
+
   }
 
   const handleCancel = (e) => {
@@ -220,6 +221,7 @@ export default function App() {
   }
 
   function sendConfig() {
+    console.log("sendConfig called")
     var d = { cmd: "sendConfig", config: machineConfig }
     send(d);
   }
@@ -232,40 +234,53 @@ export default function App() {
     }
   }
 
-  function handleEventMsgs(){
-    if (sse_events) {
-      setDRO(stepsToDistance(state, nvConfig, sse_events.p));
-      setRPM(sse_events.rpm);
+  function handleEventMsgs(x){
+    if (x) {
+      //console.log("handleEventMsgs",x);
+      setDRO(stepsToDistance(state, nvConfig, x.p));
+      setRPM(x.rpm);
       var s = state.stats;
       var merged = {};
-      Object.assign(merged, s, sse_events);
+      Object.assign(merged, s, x);
       set_state({
         ...state,
         stats: merged
       }
       );
-      if(sse_events.m != s.m){
-        console.log("Machine state changed", msg["m"]);
-        set_machineConfig({m: msg["m"]});
-        console.log("machineConfig", machineConfig, moveConfig)
+      if(sse_events.hasOwnProperty("m") && x.m != machineConfig.m){
+        
+        if(x.m == undefined){
+          set_machineConfig({m: 0});
+        }else{
+          set_machineConfig({m: x.m});
+          console.log("machineConfig", machineConfig, moveConfig)
+        }
+        console.log("Machine state changed", x.m);
       }
 
+    }
+    else{
+      console.log("x was undefined or something");
     }
   }
 
   // sse events
 
   useEffect(() => {
-    handleEventMsgs(); 
+    handleEventMsgs(sse_events); 
   }, [sse_events]);
 
   // all the msg handling goes here 
   useEffect(() => {
-    if (msg === null) return;
+    if (msg === null) {
+      console.log("got null msg");
+      return;
+    }
+    console.log("msg: ",msg);
     if ("t" in msg) {
       if (msg["t"] == "status") {
 
-       handleEventMsgs(); 
+       handleEventMsgs(msg); 
         
       }
       else if (msg["t"] == "nvConfig") {
@@ -310,7 +325,7 @@ export default function App() {
       }
     }
     document.title = 'espELS';
-  }, [msg, set_msg, nvConfig, set_nvConfig, dro, setDRO]);
+  }, [msg, set_msg, nvConfig, set_nvConfig ]);
 
 
   return (

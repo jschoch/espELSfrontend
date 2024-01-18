@@ -3,6 +3,7 @@ import React from 'react';
 
 export function send(cmd) {
     if (window.wsclient && window.wsclient.readyState === 1) {
+        console.log("send called",cmd);
         if(cmd.cmd && cmd.cmd != "ping"){
             console.log("Sending cmd:", cmd)
         }

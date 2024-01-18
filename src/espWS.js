@@ -30,12 +30,16 @@ export default function EspWS({ ws_url, set_msg, connected, set_connected, vsn, 
     }
   }
   const ping = { cmd: "ping" };
+  /*  TODO: is this needed?
   useEffect(() => {
     const interval = setInterval(() => {
       send(ping);
     }, 2000);
     return () => clearInterval(interval);
   }, [connected])
+
+  */
+
 
   useEffect(() => {
 
@@ -134,8 +138,10 @@ export default function EspWS({ ws_url, set_msg, connected, set_connected, vsn, 
       };
 
       client.onmessage = message => {
+        console.log("blorp",message);
         if (message.data instanceof Blob) {
           decodeFromBlob(message.data).then((x) => {
+            //console.log("blob",x);
             set_msg(x);
           });
         }

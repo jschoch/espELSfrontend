@@ -17,8 +17,8 @@ export default function ModeSel({ modes, machineConfig, handleModeSelect }) {
             <div className="d-grid gap-1">
               <DropdownButton
                 className="ms-auto"
-                title={`Selected Mode: (${machineConfig.m ? 1 : 2}) 
-          ${modes[machineConfig.m]}`}
+                title={`Selected Mode: (${machineConfig.m }) 
+                ${modes[machineConfig.m]}`}
                 id="dropdown-menu-align-right"
                 onSelect={handleModeSelect} >
 
