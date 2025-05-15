@@ -10,6 +10,7 @@ import { mmOrImp, send,mmToIn, viewPitch } from './util.js';
 //import Card from "react-boostrap/Card";
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
+import { t, setLang } from './translation.js';
 
 export default function Feed({ config, nvConfig, state,machineConfig,moveConfig, set_moveConfig }) {
 
@@ -63,7 +64,7 @@ export default function Feed({ config, nvConfig, state,machineConfig,moveConfig,
                                     variant={state.stats.pos_feed ? "danger": "success"}
                                     onClick={() => { handleToggle("foo"); }}>
                                     
-                                    Turn {state.stats.pos_feed ? "Off" : "On"}
+                                    {state.stats.pos_feed ? t("Turn Off") : t("Turn On")}
                                 </Button>
                             </ButtonGroup>
                         </div>
@@ -73,7 +74,7 @@ export default function Feed({ config, nvConfig, state,machineConfig,moveConfig,
                                 <ButtonGroup className="mb-2">
                                     <InputGroup size="sm" className="mb-3">
                                         <InputGroup.Text id="movePitch" >
-                                            Feed Pitch {mmOrImp(state)}
+                                           {t("Feed Pitch")} {mmOrImp(state)}
                                         </InputGroup.Text>
                                         <FormControl aria-label="Small" aria-describedby="inputGroup-sizing-sm"
                                             inputMode='decimal' step='any' type="number"
@@ -91,7 +92,7 @@ export default function Feed({ config, nvConfig, state,machineConfig,moveConfig,
                                         onChange={(e) => set_reverse(e.currentTarget.checked)}
                                     >
 
-                                        Reverse
+                                        {t("Reverse")}
                                     </ToggleButton>
                                 </ButtonGroup>
                             </div>
@@ -100,14 +101,14 @@ export default function Feed({ config, nvConfig, state,machineConfig,moveConfig,
                     </Col>
                     <Col className="xs4">
                         <span>
-                            Current Config:
+                            {t("Current Config:")}
                         </span>
                         <span>
-                            Pitch {moveConfig.movePitch}
+                            {t("Pitch")} {moveConfig.movePitch}
                         </span>
                         {!state.stats.pos_feed &&
                             <Button>
-                                Configure Presets
+                                {t("Configure Presets")}
                             </Button>
                         }
 
@@ -122,15 +123,15 @@ export default function Feed({ config, nvConfig, state,machineConfig,moveConfig,
                                     <div className="d-grid gap-1">
                                         <DropdownButton
                                             id="presetdd"
-                                            title="Presets"
+                                            title={t("Presets")}
                                             onSelect={(e) => { console.log("dd", e); }}
 
                                         >
                                             <Dropdown.Item eventKey="roughing">
-                                                Roughing
+                                                {t("Roughing")}
                                             </Dropdown.Item>
                                             <Dropdown.Item eventKey="finishing">
-                                                Finishing
+                                                {t("Finishing")}
                                             </Dropdown.Item>
                                         </DropdownButton>
                                     </div>
@@ -143,14 +144,14 @@ export default function Feed({ config, nvConfig, state,machineConfig,moveConfig,
                     <Col xs={12}>
                         <span>
                             <h5>
-                                Help:
+                                {t("Help:")}
                             </h5>
                             <p>
-                                : This sets Full Time Feed mode.  Moves with spindle all the time.  Requires use of half nut or toggling spindle on/off
+                                {t("This sets Full Time Feed mode.  Moves with spindle all the time.  Requires use of half nut or toggling spindle on/off")}
                                 
                             </p>
                             <p>
-                                If the spindle is spinning CCW the default setting should move the carriage Z-.  If the spindle is spinning CW the carriage should be moving Z+.  Click "Reverse" to flip this behavior.
+                                {t("If the spindle is spinning CCW the default setting should move the carriage Z-.  If the spindle is spinning CW the carriage should be moving Z+.  Click \"Reverse\" to flip this behavior.")}
                             </p>
                         </span>
                         <hr />

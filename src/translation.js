@@ -1,0 +1,89 @@
+const translations = {
+    pt: {
+    "ERROR!!!": "ERRO!!!",
+    "Close": "Fechar",
+    "Mode not implemented yet": "Modo ainda não implementado",
+    "Select a mode above": "Selecione um modo acima",
+    "E-Stop": "Parada de emergência",
+    "MoveSync": "Sincronizar movimento",
+    "Feed": "Avanço",
+    "Thread": "Rosca",
+    "Hobbing": "Fresagem",
+    "Conf": "Configuração",
+    "Network": "Rede",
+    "Debug": "Depurar",
+    "Home": "Início",
+    "Connection Status:": "Status da conexão:",
+    "True": "Verdadeiro",
+    "False": "Falso",
+    "Welcome!  Select a mode to get started.": "Bem-vindo! Selecione um modo para começar.",
+    "venc": "Encoder Virtual",
+    "On": "Ligado",
+    "Off": "Desligado",
+    "Disconnected": "Desconectado",
+    "Connected": "Conectado",
+    "Reverse": "Reverter",
+    "Turn": "Virar",
+    "Feed Pitch": "Passo de alimentação",
+    "Current Config:": "Configuração atual:",
+    "Pitch": "Passo",
+    "Configure Presets": "Configurar predefinições",
+    "Feed Rate": "Taxa de alimentação",
+    "Presets": "Predefinições",
+    "Help:": "Modo Avanço:",
+    "This sets Full Time Feed mode.  Moves with spindle all the time.  Requires use of half nut or toggling spindle on/off": "Isso define o modo de alimentação contínua. Move com o fuso o tempo todo. Requer o uso de meia porca ou alternância do fuso ligado/desligado",
+    "If the spindle is spinning CCW the default setting should move the carriage Z-.  If the spindle is spinning CW the carriage should be moving Z+.  Click \"Reverse\" to flip this behavior.": "Se o fuso estiver girando no sentido anti-horário, a configuração padrão deve mover o carro Z-. Se o fuso estiver girando no sentido horário, o carro deve estar se movendo Z+. Clique em \"Reverter\" para inverter esse comportamento.",
+    "Roughing": "Desbaste",
+    "Finishing": "Acabamento",
+    "Enable Rapid Left": "Ativar Esquerda Rápida",
+    "Enable Rapid Right": "Ativar Direita Rápida",
+    "Current Pitch set to:": "Passo atual definido para:",
+    "Move Pitch": "Passo",
+    "Rapid Pitch": "Passo Rápido",
+    "Move": "Mover",
+    "Move Distance": "Distância de movimento",
+    "Run Bounce": "Executar Bounce",
+    "Set positive for Z+ negative for Z-": "Defina positivo para Z+ negativo para Z-",
+    "Dwell Time (ms (micro seconds))": "Tempo de espera (micro segundos)",
+    "Max Pitch:": "Passo Máximo:",
+    "Cancel Move!": "Cancelar movimento!",
+    "Distance to Go": "Distância a percorrer",
+    "-Distance to Go": "-Distância a percorrer",
+    "Waiting for Sync": "Aguardando Sincronização",
+    "Submit Connection Url": "Conectar-se",
+    "Connecting": "Conectando",
+    "Network Configuration": "Configuração de Rede",
+    "Enter Hostname or IP example: 192.168.0.100": "Digite o nome do host ou IP exemplo: 192.168.0.100",
+    "Startup Mode": "Modo de Inicialização",
+    "Feed Mode": "Modo de Avanço",
+    "Move Sync Mode": "Modo de Movimento Sincronizado",
+    "Hobbing Mode": "Modo de Fresagem",
+    "Update Settings": "Salvar Configurações",
+    "Move Settings": "Configurações de Movimento",
+    "Save Config!": "Salvar Configurações!",
+    "Encoder Pin A:": "Pino A do Encoder:",
+    "Encoder Pin B:": "Pino B do Encoder:",
+    "Motor Steps per revolution": "Passos do motor por revolução",
+    "Motor Native Steps": "Passos nativos do motor",
+    "Firmware Version": "Versão do Firmware",
+    "Spindle Encoder Resolution (CPR)": "Resolução do Encoder do Fuso (CPR)",
+    "Lead Screw Pitch (in mm)": "Passo do Parafuso de Avanço (em mm)",
+    "Reset Config to defaults": "Redefinir Configuração Padrão",
+    "Bounce Settings": "Configurações de Bounce",
+    "Turn Off": "Desligar",
+    "Turn On": "Ligar"
+  }
+};
+
+let currentLang = "en";
+
+export function setLang(lang) {
+    currentLang = lang;
+}
+
+export function t(str) {
+    if(translations[currentLang] && translations[currentLang][str]){
+        return translations[currentLang][str];
+    }
+    return str;
+}

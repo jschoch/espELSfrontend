@@ -32,9 +32,13 @@ import { send, stepsToDistance, mmOrImp } from './util.js'
 import { Asterisk, AppIndicator, Wifi, WifiOff, SortNumericUpAlt } from 'react-bootstrap-icons';
 import { CookiesProvider, useCookies } from 'react-cookie';
 //import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
-
+import { t, setLang } from './translation.js';
 // TODO: refactor, why so many modes unused here?
 //  original intent was to map modes to the YASM states in the firmware
+
+// language, en or pt
+setLang('pt');
+
 
 const modes = {
   0: "Startup",
@@ -73,8 +77,8 @@ const ModalError = ({ showModalError, modalErrorMsg, setShowModalError }) => {
   );
 }
 
-var default_ws_url = "ws://192.168.100.100/els";
-const default_ip = "192.168.100.100"
+var default_ws_url = "ws://192.168.1.229/els";
+const default_ip = "192.168.1.229"
 
 
 
@@ -334,11 +338,13 @@ export default function App() {
         <div >
           <Row >
             <Col xs={10} >
+              
               {
                 connected ?
                   <span className="badge bg-success"><Wifi /> </span>
                   : <span className="badge bg-danger"><WifiOff /></span>
               }
+              
               {
                 //sse_source.
                 (sse_source && sse_source.OPEN == 1) ?
@@ -356,7 +362,7 @@ export default function App() {
                 className="badge bg-success"
                 size="sm"
                 onClick={() => {
-                  //set_dbg(!dbg); 
+                  //set_dbg(!dbg);
                   set_state({
                     ...state,
                     dbg: !state.dbg
@@ -364,13 +370,13 @@ export default function App() {
                   var d = { cmd: "sendDebug" };
                   send(d);
                 }}>
-                Dbg: {state.dbg ? "On" : "Off"}
+                Dbg: {state.dbg ? t("On") : t("Off")}
               </span>
               {state.dbg &&
                 <span
                   onClick={() => { handleVenc() }}
                   className="badge bg-danger">
-                  venc {vencState ? "On" : "Off"}
+                  {t("venc")} {vencState ? t("On") : t("Off")}
                 </span>
               }
               {state.stats.ws_c},{state.stats.es_c}
@@ -382,7 +388,7 @@ export default function App() {
                 className="w-100"
                 onClick={handleCancel}
                 variant="danger">
-                E-Stop
+                {t("E-Stop")}
               </Button>
             </Col>
             <Col>
@@ -408,13 +414,13 @@ export default function App() {
 
               <Tab
                 tabClassName={(machineConfig.m == "2" || machineConfig.m == "4" || machineConfig.m == "6") ? "" : "d-none"}
-                eventKey="moveSync_tab" title="MoveSync">
+                eventKey="moveSync_tab" title={t("MoveSync")}>
                 <div>
                   <div className="card-body">
                     {machineConfig.m == 0 &&
                       <div>
 
-                        Select a mode above
+                        {t("Select a mode above")}
                       </div>
                     }
                     {machineConfig.m != 0 &&
@@ -434,7 +440,7 @@ export default function App() {
 
               <Tab
                 tabClassName={(machineConfig.m == "14" || machineConfig.m == "4") ? "" : "d-none"}
-                eventKey="feed_tab" title="Feed">
+                eventKey="feed_tab" title={t("Feed")}>
                 <Feed
                   state={state}
                   moveConfig={moveConfig}
@@ -446,7 +452,7 @@ export default function App() {
 
               <Tab
                 tabClassName={(machineConfig.m == "15" || machineConfig.m == "4") ? "" : "d-none"}
-                eventKey="thread_tab" title="Thread">
+                eventKey="thread_tab" title={t("Thread")}>
 
                 <ThreadView state={state}
                   moveConfig={moveConfig}
@@ -457,7 +463,7 @@ export default function App() {
               </Tab>
               <Tab
                 tabClassName={(machineConfig.m == "9" || machineConfig.m == "4") ? "" : "d-none"}
-                eventKey="hob_tab" title="Hobbing">
+                eventKey="hob_tab" title={t("Hobbing")}>
                 <Hobbing
                   moveConfig={moveConfig}
                   set_moveConfig={set_moveConfig}
@@ -465,7 +471,7 @@ export default function App() {
                   set_machineConfig={set_machineConfig}
                   state={state} ></Hobbing>
               </Tab>
-              <Tab eventKey="config_tab" title="Conf">
+              <Tab eventKey="config_tab" title={t("Conf")}>
 
                 <ConfigUI state={state} machineConfig={machineConfig}
                   nvConfig={nvConfig}
@@ -477,7 +483,7 @@ export default function App() {
                   setCookie={setCookie}
                 />
               </Tab>
-              <Tab eventKey="net_tab" title="Network">
+              <Tab eventKey="net_tab" title={t("Network")}>
                 <Network
                   ws_url={ws_url}
                   set_ws_url={set_ws_url}
@@ -492,7 +498,7 @@ export default function App() {
 
               <Tab
                 tabClassName={state.dbg ? "" : "d-none"}
-                eventKey="debug_tab" title="Debug"
+                eventKey="debug_tab" title={t("Debug")}
               >
                 <Debug state={state}
                   moveConfig={moveConfig}
@@ -513,22 +519,22 @@ export default function App() {
 
 
 
-              <Tab eventKey="home_tab" title="Home">
+              <Tab eventKey="home_tab" title={t("Home")}>
                 <div>
-                  Connection Status: {
+                  {t("Connection Status:")} {
                     connected ?
-                      <span className="badge bg-success">"True"</span>
-                      : <span className="badge bg-danger">"False"</span>
+                      <span className="badge bg-success">{t("Connected")}</span>
+                      : <span className="badge bg-danger">{t("Disconnected")}</span>
                   }
                 </div>
                 <div>
                   <span>
-                    Welcome!  Select a mode to get started.
+                     {t("Welcome!  Select a mode to get started.")}
                     <ModeSel handleModeSelect={handleModeSelect} modes={modes} machineConfig={machineConfig}></ModeSel>
                   </span>
                 </div>
               </Tab>
-              <Tab eventKey="net_tab" title="Network">
+              <Tab eventKey="net_tab" title={t("Network")}>
                 <Network
                   cookie={cookies.ip_or_hostname}
                   setCookie={setCookie}
@@ -539,7 +545,7 @@ export default function App() {
                   machineConfig={machineConfig} connected={connected} />
 
               </Tab>
-              <Tab eventKey="config_tab" title="Conf">
+              <Tab eventKey="config_tab" title={t("Conf")}>
 
                 <ConfigUI state={state} machineConfig={machineConfig}
                   set_state={set_state}
@@ -551,7 +557,7 @@ export default function App() {
               </Tab>
               <Tab
                 tabClassName={state.dbg ? "" : "d-none"}
-                eventKey="debug_tab" title="Debug">
+                eventKey="debug_tab" title={t("Debug")}>
                 <Debug state={state} machineConfig={machineConfig} nvConfig={nvConfig} />
               </Tab>
             </Tabs>

@@ -8,7 +8,7 @@ import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { send, mmToIn, inToMM, stepsToDistance, mmOrImp, viewPitch } from './util.js';
 import MaxPitch from './MaxPitch.js';
-
+import { t, setLang } from './translation.js';
 this is depricated
 
 export default function ModalMove({ state, show, set_show, moveConfig, set_moveConfig, nvConfig, machineConfig }) {
@@ -44,13 +44,13 @@ export default function ModalMove({ state, show, set_show, moveConfig, set_moveC
 
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Move Settings</Modal.Title>
+        <Modal.Title>{t("Move Settings")}</Modal.Title>
       </Modal.Header>
       <MaxPitch state={state} nvConfig={nvConfig} /> {mmOrImp(state)}
       <Modal.Body>
         <InputGroup size="sm" className="mb-3">
           <InputGroup.Text id="rapidPitch">
-            Move Pitch {mmOrImp(state)}
+            {t("Move Pitch")} {mmOrImp(state)}
           </InputGroup.Text>
           <FormControl aria-label="Small" aria-describedby="rapidPitch"
             inputMode='decimal' step='any' type="number"
@@ -66,7 +66,7 @@ export default function ModalMove({ state, show, set_show, moveConfig, set_moveC
 
         <InputGroup size="sm" className="mb-3">
           <InputGroup.Text id="movePitch" >
-            Rapid Pitch {mmOrImp(state)}
+            {t("Rapid Pitch")} {mmOrImp(state)}
           </InputGroup.Text>
           <FormControl aria-label="Small" aria-describedby="inputGroup-sizing-sm"
             inputMode='decimal' step='any' type="number"
@@ -83,7 +83,7 @@ export default function ModalMove({ state, show, set_show, moveConfig, set_moveC
       </Modal.Body>
 
       <Modal.Footer>
-        <Button variant="primary" onClick={handleClose}>Update Settings</Button>
+        <Button variant="primary" onClick={handleClose}>{t("Update Settings")}</Button>
       </Modal.Footer>
     </Modal>
   )
