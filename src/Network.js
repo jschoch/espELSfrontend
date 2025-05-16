@@ -1,16 +1,16 @@
 import ConfigureClient from "./configureClient"
 import useCookie from "./useCookie";
 import  { useEffect, useRef, useState } from 'react';
-
+import { t, setLang } from './translation.js';
 
 export default function Network({state,connected,ws_url,set_ws_url,cookie,setCookie,set_sse_source}){
 
     return(
         <div>
-            Network Configuraiton {state.connected}
+            {t("Network Configuration")} {state.connected}
             {connected &&
             <h3>
-            {JSON.stringify(cookie)} Connected
+            {JSON.stringify(cookie)} {t("Connected")}
             </h3>
             }
             <div id="espWS">

@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
 
-
+import { t, setLang } from './translation.js';
 
 
 export default function ModeSel({ modes, machineConfig, handleModeSelect }) {
@@ -22,10 +22,10 @@ export default function ModeSel({ modes, machineConfig, handleModeSelect }) {
                 id="dropdown-menu-align-right"
                 onSelect={handleModeSelect} >
 
-                <Dropdown.Item eventKey="0">Startup Mode</Dropdown.Item>
-                <Dropdown.Item eventKey="14"> Feed Mode </Dropdown.Item>
-                <Dropdown.Item eventKey="2">Move Sync Mode</Dropdown.Item>
-                <Dropdown.Item eventKey="9">Hobbing Mode</Dropdown.Item>
+                <Dropdown.Item eventKey="0">{t("Startup Mode")}</Dropdown.Item>
+                <Dropdown.Item eventKey="14">{t("Feed Mode")} </Dropdown.Item>
+                <Dropdown.Item eventKey="2">{t("Move Sync Mode")}</Dropdown.Item>
+                <Dropdown.Item eventKey="9">{t("Hobbing Mode")}</Dropdown.Item>
 
               </DropdownButton>
             </div>

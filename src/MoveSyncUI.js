@@ -12,7 +12,7 @@ import Moving from './Moving.js';
 import Bounce from './Bounce.js';
 import { distanceToSteps, inToMM, mmOrImp, mmToIn, send, viewPitch } from './util.js';
 import ShowMoveOptions from './ShowMoveOptions.js';
-
+import { t, setLang } from './translation.js';
 import MaxPitch from './MaxPitch.js';
 
 
@@ -124,18 +124,18 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
                                 <Row>
                                     <Col>
                                         <label className="btn btn-outline-primary" htmlFor="btn-check-outlined"
-                                            onClick={() => { setEnRL(!enRL) }} >Enable Rapid Left</label>
+                                            onClick={() => { setEnRL(!enRL) }} >{t("Enable Rapid Left")}</label>
 
 
                                     </Col>
                                     <Col>
                                         <label className="btn btn-outline-primary" htmlFor="btn-en-rapidright"
-                                            onClick={() => { setEnRR(!enRR) }}>Enable Rapid Right</label>
+                                            onClick={() => { setEnRR(!enRR) }}>{t("Enable Rapid Right")}</label>
                                     </Col>
                                 </Row>
                                 <Row>
                                     <p className="text-center">
-                                        Current Pitch set to: {
+                                        {t("Current Pitch set to:")} {
                                            viewPitch(state,moveConfig.movePitch)
                                         } mm: {moveConfig.movePitch}
                                         {mmOrImp(state)}
@@ -171,7 +171,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
                                             />
                                             <InputGroup.Text id="unf">
                                                 {mmOrImp(state)}
-                                                Move Pitch</InputGroup.Text>
+                                                {t("Move Pitch")}</InputGroup.Text>
                                         </InputGroup>
                                     </Col>
                                 </Row>
@@ -186,7 +186,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
                                             />
                                             <InputGroup.Text id="rp">
                                                 {mmOrImp(state)}
-                                                Rapid Pitch
+                                                {t("Rapid Pitch")}
                                             </InputGroup.Text>
                                         </InputGroup>
                                     </Col>
@@ -204,7 +204,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
                                         <InputGroup className="mb-3">
                                             <InputGroup.Text id="notsure">
                                                 ( {mmOrImp(state)} )
-                                                Move Distance</InputGroup.Text>
+                                                {t("Move Distance")}</InputGroup.Text>
                                             <FormControl
                                                 placeholder="Distance to Move"
                                                 aria-label="Distance to Move"
@@ -235,7 +235,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
                                         <Button type="button" className="btn btn-outline-dark spaceBtn" id="ljog"
                                             onClick={() => handleJogClick("ljog")}>
                                             <ArrowBarLeft />
-                                            Move
+                                            {t("Move")}
                                         </Button>
                                         </ButtonGroup>
                                     </Col>
@@ -255,7 +255,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
                                         </Button>
                                         <Button type="button" className="btn btn-outline-dark spaceBtn" id="rjog"
                                             onClick={() => handleJogClick("rjog")}>
-                                            <ArrowBarRight />Move
+                                            <ArrowBarRight />{t("Move")}
                                         </Button>
                                         </ButtonGroup>
 

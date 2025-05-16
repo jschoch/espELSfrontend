@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 import { Form, InputGroup, Col, Grid, Row } from 'react-bootstrap';
 import FormControl from 'react-bootstrap/FormControl';
 import { send } from './util.js';
-
+import { t, setLang } from './translation.js';
 export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
     //const { register, handleSubmit, watch, errors } = useForm();
     const lspRef = useRef();
@@ -50,7 +50,7 @@ export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
                                     <InputGroup className="mb-2 mr-sm-2">
                                         <Col xs={8}>
                                             <InputGroup>
-                                                <InputGroup.Text>Lead Screw Pitch (in mm) {nvConfig["lead_screw_pitch"]}</InputGroup.Text>
+                                                <InputGroup.Text>{t("Lead Screw Pitch (in mm)")} {nvConfig["lead_screw_pitch"]}</InputGroup.Text>
                                                 <Form.Control id="lead_screw_pitch" name="lead_screw_pitch" type="number"
                                                     required
                                                     defaultValue={nvConfig["lead_screw_pitch"]}
@@ -59,7 +59,7 @@ export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
 
                                             </InputGroup>
                                             <InputGroup>
-                                                <InputGroup.Text>Micro Steps {nvConfig["microsteps"]}</InputGroup.Text>
+                                                <InputGroup.Text>{t("Micro Steps")} {nvConfig["microsteps"]}</InputGroup.Text>
                                                 <button type="button" className="btn btn-secondary" data-toggle="tooltip" title="this is the microstepping mutliplier 1,2,4,8,16 etc">?</button>
                                                 <Form.Control id="microsteps" name="microsteps" type="number"
                                                     required
@@ -69,7 +69,7 @@ export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
 
                                             </InputGroup>
                                             <InputGroup>
-                                                <InputGroup.Text>Spindle Encoder Resolution (CPR) {nvConfig["spindle_encoder_resolution"]}</InputGroup.Text>
+                                                <InputGroup.Text>{t("Spindle Encoder Resolution (CPR)")} {nvConfig["spindle_encoder_resolution"]}</InputGroup.Text>
                                                 <Form.Control id="spindle_encoder_resolution" name="spindle_encoder_resolution" type="number"
                                                     required
                                                     ref={spindleEncoderRef}
@@ -78,7 +78,7 @@ export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
 
                                             </InputGroup>
                                             <InputGroup>
-                                                <InputGroup.Text>Encoder Pin A: {nvConfig["EA"]}</InputGroup.Text>
+                                                <InputGroup.Text>{t("Encoder Pin A:")} {nvConfig["EA"]}</InputGroup.Text>
                                                 <Form.Control id="EA" name="EA" type="number"
                                                     required
                                                     readOnly
@@ -88,7 +88,7 @@ export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
 
                                             </InputGroup>
                                             <InputGroup>
-                                                <InputGroup.Text>Encoder Pin B: {nvConfig["EB"]}</InputGroup.Text>
+                                                <InputGroup.Text>{t("Encoder Pin B:")} {nvConfig["EB"]}</InputGroup.Text>
                                                 <Form.Control id="EB" name="EB" type="number"
                                                     required
                                                     readOnly
@@ -99,22 +99,22 @@ export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
                                             </InputGroup>
 
                                             <InputGroup>
-                                                <InputGroup.Text>Motor Steps per revolution {nvConfig["motor_steps"]}</InputGroup.Text>
+                                                <InputGroup.Text>{t("Motor Steps per revolution")} {nvConfig["motor_steps"]}</InputGroup.Text>
 
                                             </InputGroup>
                                             <InputGroup>
-                                                <InputGroup.Text>Motor Native Steps {nvConfig["native_steps"]}</InputGroup.Text>
+                                                <InputGroup.Text>{t("Motor Native Steps")} {nvConfig["native_steps"]}</InputGroup.Text>
 
                                             </InputGroup>
                                             <InputGroup>
-                                                <InputGroup.Text>Firmware Version {nvConfig["vsn"]}</InputGroup.Text>
+                                                <InputGroup.Text>{t("Firmware Version")} {nvConfig["vsn"]}</InputGroup.Text>
 
                                             </InputGroup>
                                         </Col>
 
                                         <Col>
                                             <Button type="submit" className="mb-2" onClick={submitNvClick}>
-                                                Save Config!
+                                                {t("Save Config!")}
                                             </Button>
                                         </Col>
                                     </InputGroup>
@@ -124,7 +124,7 @@ export default function ShowNvConfig({ nvConfig, state, machineConfig }) {
                                 <Button 
                                     onClick={resetNv}
                                     type="submit" className="mb-2">
-                                    Reset Config to defaults.
+                                    {t("Reset Config to defaults")}
                                 </Button>
                             </Form>
                         </div>

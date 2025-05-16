@@ -7,7 +7,7 @@ import Col from "react-bootstrap/Col";
 import { send, distanceToSteps, stepsToDistance,mmToIn, inToMM,viewPitch, mmOrImp } from './util.js';
 import Moving from './Moving.js';
 import MaxPitch from './MaxPitch.js';
-
+import { t, setLang } from './translation.js';
 
 
 export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig,moveConfig,set_moveConfig}) {
@@ -20,9 +20,8 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
   const movePitchRef = useRef();
   const rapidPitchRef = useRef();
 
-
+ 
   
-
   function do_bounce() {
     var c = moveConfig;
     c.moveSteps = distanceToSteps(state,nvConfig, distanceRef.current.value) 
@@ -31,6 +30,7 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
     c.dwell = parseInt(dwellRef.current.value);
     //c.dwell = dwell
     c.feeding_ccw = true; 
+    
     if(state.metric != true){
       c.rapid = inToMM(rapidPitchRef.current.value);
       c.pitch = inToMM(movePitchRef.current.value);
@@ -48,10 +48,10 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
         // hides controls when pos_feeding is true
         ( !state.stats["pos_feed"] && !state.stats["sw"] && machineConfig.m != 6) &&
         <div>
-          <Button variant="dark" className="btn-block" > Bounce Settings</Button>
+          <Button variant="dark" className="btn-block" > {t("Bounce Settings")}</Button>
           <Row>
             <Col>
-              <span> Set positive for Z+ negative for Z- </span>
+              <span> {t("Set positive for Z+ negative for Z-")} </span>
               <InputGroup className="mb-3">
                 <FormControl
                   aria-label="Distance to Move"
@@ -61,7 +61,7 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
                 />
                 <InputGroup.Text id="notsure">
                   {state.metric == true ? "(mm)" : "(in)"}
-                  Move Distance</InputGroup.Text>
+                  {t("Move Distance")}</InputGroup.Text>
               </InputGroup>
             </Col>
           </Row>
@@ -84,7 +84,7 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
                 />
                 <InputGroup.Text id="unf">
                   {mmOrImp(state)}
-                  Move Pitch</InputGroup.Text>
+                  {t("Move Pitch")}</InputGroup.Text>
               </InputGroup>
             </Col>
           </Row>
@@ -99,7 +99,7 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
                 />
                 <InputGroup.Text id="rp">
                   {mmOrImp(state)}
-                  Rapid Pitch
+                  {t("Rapid Pitch")}
                 </InputGroup.Text>
               </InputGroup>
             </Col>
@@ -114,12 +114,12 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
                   inputMode='decimal' step='any' type="number"
                 />
                 <InputGroup.Text id="dwell">
-                  Dwell Time (ms (micro seconds))
+                  {t("Dwell Time (ms (micro seconds))")}
                 </InputGroup.Text>
               </InputGroup>
             </Col>
           </Row>
-          <Button className="btn-block" onClick={() => do_bounce()}>Run Bounce</Button>
+          <Button className="btn-block" onClick={() => do_bounce()}>{t("Run Bounce")}</Button>
         </div>
       }
 

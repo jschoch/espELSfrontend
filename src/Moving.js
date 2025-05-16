@@ -2,7 +2,7 @@ import React, { Component, useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
 import { send, stepsToDistance,mmOrImp } from './util.js';
-
+import { t, setLang } from './translation.js';
 export default function Moving({ state,nvConfig,machineConfig }) {
   function moveCancel() {
     var d = { cmd: "moveCancel" };
@@ -14,9 +14,9 @@ export default function Moving({ state,nvConfig,machineConfig }) {
         // stats sw is syncwaiting
         state.stats["sw"] &&
         <div>
-          <Button variant="danger">Waiting for Sync</Button>
+          <Button variant="danger">{t("Waiting for Sync")}</Button>
           <Button variant="danger" onClick={moveCancel}>
-            Cancel Move!
+            {t("Cancel Move!")}
           </Button>
         </div>
       }
@@ -40,19 +40,19 @@ export default function Moving({ state,nvConfig,machineConfig }) {
            
             {state.stats.fd &&
               <span>
-                Distance to Go: {stepsToDistance(state,nvConfig, (state.stats.sp - state.stats.p)).toFixed(4)}
+                {t("Distance to Go")}: {stepsToDistance(state,nvConfig, (state.stats.sp - state.stats.p)).toFixed(4)}
                 {mmOrImp(state)}
               </span>}
             {!state.stats.fd &&
               <span>
-                -Distance to Go: {stepsToDistance(state,nvConfig, (state.stats.p - state.stats.sn)).toFixed(4)}
+                {t("-Distance to Go")}: {stepsToDistance(state,nvConfig, (state.stats.p - state.stats.sn)).toFixed(4)}
                 {mmOrImp(state)}
               </span>
 
             }
           </Button>
           <Button variant="danger" onClick={moveCancel}>
-            Cancel Move!
+            {t("Cancel Move!")}
           </Button>
         </div>
       }

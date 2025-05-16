@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Form, InputGroup, Col, Grid, Row, Button } from 'react-bootstrap';
 //import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
-
+import { t, setLang } from './translation.js';
 
 export default function ConfigureClient(set_ws_url,set_sse_source,  connected, cookie, setCookie,sse_source) {
 
@@ -37,14 +37,14 @@ export default function ConfigureClient(set_ws_url,set_sse_source,  connected, c
             <div>
             <Form onSubmit={handleSubmit}>
 
-                <label htmlFor="url">Enter Hostname or IP example: 192.168.0.100</label>
+                <label htmlFor="url">{t("Enter Hostname or IP example: 192.168.0.100")}</label>
                 <input  className="form-control" type="text"
                     name="url"
                     //onChange={onChangeHandler}
                     ref={ip_or_hostnameRef}
                     defaultValue={cookie} />
                 <br />
-                <Button type="submit">Submit Connection Url</Button>
+                <Button type="submit">{t("Submit Connection Url")}</Button>
 
             </Form>
             </div>
@@ -52,7 +52,7 @@ export default function ConfigureClient(set_ws_url,set_sse_source,  connected, c
             { submitConnecting && !connected &&
 
                 <div>
-                    <h1> Connecting </h1>
+                    <h1> {t("Connecting")} </h1>
                 </div>
             }
 
