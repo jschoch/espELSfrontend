@@ -148,7 +148,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
         // Read from state instead of refs (already in mm)
         c.movePitch = movePitch;
         c.rapidPitch = rapidPitch;
-        if (state.metric != true) {
+        if (state.metric !== true) {
             c.movePitch = inToMM(c.movePitch);
             c.rapidPitch = inToMM(c.rapidPitch);
         }
@@ -170,7 +170,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
         c.rapidPitch = rapidPitch;
         c.movePitch = movePitch;
         // TODO: do we need to ensure this is positive?
-        if (state.metric != true) {
+        if (state.metric !== true) {
             c.movePitch = inToMM(c.movePitch);
             c.rapidPitch = inToMM(c.rapidPitch);
         }
@@ -187,21 +187,21 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
 
     const handleJogClick = (id) => {
         console.log("Jog or Rapid Clicked", id, distanceRef.current.value);
-        if (distanceRef.current.value == 0) {
+        if (distanceRef.current.value === 0 || distanceRef.current.value === "0") {
             console.log("unf");
             state.me.setModalErrorMsg("Can't Move 0 ");
             state.me.setShowModalError(true);
         } else {
-            if (id == "rrapid") {
+            if (id === "rrapid") {
                 console.log("right rapid", distanceRef.current.value);
                 rapid(1);
-            } else if (id == "lrapid") {
+            } else if (id === "lrapid") {
                 console.log("left rapid", distanceRef.current.value);
                 rapid(-1);
             }
-            else if (id == "ljog") {
+            else if (id === "ljog") {
                 moveSync(-1);
-            } else if (id == "rjog") {
+            } else if (id === "rjog") {
                 moveSync(1);
             } else {
                 console.log("WTF", id)
@@ -212,7 +212,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
 
     return (
         <div>
-            {(machineConfig.m == 2 || machineConfig.m == 6) &&
+            {(machineConfig.m === 2 || machineConfig.m === 6) &&
                 <div>
                     {/* Dropdown selector for all screen sizes */}
                     <div className="mb-3">
