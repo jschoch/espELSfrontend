@@ -7,8 +7,6 @@ import Form from 'react-bootstrap/Form';
 import { ArrowBarLeft, ArrowLeft, ArrowRight, ArrowBarRight } from 'react-bootstrap-icons';
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import Tabs from 'react-bootstrap/Tabs';
-import Tab from 'react-bootstrap/Tab';
 import Moving from './Moving.js';
 import Bounce from './Bounce.js';
 import { distanceToSteps, inToMM, mmOrImp, mmToIn, send, viewPitch } from './util.js';
@@ -42,6 +40,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
     const [cookies, setCookie] = useCookies(['moveSyncPresets']);
     const [presets, setPresets] = useState([]);
     const [selectedPresetId, setSelectedPresetId] = useState(null);
+    const [defaultPresetId, setDefaultPresetId] = useState(null);
     const [movePitch, setMovePitch] = useState(0.2);
     const [rapidPitch, setRapidPitch] = useState(0.2);
     const [showPresetManager, setShowPresetManager] = useState(false);
@@ -53,25 +52,34 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
         const loaded = loadPresetsFromCookie(cookies);
         if (loaded) {
             setPresets(loaded.presets);
-            setSelectedPresetId(loaded.selectedPresetId);
-            const preset = loaded.presets.find(p => p.id === loaded.selectedPresetId);
-            if (preset) {
-                setMovePitch(preset.movePitch);
-                setRapidPitch(preset.rapidPitch);
+            const defaultId = loaded.defaultPresetId || loaded.selectedPresetId;
+            setDefaultPresetId(defaultId);
+
+            // Load the default preset on startup
+            const defaultPreset = loaded.presets.find(p => p.id === defaultId);
+            if (defaultPreset) {
+                setSelectedPresetId(defaultId);
+                setMovePitch(defaultPreset.movePitch);
+                setRapidPitch(defaultPreset.rapidPitch);
                 // Update refs for display
                 if (movePitchRef.current) {
-                    movePitchRef.current.value = viewPitch(state, preset.movePitch);
+                    movePitchRef.current.value = viewPitch(state, defaultPreset.movePitch);
                 }
                 if (rapidPitchRef.current) {
-                    rapidPitchRef.current.value = viewPitch(state, preset.rapidPitch);
+                    rapidPitchRef.current.value = viewPitch(state, defaultPreset.rapidPitch);
                 }
             }
         } else {
             // Initialize with defaults
             setPresets(DEFAULT_PRESETS.presets);
             setSelectedPresetId(DEFAULT_PRESETS.selectedPresetId);
-            setMovePitch(0.2);
-            setRapidPitch(0.2);
+            setDefaultPresetId(DEFAULT_PRESETS.defaultPresetId);
+            // Load Finishing preset (0.08mm) as default
+            const defaultPreset = DEFAULT_PRESETS.presets.find(p => p.id === DEFAULT_PRESETS.defaultPresetId);
+            if (defaultPreset) {
+                setMovePitch(defaultPreset.movePitch);
+                setRapidPitch(defaultPreset.rapidPitch);
+            }
             savePresetsToCookie(setCookie, DEFAULT_PRESETS);
         }
     }, []); // Run once on mount
@@ -92,17 +100,24 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
             }
         }
         // Save to cookie
-        savePresetsToCookie(setCookie, { presets, selectedPresetId: presetId });
+        savePresetsToCookie(setCookie, { presets, selectedPresetId: presetId, defaultPresetId });
     };
 
     // Preset save handler (from modal)
-    const handlePresetSave = (updatedPresets) => {
+    const handlePresetSave = (updatedPresets, updatedDefaultPresetId) => {
         setPresets(updatedPresets);
-        savePresetsToCookie(setCookie, { presets: updatedPresets, selectedPresetId });
+        setDefaultPresetId(updatedDefaultPresetId);
+        savePresetsToCookie(setCookie, {
+            presets: updatedPresets,
+            selectedPresetId,
+            defaultPresetId: updatedDefaultPresetId
+        });
         // Verify selected preset still exists
         if (!updatedPresets.find(p => p.id === selectedPresetId)) {
             if (updatedPresets.length > 0) {
-                handlePresetSelect(updatedPresets[0].id);
+                // Select the default preset if current selection was deleted
+                const newSelectedId = updatedDefaultPresetId || updatedPresets[0].id;
+                handlePresetSelect(newSelectedId);
             } else {
                 setSelectedPresetId(null);
             }
@@ -199,8 +214,8 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
         <div>
             {(machineConfig.m == 2 || machineConfig.m == 6) &&
                 <div>
-                    {/* Mobile Dropdown - Show on small screens only */}
-                    <div className="d-md-none mb-3">
+                    {/* Dropdown selector for all screen sizes */}
+                    <div className="mb-3">
                         <Form.Select
                             value={activeTab}
                             onChange={(e) => setActiveTab(e.target.value)}
@@ -212,14 +227,9 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
                         </Form.Select>
                     </div>
 
-                    {/* Tabs - Hide tab bar on mobile, show on desktop */}
-                    <Tabs
-                        activeKey={activeTab}
-                        onSelect={(k) => setActiveTab(k)}
-                        id="movesync-tabs"
-                        className="mb-3"
-                    >
-                        <Tab eventKey="syncMove" title="Move slaved to spindle">
+                    {/* Content based on selected option */}
+                    {activeTab === "syncMove" && (
+                        <div>
                         {
                             // hides controls when pos_feeding is true
                             !state.stats["pos_feed"] && !state.stats["sw"] &&
@@ -409,6 +419,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
                                     show={showPresetManager}
                                     onHide={() => setShowPresetManager(false)}
                                     presets={presets}
+                                    defaultPresetId={defaultPresetId}
                                     onSave={handlePresetSave}
                                     state={state}
                                 />
@@ -421,10 +432,10 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
                                 state={state} />
 
                         </Row>
+                        </div>
+                    )}
 
-
-                    </Tab>
-                    <Tab eventKey="bounce" title="Bounce">
+                    {activeTab === "bounce" && (
                         <Bounce
                             state={state}
                             machineConfig={machineConfig}
@@ -432,9 +443,10 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
                             moveConfig={moveConfig}
                             set_moveConfig={set_moveConfig}
                             nvConfig={nvConfig}
-                        ></Bounce>
-                    </Tab>
-                    <Tab eventKey="FreeJog" title="Jog (non sync)">
+                        />
+                    )}
+
+                    {activeTab === "FreeJog" && (
                         <ShowMoveOptions
                             state={state}
                             machineConfig={machineConfig}
@@ -443,8 +455,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
                             set_moveConfig={set_moveConfig}
                             nvConfig={nvConfig}
                         />
-                    </Tab>
-                </Tabs>
+                    )}
                 </div>
             }
         </div>

@@ -83,7 +83,9 @@ const translations = {
     "No Preset": "Sem Predefinição",
     "Custom": "Personalizado",
     "Save": "Salvar",
-    "Cancel": "Cancelar"
+    "Cancel": "Cancelar",
+    "Set Default": "Definir Padrão",
+    "Delete this preset?": "Excluir esta predefinição?"
   }
 };
 

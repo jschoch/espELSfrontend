@@ -200,14 +200,3 @@
     font-size: 1rem;
   }
 }
-
-/* ===========================================
-   MOVESYNC UI - HIDE TAB NAV ON MOBILE
-   =========================================== */
-
-/* Hide tab navigation bar on mobile (dropdown replaces it) */
-@media (max-width: 767.98px) {
-  #movesync-tabs > .nav.nav-tabs {
-    display: none;
-  }
-}

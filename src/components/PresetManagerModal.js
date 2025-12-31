@@ -15,11 +15,13 @@ import { validatePreset, generatePresetId, isDuplicateLabel } from '../utils/pre
  * @param {boolean} show - Whether to show the modal
  * @param {function} onHide - Callback to close modal
  * @param {Array} presets - Array of preset objects
- * @param {function} onSave - Callback with updated presets array
+ * @param {string} defaultPresetId - ID of the default preset
+ * @param {function} onSave - Callback with updated presets array and defaultPresetId
  * @param {Object} state - App state (for metric conversion)
  */
-export default function PresetManagerModal({ show, onHide, presets, onSave, state }) {
+export default function PresetManagerModal({ show, onHide, presets, defaultPresetId, onSave, state }) {
   const [localPresets, setLocalPresets] = useState([]);
+  const [localDefaultPresetId, setLocalDefaultPresetId] = useState(defaultPresetId);
   const [editingId, setEditingId] = useState(null);
   const [newPreset, setNewPreset] = useState({ label: '', movePitch: '', rapidPitch: '' });
   const [error, setError] = useState('');
@@ -28,11 +30,12 @@ export default function PresetManagerModal({ show, onHide, presets, onSave, stat
   useEffect(() => {
     if (show) {
       setLocalPresets([...presets]);
+      setLocalDefaultPresetId(defaultPresetId);
       setEditingId(null);
       setNewPreset({ label: '', movePitch: '', rapidPitch: '' });
       setError('');
     }
-  }, [show, presets]);
+  }, [show, presets, defaultPresetId]);
 
   // Handle adding new preset
   const handleAdd = () => {
@@ -102,7 +105,13 @@ export default function PresetManagerModal({ show, onHide, presets, onSave, stat
   // Handle deleting preset
   const handleDelete = (presetId) => {
     if (window.confirm(t("Are you sure?") + ' ' + t("Delete this preset?"))) {
-      setLocalPresets(localPresets.filter(p => p.id !== presetId));
+      const newPresets = localPresets.filter(p => p.id !== presetId);
+      setLocalPresets(newPresets);
+
+      // If deleting the default preset, set a new default
+      if (presetId === localDefaultPresetId && newPresets.length > 0) {
+        setLocalDefaultPresetId(newPresets[0].id);
+      }
     }
   };
 
@@ -127,8 +136,13 @@ export default function PresetManagerModal({ show, onHide, presets, onSave, stat
       return;
     }
 
-    // Call parent callback with updated presets
-    onSave(localPresets);
+    // Ensure default preset exists in the list
+    if (!localPresets.find(p => p.id === localDefaultPresetId) && localPresets.length > 0) {
+      setLocalDefaultPresetId(localPresets[0].id);
+    }
+
+    // Call parent callback with updated presets and default
+    onSave(localPresets, localDefaultPresetId);
   };
 
   return (
@@ -201,16 +215,31 @@ export default function PresetManagerModal({ show, onHide, presets, onSave, stat
                 ) : (
                   // View mode
                   <Row className="align-items-center">
-                    <Col xs={12} md={5}>
-                      <strong>{preset.label}</strong>
-                    </Col>
                     <Col xs={12} md={4}>
+                      <strong>{preset.label}</strong>
+                      {preset.id === localDefaultPresetId && (
+                        <span className="badge bg-success ms-2">Default</span>
+                      )}
+                    </Col>
+                    <Col xs={12} md={3}>
                       <small>
                         Move: {viewPitch(state, preset.movePitch)}mm,
                         Rapid: {viewPitch(state, preset.rapidPitch)}mm
                       </small>
                     </Col>
-                    <Col xs={6} md={1}>
+                    <Col xs={4} md={2}>
+                      {preset.id !== localDefaultPresetId && (
+                        <Button
+                          size="sm"
+                          variant="outline-success"
+                          onClick={() => setLocalDefaultPresetId(preset.id)}
+                          className="w-100"
+                        >
+                          Set Default
+                        </Button>
+                      )}
+                    </Col>
+                    <Col xs={4} md={1}>
                       <Button
                         size="sm"
                         variant="outline-primary"
@@ -220,7 +249,7 @@ export default function PresetManagerModal({ show, onHide, presets, onSave, stat
                         {t("Edit")}
                       </Button>
                     </Col>
-                    <Col xs={6} md={2}>
+                    <Col xs={4} md={2}>
                       <Button
                         size="sm"
                         variant="outline-danger"

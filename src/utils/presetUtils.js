@@ -18,7 +18,8 @@ export const DEFAULT_PRESETS = {
       rapidPitch: 0.08     // mm
     }
   ],
-  selectedPresetId: "roughing"
+  selectedPresetId: "finishing",  // Finishing is the default
+  defaultPresetId: "finishing"    // Track which preset is the default
 };
 
 /**
