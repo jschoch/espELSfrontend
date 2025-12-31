@@ -3,6 +3,7 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
+import Form from 'react-bootstrap/Form';
 import { ArrowBarLeft, ArrowLeft, ArrowRight, ArrowBarRight } from 'react-bootstrap-icons';
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -14,6 +15,11 @@ import { distanceToSteps, inToMM, mmOrImp, mmToIn, send, viewPitch } from './uti
 import ShowMoveOptions from './ShowMoveOptions.js';
 import { t, setLang } from './translation.js';
 import MaxPitch from './MaxPitch.js';
+import { useCookies } from 'react-cookie';
+import Accordion from 'react-bootstrap/Accordion';
+import PresetSelector from './components/PresetSelector.js';
+import PresetManagerModal from './components/PresetManagerModal.js';
+import { loadPresetsFromCookie, savePresetsToCookie, DEFAULT_PRESETS } from './utils/presetUtils.js';
 
 
 
@@ -26,13 +32,88 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
     const [feedingLeft, set_feedingLeft] = useState(true);
     const [startSync, set_startSync] = useState(true);
     const [last_distance, set_last_distance] = useState(0);
+    const [activeTab, setActiveTab] = useState("syncMove");
 
     const distanceRef = useRef();
     const movePitchRef = useRef();
     const rapidPitchRef = useRef();
 
+    // Preset management state
+    const [cookies, setCookie] = useCookies(['moveSyncPresets']);
+    const [presets, setPresets] = useState([]);
+    const [selectedPresetId, setSelectedPresetId] = useState(null);
+    const [movePitch, setMovePitch] = useState(0.2);
+    const [rapidPitch, setRapidPitch] = useState(0.2);
+    const [showPresetManager, setShowPresetManager] = useState(false);
 
     const colW = 5;
+
+    // Initialize presets from cookie on mount
+    useEffect(() => {
+        const loaded = loadPresetsFromCookie(cookies);
+        if (loaded) {
+            setPresets(loaded.presets);
+            setSelectedPresetId(loaded.selectedPresetId);
+            const preset = loaded.presets.find(p => p.id === loaded.selectedPresetId);
+            if (preset) {
+                setMovePitch(preset.movePitch);
+                setRapidPitch(preset.rapidPitch);
+                // Update refs for display
+                if (movePitchRef.current) {
+                    movePitchRef.current.value = viewPitch(state, preset.movePitch);
+                }
+                if (rapidPitchRef.current) {
+                    rapidPitchRef.current.value = viewPitch(state, preset.rapidPitch);
+                }
+            }
+        } else {
+            // Initialize with defaults
+            setPresets(DEFAULT_PRESETS.presets);
+            setSelectedPresetId(DEFAULT_PRESETS.selectedPresetId);
+            setMovePitch(0.2);
+            setRapidPitch(0.2);
+            savePresetsToCookie(setCookie, DEFAULT_PRESETS);
+        }
+    }, []); // Run once on mount
+
+    // Preset selection handler
+    const handlePresetSelect = (presetId) => {
+        setSelectedPresetId(presetId);
+        const preset = presets.find(p => p.id === presetId);
+        if (preset) {
+            setMovePitch(preset.movePitch);
+            setRapidPitch(preset.rapidPitch);
+            // Update refs for display
+            if (movePitchRef.current) {
+                movePitchRef.current.value = viewPitch(state, preset.movePitch);
+            }
+            if (rapidPitchRef.current) {
+                rapidPitchRef.current.value = viewPitch(state, preset.rapidPitch);
+            }
+        }
+        // Save to cookie
+        savePresetsToCookie(setCookie, { presets, selectedPresetId: presetId });
+    };
+
+    // Preset save handler (from modal)
+    const handlePresetSave = (updatedPresets) => {
+        setPresets(updatedPresets);
+        savePresetsToCookie(setCookie, { presets: updatedPresets, selectedPresetId });
+        // Verify selected preset still exists
+        if (!updatedPresets.find(p => p.id === selectedPresetId)) {
+            if (updatedPresets.length > 0) {
+                handlePresetSelect(updatedPresets[0].id);
+            } else {
+                setSelectedPresetId(null);
+            }
+        }
+        setShowPresetManager(false);
+    };
+
+    // Manual pitch change handler
+    const handleManualPitchChange = () => {
+        setSelectedPresetId(null); // Deselect when manually edited
+    };
 
     function moveSync(modifier) {
         /*
@@ -48,9 +129,10 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
         c.feeding_ccw = true;
         c.startSync = startSync;
         c.useStops = true;
-        
-        c.movePitch = parseFloat(movePitchRef.current.value);
-        c.rapidPitch = parseFloat(rapidPitchRef.current.value)
+
+        // Read from state instead of refs (already in mm)
+        c.movePitch = movePitch;
+        c.rapidPitch = rapidPitch;
         if (state.metric != true) {
             c.movePitch = inToMM(c.movePitch);
             c.rapidPitch = inToMM(c.rapidPitch);
@@ -69,8 +151,9 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
         //c.f = feedingLeft;
         c.feeding_ccw = true;
         c.startSync = startSync;
-        c.rapidPitch = parseFloat(rapidPitchRef.current.value)
-        c.movePitch = parseFloat(movePitchRef.current.value)
+        // Read from state instead of refs (already in mm)
+        c.rapidPitch = rapidPitch;
+        c.movePitch = movePitch;
         // TODO: do we need to ensure this is positive?
         if (state.metric != true) {
             c.movePitch = inToMM(c.movePitch);
@@ -115,154 +198,220 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
     return (
         <div>
             {(machineConfig.m == 2 || machineConfig.m == 6) &&
-                <Tabs defaultActiveKey="syncMove" id="uncontrolled-tab-example" className="mb-3">
-                    <Tab eventKey="syncMove" title="Move slaved to spindle">
+                <div>
+                    {/* Mobile Dropdown - Show on small screens only */}
+                    <div className="d-md-none mb-3">
+                        <Form.Select
+                            value={activeTab}
+                            onChange={(e) => setActiveTab(e.target.value)}
+                            size="lg"
+                        >
+                            <option value="syncMove">Move slaved to spindle</option>
+                            <option value="bounce">Bounce</option>
+                            <option value="FreeJog">Jog (non sync)</option>
+                        </Form.Select>
+                    </div>
+
+                    {/* Tabs - Hide tab bar on mobile, show on desktop */}
+                    <Tabs
+                        activeKey={activeTab}
+                        onSelect={(k) => setActiveTab(k)}
+                        id="movesync-tabs"
+                        className="mb-3"
+                    >
+                        <Tab eventKey="syncMove" title="Move slaved to spindle">
                         {
                             // hides controls when pos_feeding is true
                             !state.stats["pos_feed"] && !state.stats["sw"] &&
                             <div>
-                                <Row>
+                                {/* Primary Controls - Distance Input at Top */}
+                                <Row className="mb-3">
                                     <Col>
-                                        <label className="btn btn-outline-primary" htmlFor="btn-check-outlined"
-                                            onClick={() => { setEnRL(!enRL) }} >{t("Enable Rapid Left")}</label>
-
-
-                                    </Col>
-                                    <Col>
-                                        <label className="btn btn-outline-primary" htmlFor="btn-en-rapidright"
-                                            onClick={() => { setEnRR(!enRR) }}>{t("Enable Rapid Right")}</label>
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <p className="text-center">
-                                        {t("Current Pitch set to:")} {
-                                           viewPitch(state,moveConfig.movePitch)
-                                        } mm: {moveConfig.movePitch}
-                                        {mmOrImp(state)}
-                                        {(!enRL || !enRR) &&
-                                            <span>
-                                                Raw: Rapid Pitch: {viewPitch(state,moveConfig.rapidPitch)}
-                                                metric: {moveConfig.rapidPitch}
-                                            </span>
-                                        }
-                                    </p>
-                                </Row>
-                                <Row>
-                                    <Col>
-                                        <span>
-                                            <MaxPitch
-                                                state={state}
-                                                nvConfig={nvConfig} />
-                                                <hr />
-
-                                            {machineConfig.dbg &&
-                                              <div>
-                                                <span> Current Pitch: {machineConfig.movePitch}</span>
-                                                <span> Rapid: {machineConfig.rapidPitch} </span>
-                                               </div> 
-                                                }
-                                        </span>
-                                        <InputGroup className="mb-3">
-                                            <FormControl
-                                                aria-label="Bounce Pitch"
-                                                inputMode='numeric' step='any' type="number"
-                                                defaultValue={viewPitch(state, moveConfig.movePitch)}
-                                                ref={movePitchRef}
-                                            />
-                                            <InputGroup.Text id="unf">
-                                                {mmOrImp(state)}
-                                                {t("Move Pitch")}</InputGroup.Text>
-                                        </InputGroup>
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col>
-                                        <InputGroup className="mb-1">
-                                            <FormControl
-                                                aria-label="Rapid Pitch"
-                                                defaultValue={viewPitch(state, moveConfig.rapidPitch)}
-                                                inputMode='numeric' step='any' type="number"
-                                                ref={rapidPitchRef}
-                                            />
-                                            <InputGroup.Text id="rp">
-                                                {mmOrImp(state)}
-                                                {t("Rapid Pitch")}
-                                            </InputGroup.Text>
-                                        </InputGroup>
-                                    </Col>
-                                </Row>
-                                <Row>
-                                </Row>
-                                <Row>
-                                    <Col>
-
-                                    </Col>
-                                </Row>
-
-                                <Row>
-                                    <Col>
-                                        <InputGroup className="mb-3">
-                                            <InputGroup.Text id="notsure">
+                                        <InputGroup size="lg">
+                                            <InputGroup.Text id="move-distance-label">
                                                 ( {mmOrImp(state)} )
                                                 {t("Move Distance")}</InputGroup.Text>
                                             <FormControl
-                                                placeholder="Distance to Move"
+                                                placeholder="0.0"
                                                 aria-label="Distance to Move"
-                                                aria-describedby="basic-addon2"
+                                                aria-describedby="move-distance-label"
                                                 defaultValue={last_distance}
-                                                inputMode='decimal' step='any' type="number"
+                                                inputMode="decimal"
+                                                step="any"
+                                                type="number"
                                                 ref={distanceRef}
+                                                style={{ minHeight: '50px', fontSize: '1.1rem' }}
                                             />
-
                                         </InputGroup>
                                     </Col>
-
                                 </Row>
-                                <Row>
-                                    <Col xs='5' >
+
+                                {/* Enable Rapid Buttons */}
+                                <Row className="mb-3">
+                                    <Col xs={6}>
+                                        <Button
+                                            variant={enRL ? "outline-primary" : "primary"}
+                                            onClick={() => { setEnRL(!enRL) }}
+                                            className="w-100"
+                                        >
+                                            {t("Enable Rapid Left")}
+                                        </Button>
+                                    </Col>
+                                    <Col xs={6}>
+                                        <Button
+                                            variant={enRR ? "outline-primary" : "primary"}
+                                            onClick={() => { setEnRR(!enRR) }}
+                                            className="w-100"
+                                        >
+                                            {t("Enable Rapid Right")}
+                                        </Button>
+                                    </Col>
+                                </Row>
+
+                                {/* Primary Controls - Move Buttons */}
+                                <Row className="mb-3 g-2">
+                                    <Col xs={6}>
                                         <ButtonGroup
                                             vertical={true}
                                             size='lg'
                                             className="w-100"
                                         >
-
-                                       
-                                        <Button 
-                                            type="button" className="btn btn-danger spaceBtn" disabled={enRL} id="lrapid"
-                                            onClick={() => handleJogClick("lrapid")}>
-                                            <ArrowBarLeft />Rapid Z-
-                                        </Button>
-                                        <Button type="button" className="btn btn-outline-dark spaceBtn" id="ljog"
-                                            onClick={() => handleJogClick("ljog")}>
-                                            <ArrowBarLeft />
-                                            {t("Move")}
-                                        </Button>
+                                            {!enRL && (
+                                                <Button
+                                                    type="button"
+                                                    className="btn btn-danger move-button-large"
+                                                    id="lrapid"
+                                                    onClick={() => handleJogClick("lrapid")}
+                                                >
+                                                    <ArrowBarLeft />Rapid Z-
+                                                </Button>
+                                            )}
+                                            <Button
+                                                type="button"
+                                                className="btn btn-outline-dark move-button-large"
+                                                id="ljog"
+                                                onClick={() => handleJogClick("ljog")}
+                                            >
+                                                <ArrowBarLeft />
+                                                {t("Move")}
+                                            </Button>
                                         </ButtonGroup>
                                     </Col>
-                                    <Col xs={1}>
-                                    </Col>
 
-                                    <Col xs='5'>
-                                    <ButtonGroup 
-                                        vertical={true}
-                                        className="w-100"
-                                        size='lg'
+                                    <Col xs={6}>
+                                        <ButtonGroup
+                                            vertical={true}
+                                            className="w-100"
+                                            size='lg'
                                         >
-                                       
-                                        <Button type="button" className="btn btn-danger spaceBtn " disabled={enRR} id="rrapid"
-                                            onClick={() => handleJogClick("rrapid")}>
-                                            <ArrowBarRight />Rapid Z+
-                                        </Button>
-                                        <Button type="button" className="btn btn-outline-dark spaceBtn" id="rjog"
-                                            onClick={() => handleJogClick("rjog")}>
-                                            <ArrowBarRight />{t("Move")}
-                                        </Button>
+                                            {!enRR && (
+                                                <Button
+                                                    type="button"
+                                                    className="btn btn-danger move-button-large"
+                                                    id="rrapid"
+                                                    onClick={() => handleJogClick("rrapid")}
+                                                >
+                                                    <ArrowBarRight />Rapid Z+
+                                                </Button>
+                                            )}
+                                            <Button
+                                                type="button"
+                                                className="btn btn-outline-dark move-button-large"
+                                                id="rjog"
+                                                onClick={() => handleJogClick("rjog")}
+                                            >
+                                                <ArrowBarRight />{t("Move")}
+                                            </Button>
                                         </ButtonGroup>
-
                                     </Col>
                                 </Row>
 
+                                {/* Preset Selector Section */}
+                                <Row className="mb-3">
+                                    <Col xs={12} md={7} className="mb-2 mb-md-0">
+                                        <PresetSelector
+                                            presets={presets}
+                                            selectedPresetId={selectedPresetId}
+                                            onSelect={handlePresetSelect}
+                                            state={state}
+                                        />
+                                    </Col>
+                                    <Col xs={12} md={5}>
+                                        <Button
+                                            variant="outline-secondary"
+                                            onClick={() => setShowPresetManager(true)}
+                                            className="w-100"
+                                        >
+                                            {t("Manage Presets")}
+                                        </Button>
+                                    </Col>
+                                </Row>
 
+                                {/* Collapsible Manual Pitch Settings */}
+                                <Accordion className="mb-3">
+                                    <Accordion.Item eventKey="0">
+                                        <Accordion.Header>Manual Pitch Settings</Accordion.Header>
+                                        <Accordion.Body>
+                                            <Row>
+                                                <Col>
+                                                    <MaxPitch
+                                                        state={state}
+                                                        nvConfig={nvConfig} />
+                                                    <hr />
+
+                                                    {machineConfig.dbg &&
+                                                        <div>
+                                                            <span> Current Pitch: {machineConfig.movePitch}</span>
+                                                            <span> Rapid: {machineConfig.rapidPitch} </span>
+                                                        </div>
+                                                    }
+                                                </Col>
+                                            </Row>
+                                            <Row>
+                                                <Col>
+                                                    <InputGroup className="mb-3">
+                                                        <FormControl
+                                                            aria-label="Move Pitch"
+                                                            inputMode='numeric' step='any' type="number"
+                                                            defaultValue={viewPitch(state, moveConfig.movePitch)}
+                                                            ref={movePitchRef}
+                                                            onChange={handleManualPitchChange}
+                                                        />
+                                                        <InputGroup.Text id="unf">
+                                                            {mmOrImp(state)}
+                                                            {t("Move Pitch")}</InputGroup.Text>
+                                                    </InputGroup>
+                                                </Col>
+                                            </Row>
+                                            <Row>
+                                                <Col>
+                                                    <InputGroup className="mb-1">
+                                                        <FormControl
+                                                            aria-label="Rapid Pitch"
+                                                            defaultValue={viewPitch(state, moveConfig.rapidPitch)}
+                                                            inputMode='numeric' step='any' type="number"
+                                                            ref={rapidPitchRef}
+                                                            onChange={handleManualPitchChange}
+                                                        />
+                                                        <InputGroup.Text id="rp">
+                                                            {mmOrImp(state)}
+                                                            {t("Rapid Pitch")}
+                                                        </InputGroup.Text>
+                                                    </InputGroup>
+                                                </Col>
+                                            </Row>
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                </Accordion>
+
+                                {/* Preset Manager Modal */}
+                                <PresetManagerModal
+                                    show={showPresetManager}
+                                    onHide={() => setShowPresetManager(false)}
+                                    presets={presets}
+                                    onSave={handlePresetSave}
+                                    state={state}
+                                />
                             </div>
                         }
                         <Row>
@@ -296,6 +445,7 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
                         />
                     </Tab>
                 </Tabs>
+                </div>
             }
         </div>
     )

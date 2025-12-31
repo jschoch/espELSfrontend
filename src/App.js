@@ -36,8 +36,7 @@ import { t, setLang } from './translation.js';
 // TODO: refactor, why so many modes unused here?
 //  original intent was to map modes to the YASM states in the firmware
 
-// language, en or pt
-setLang('pt');
+// language, en or pt - now managed via state and cookies
 
 
 const modes = {
@@ -132,7 +131,7 @@ export default function App() {
   const [nvConfig, set_nvConfig] = useState({ error: true, motor_steps: 0 });
   const [showModalError, setShowModalError] = useState(false);
   const [modalErrorMsg, setModalErrorMsg] = useState("not set");
-  const [cookies, setCookie] = useCookies(['ip_or_hostname', 'metric']);
+  const [cookies, setCookie] = useCookies(['ip_or_hostname', 'metric', 'lang']);
   const [ip, set_ip] = useState("127.0.0.1");
   const [ws_url, set_ws_url] = useState(null);
   const me = { setModalErrorMsg: setModalErrorMsg, setShowModalError: setShowModalError };
@@ -197,18 +196,36 @@ export default function App() {
     }
 
     console.log("cookies", cookies);
-    
+
     if (!cookies.hasOwnProperty('metric')) {
 
       setCookie("metric", "true");
       console.log('no metric cookie, setting default to metric', cookies);
     }
+
+    // Initialize language from cookie or default to English
+    if (!cookies.hasOwnProperty('lang')) {
+      setCookie("lang", "en");
+      setLang("en");
+      console.log('no lang cookie, setting default to English', cookies);
+    } else {
+      setLang(cookies.lang);
+      console.log('setting language from cookie:', cookies.lang);
+    }
+
     set_state({
       ...state,
       metric: cookies.metric
     })
 
   }, [cookies.ip_or_hostname]);
+
+  const handleLangToggle = () => {
+    const newLang = cookies.lang === 'en' ? 'pt' : 'en';
+    setCookie('lang', newLang);
+    setLang(newLang);
+    console.log('Language switched to:', newLang);
+  }
 
   const handleVenc = (data) => {
     var c = {};
@@ -337,7 +354,7 @@ export default function App() {
       <Container fluid>
         <div >
           <Row >
-            <Col xs={10} >
+            <Col xs={12} md={11} lg={10} >
               
               {
                 connected ?
@@ -358,6 +375,13 @@ export default function App() {
                 ((360 / nvConfig.spindle_encoder_resolution) * (sse_events.encoderPos % nvConfig.spindle_encoder_resolution)).toFixed(2)
               }*</span>
               <Rev sse_events={sse_events} />
+              <span
+                className="badge bg-primary"
+                size="sm"
+                onClick={handleLangToggle}
+                style={{cursor: 'pointer'}}>
+                Lang: {cookies.lang === 'en' ? 'EN' : 'PT'}
+              </span>
               <span
                 className="badge bg-success"
                 size="sm"
@@ -382,8 +406,8 @@ export default function App() {
               {state.stats.ws_c},{state.stats.es_c}
             </Col>
           </Row>
-          <Row>
-            <Col>
+          <Row className="g-2 mb-3">
+            <Col xs={6}>
               <Button
                 className="w-100"
                 onClick={handleCancel}
@@ -391,7 +415,7 @@ export default function App() {
                 {t("E-Stop")}
               </Button>
             </Col>
-            <Col>
+            <Col xs={6}>
               <ModeSel
                 handleModeSelect={handleModeSelect}
                 className="w-100"
@@ -409,6 +433,7 @@ export default function App() {
               defaultActiveKey="moveSync_tab"
               activeKey={modetabkey}
               id="uncontrolled-tab-example"
+              className="responsive-tabs"
               onSelect={(key) => handleTabSelect(key)}
               transition={false}>
 
@@ -471,7 +496,9 @@ export default function App() {
                   set_machineConfig={set_machineConfig}
                   state={state} ></Hobbing>
               </Tab>
-              <Tab eventKey="config_tab" title={t("Conf")}>
+              <Tab
+                tabClassName={state.dbg ? "" : "d-none"}
+                eventKey="config_tab" title={t("Conf")}>
 
                 <ConfigUI state={state} machineConfig={machineConfig}
                   nvConfig={nvConfig}
@@ -483,7 +510,9 @@ export default function App() {
                   setCookie={setCookie}
                 />
               </Tab>
-              <Tab eventKey="net_tab" title={t("Network")}>
+              <Tab
+                tabClassName={state.dbg ? "" : "d-none"}
+                eventKey="net_tab" title={t("Network")}>
                 <Network
                   ws_url={ws_url}
                   set_ws_url={set_ws_url}
@@ -514,6 +543,7 @@ export default function App() {
           (machineConfig.m == undefined || machineConfig.m == 0) &&
           <div>
             <Tabs defaultActiveKey="home_tab" id="uncontrolled-tab-example"
+              className="responsive-tabs"
               onSelect={(key) => handleTabSelect(key)}
               transition={false}>
 

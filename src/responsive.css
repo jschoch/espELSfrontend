@@ -1,0 +1,213 @@
+/* ============================================
+   RESPONSIVE DESIGN OVERRIDES
+   Bootstrap 5.3.2 Breakpoints:
+   xs: 0-575px (Galaxy S10, Pixel 6)
+   sm: 576-767px
+   md: 768-991px (Galaxy Tab A7)
+   lg: 992-1199px
+   xl: 1200px+
+   ============================================ */
+
+/* ===========================================
+   MOBILE FIRST (xs: 0-575px)
+   Galaxy S10 (360px), Pixel 6 (411px)
+   =========================================== */
+
+/* Tab navigation - enable horizontal scroll on small screens */
+.responsive-tabs .nav-tabs {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.responsive-tabs .nav-tabs .nav-link {
+  white-space: nowrap;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+/* Badges in status bar - reduce spacing on mobile */
+.badge {
+  margin-right: 0.25rem;
+  font-size: 0.75rem;
+}
+
+/* Button spacing - reduce on mobile */
+.spaceBtn {
+  margin-left: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Tab content - reduce left margin on mobile */
+.tab-content {
+  margin-left: 0.5rem;
+}
+
+/* Form inputs - larger touch targets on mobile */
+.form-control,
+.form-select,
+.btn {
+  min-height: 44px; /* iOS recommended minimum */
+}
+
+/* Input groups - stack labels on mobile */
+@media (max-width: 575.98px) {
+  .input-group-text {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.5rem;
+  }
+
+  /* Button row spacing for MoveSyncUI */
+  .button-row-spacing {
+    gap: 1rem;
+  }
+
+  /* Reduce modal padding on small screens */
+  .modal-body {
+    padding: 1rem;
+  }
+
+  .modal-header {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* ===========================================
+   SMALL TABLETS (sm: 576-767px)
+   =========================================== */
+@media (min-width: 576px) {
+  .badge {
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+  }
+
+  .spaceBtn {
+    margin-left: 0.5rem;
+  }
+
+  .tab-content {
+    margin-left: 1rem;
+  }
+
+  .responsive-tabs .nav-tabs .nav-link {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
+}
+
+/* ===========================================
+   TABLETS (md: 768-991px)
+   Samsung Galaxy Tab A7 (800px)
+   =========================================== */
+@media (min-width: 768px) {
+  /* Restore original desktop spacing */
+  .tab-content {
+    margin-left: 20px;
+  }
+
+  .spaceBtn {
+    margin-left: 5px;
+  }
+
+  /* Tabs can display full width without scrolling */
+  .responsive-tabs .nav-tabs {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+
+  /* Button groups can be side-by-side */
+  .button-row-spacing {
+    gap: 0;
+  }
+
+  /* Reset form controls to standard size */
+  .form-control,
+  .form-select,
+  .btn {
+    min-height: auto;
+  }
+}
+
+/* ===========================================
+   DESKTOP (lg: 992px+)
+   =========================================== */
+@media (min-width: 992px) {
+  /* Larger badge sizes for better readability */
+  .badge {
+    font-size: 1rem;
+  }
+
+  /* Wider input groups */
+  .input-group-text {
+    min-width: 120px;
+  }
+}
+
+/* ===========================================
+   UTILITY CLASSES
+   =========================================== */
+
+/* Touch-friendly spacing for mobile buttons */
+.btn-touch-spacing {
+  margin-bottom: 0.75rem;
+}
+
+/* Hide on mobile, show on tablet+ */
+.mobile-hide {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .mobile-hide {
+    display: block;
+  }
+}
+
+/* Show on mobile, hide on tablet+ */
+.mobile-only {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none;
+  }
+}
+
+/* Scrollable container for horizontal overflow */
+.scroll-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ===========================================
+   MOVESYNC UI - LARGE MOVE BUTTONS
+   =========================================== */
+
+/* Large, prominent move buttons for primary controls */
+.move-button-large {
+  height: 60px;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* Slightly smaller on mobile for better fit */
+@media (max-width: 575.98px) {
+  .move-button-large {
+    height: 50px;
+    font-size: 1rem;
+  }
+}
+
+/* ===========================================
+   MOVESYNC UI - HIDE TAB NAV ON MOBILE
+   =========================================== */
+
+/* Hide tab navigation bar on mobile (dropdown replaces it) */
+@media (max-width: 767.98px) {
+  #movesync-tabs > .nav.nav-tabs {
+    display: none;
+  }
+}

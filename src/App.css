@@ -1,2 +1,35 @@
-.tab-content { margin-left: 20px;}
-.spaceBtn {margin-left: 5px;}
+/* Desktop defaults - override with responsive.css on smaller screens */
+.tab-content {
+  margin-left: 20px;
+}
+
+.spaceBtn {
+  margin-left: 5px;
+}
+
+/* Button group enhancements */
+.btn-group-vertical .btn {
+  flex: 1 1 auto;
+}
+
+/* Ensure full-width buttons maintain width */
+.w-100 {
+  width: 100% !important;
+}
+
+/* Container fluid padding adjustments */
+.container-fluid {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+/* Dropdown button text wrapping */
+.dropdown-toggle {
+  white-space: normal;
+  text-align: left;
+}
+
+/* Badge spacing in status bar */
+.badge + .badge {
+  margin-left: 0.25rem;
+}

@@ -55,7 +55,7 @@ export default function Feed({ config, nvConfig, state,machineConfig,moveConfig,
 
                 <Row>
 
-                    <Col xs={8}>
+                    <Col xs={12} sm={8} md={8} lg={6}>
                         <div className="d-grid gap-1">
                             <ButtonGroup
                                 size="xxl"
@@ -99,7 +99,7 @@ export default function Feed({ config, nvConfig, state,machineConfig,moveConfig,
 
 
                     </Col>
-                    <Col className="xs4">
+                    <Col xs={12} sm={4} md={4}>
                         <span>
                             {t("Current Config:")}
                         </span>

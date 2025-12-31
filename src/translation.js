@@ -71,7 +71,19 @@ const translations = {
     "Reset Config to defaults": "Redefinir Configuração Padrão",
     "Bounce Settings": "Configurações de Bounce",
     "Turn Off": "Desligar",
-    "Turn On": "Ligar"
+    "Turn On": "Ligar",
+    "Manage Presets": "Gerenciar Predefinições",
+    "Select Preset": "Selecionar Predefinição",
+    "Add Preset": "Adicionar Predefinição",
+    "Edit": "Editar",
+    "Delete": "Excluir",
+    "Preset Name": "Nome da Predefinição",
+    "Pitch Settings": "Configurações de Passo",
+    "Are you sure?": "Tem certeza?",
+    "No Preset": "Sem Predefinição",
+    "Custom": "Personalizado",
+    "Save": "Salvar",
+    "Cancel": "Cancelar"
   }
 };
 
