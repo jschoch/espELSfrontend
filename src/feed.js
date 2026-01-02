@@ -23,7 +23,7 @@ export default function Feed({ config, nvConfig, state,machineConfig,moveConfig,
     const handleToggle = (data) => {
         var c = moveConfig;
         c.movePitch = parseFloat(move_pitchRef.current.value);
-        if(c.movePitch == 0 || isNaN(c.movePitch) || c.movePitch === undefined){
+        if(c.movePitch === 0 || isNaN(c.movePitch) || c.movePitch === undefined){
             console.log("doh pitch was 0")
             state.me.setModalErrorMsg("Pitch can't be 0 ");
             state.me.setShowModalError(true);

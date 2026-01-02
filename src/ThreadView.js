@@ -84,7 +84,7 @@ export default function ThreadView({ moveConfig,set_moveConfig,machineConfig, st
     var t = first;
     var feed = 0;
     for (var i = 1; i <= (rec_passes); i++) {
-      if (i == 1) {
+      if (i === 1) {
         feed = first;
       } else {
         feed = (thread_depth / Math.sqrt(rec_passes - 1)) * Math.sqrt(i - 1);

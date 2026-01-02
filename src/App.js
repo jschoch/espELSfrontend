@@ -88,14 +88,14 @@ export default function App() {
     c.m = data;
     set_machineConfig(c)
     console.log("select data", data);
-    if (data == 5) {
+    if (data === 5) {
       setModalErrorMsg("Mode not implemented yet");
       setShowModalError(true);
     }
-    if (data == 2) {
+    if (data === 2) {
       set_modetabkey("moveSync_tab");
     }
-    if (data == 14) {
+    if (data === 14) {
       set_modetabkey("feed_tab");
     }
     sendConfig();
@@ -169,7 +169,7 @@ export default function App() {
 
     var url = null;
     let search_ip = params.get('ip');
-    if (search_ip != null || search_ip != undefined) {
+    if (search_ip !== null || search_ip !== undefined) {
 
       console.log("serch params", search_ip);
       set_ip(search_ip);
@@ -186,7 +186,7 @@ export default function App() {
 
     } else {
       console.log("no ip in url");
-      if (cookies.ip_or_hostname != default_ip || cookies.ip_or_hostname != undefined) {
+      if (cookies.ip_or_hostname !== default_ip || cookies.ip_or_hostname !== undefined) {
         set_ws_url("ws://" + cookies.ip_or_hostname + "/els");
       } else {
         console.log("using default url", ws_url, cookies.ip_or_hostname);
@@ -250,7 +250,7 @@ export default function App() {
   const handleTabSelect = (key) => {
     console.log("select tab", key);
     set_modetabkey(key);
-    if (key == "config_tab") {
+    if (key === "config_tab") {
       // what is this?
     }
   }
@@ -268,9 +268,9 @@ export default function App() {
         stats: merged
       }
       );
-      if(sse_events.hasOwnProperty("m") && x.m != machineConfig.m){
-        
-        if(x.m == undefined){
+      if(sse_events.hasOwnProperty("m") && x.m !== machineConfig.m){
+
+        if(x.m === undefined){
           set_machineConfig({m: 0});
         }else{
           set_machineConfig({m: x.m});
@@ -299,16 +299,16 @@ export default function App() {
     }
     console.log("msg: ",msg);
     if ("t" in msg) {
-      if (msg["t"] == "status") {
+      if (msg["t"] === "status") {
 
-       handleEventMsgs(msg); 
-        
+       handleEventMsgs(msg);
+
       }
-      else if (msg["t"] == "nvConfig") {
+      else if (msg["t"] === "nvConfig") {
         console.log("got nv configuration", msg);
         set_nvConfig(msg);
       }
-      else if (msg["t"] == "moveConfigDoc") {
+      else if (msg["t"] === "moveConfigDoc") {
         console.log("updating moveConfig", msg);
         var mc = moveConfig;
         mc.movePitch = msg.movePitch;
@@ -318,9 +318,9 @@ export default function App() {
         mc.dwell = msg.dwell;
         set_moveConfig(mc);
       }
-      else if (msg["t"] == "log") {
+      else if (msg["t"] === "log") {
         console.log("stuff", msg);
-        if (msg["level"] == 0) {
+        if (msg["level"] === 0) {
           if (showModalError) {
             // append the new message
             var o = msg["msg"]
@@ -331,7 +331,7 @@ export default function App() {
           }
         }
       }
-      else if (msg["t"] == "dbg_st") {
+      else if (msg["t"] === "dbg_st") {
         var merged = {};
         Object.assign(merged, state.stats, msg);
         console.log("merged", merged, state.stats);
@@ -361,10 +361,10 @@ export default function App() {
                   <span className="badge bg-success"><Wifi /> </span>
                   : <span className="badge bg-danger"><WifiOff /></span>
               }
-              
+
               {
                 //sse_source.
-                (sse_source && sse_source.OPEN == 1) ?
+                (sse_source && sse_source.OPEN === 1) ?
                   <span>ES-</span>
                   :
                   <span>WS-</span>
@@ -427,7 +427,7 @@ export default function App() {
         </div>
         {
           //  only disply when we are not in startup mode
-          machineConfig.m != 0 &&
+          machineConfig.m !== 0 &&
           <div>
             <Tabs
               defaultActiveKey="moveSync_tab"
@@ -438,17 +438,17 @@ export default function App() {
               transition={false}>
 
               <Tab
-                tabClassName={(machineConfig.m == "2" || machineConfig.m == "4" || machineConfig.m == "6") ? "" : "d-none"}
+                tabClassName={(machineConfig.m === "2" || machineConfig.m === "4" || machineConfig.m === "6") ? "" : "d-none"}
                 eventKey="moveSync_tab" title={t("MoveSync")}>
                 <div>
                   <div className="card-body">
-                    {machineConfig.m == 0 &&
+                    {machineConfig.m === 0 &&
                       <div>
 
                         {t("Select a mode above")}
                       </div>
                     }
-                    {machineConfig.m != 0 &&
+                    {machineConfig.m !== 0 &&
                       <MoveSyncUI
                         state={state}
                         nvConfig={nvConfig}
@@ -464,7 +464,7 @@ export default function App() {
 
 
               <Tab
-                tabClassName={(machineConfig.m == "14" || machineConfig.m == "4") ? "" : "d-none"}
+                tabClassName={(machineConfig.m === "14" || machineConfig.m === "4") ? "" : "d-none"}
                 eventKey="feed_tab" title={t("Feed")}>
                 <Feed
                   state={state}
@@ -476,7 +476,7 @@ export default function App() {
 
 
               <Tab
-                tabClassName={(machineConfig.m == "15" || machineConfig.m == "4") ? "" : "d-none"}
+                tabClassName={(machineConfig.m === "15" || machineConfig.m === "4") ? "" : "d-none"}
                 eventKey="thread_tab" title={t("Thread")}>
 
                 <ThreadView state={state}
@@ -487,7 +487,7 @@ export default function App() {
 
               </Tab>
               <Tab
-                tabClassName={(machineConfig.m == "9" || machineConfig.m == "4") ? "" : "d-none"}
+                tabClassName={(machineConfig.m === "9" || machineConfig.m === "4") ? "" : "d-none"}
                 eventKey="hob_tab" title={t("Hobbing")}>
                 <Hobbing
                   moveConfig={moveConfig}
@@ -540,7 +540,7 @@ export default function App() {
         }
         {
           // Startup mode home
-          (machineConfig.m == undefined || machineConfig.m == 0) &&
+          (machineConfig.m === undefined || machineConfig.m === 0) &&
           <div>
             <Tabs defaultActiveKey="home_tab" id="uncontrolled-tab-example"
               className="responsive-tabs"

@@ -36,9 +36,9 @@ export default function ConfigUI({ state, set_state, set_sse_source,machineConfi
             <hr />
             <Tabs defaultActiveKey="UIsettings" id="configtabs" className="mb-3">
                 <Tab eventKey="UIsettings" title="Settings">
-                    working UISettings 
+                    working UISettings
                     <h4>
-                        Current Units: {state.metric == true ? "Metric" : "Imperial"}
+                        Current Units: {state.metric === true ? "Metric" : "Imperial"}
                         </h4> 
                     <Row>
                         <Col>
@@ -57,8 +57,8 @@ export default function ConfigUI({ state, set_state, set_sse_source,machineConfi
                                         ...state,
                                         metric: true
                                     });
-                                    
-                                    state.metric == true ? setCookie("metric","false") : setCookie("metric","true")
+
+                                    state.metric === true ? setCookie("metric","false") : setCookie("metric","true")
 
                                 }
                                 }>

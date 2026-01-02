@@ -16,7 +16,7 @@ export default function ModalMove({ state, show, set_show, moveConfig, set_moveC
   const [rapidPitch, set_rapidPitch] = useState(moveConfig.rapidPitch);
   const handleClose = () => {
     var c = moveConfig;
-    if (state.metric == "true") {
+    if (state.metric === "true") {
       c.pitch = movePitch;
       c.movePitch = movePitch;
       c.rapid = rapidPitch;

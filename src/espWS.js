@@ -48,7 +48,7 @@ export default function EspWS({ ws_url, set_msg, connected, set_connected, vsn, 
       return;
     }
 
-    if (ws_url == "ws://undefined/els") {
+    if (ws_url === "ws://undefined/els") {
       console.log("ws not configured");
       return;
     }
@@ -72,7 +72,7 @@ export default function EspWS({ ws_url, set_msg, connected, set_connected, vsn, 
 
         // setup SSE
         var url = "http://" + ip + "/events";
-        if (url != "http://undefined/events") {
+        if (url !== "http://undefined/events") {
           //var source = new EventSourcePolyfill(url,headers);
           var source = new EventSource(url);
           set_sse_source(source);
@@ -115,7 +115,7 @@ export default function EspWS({ ws_url, set_msg, connected, set_connected, vsn, 
         if (waitingToReconnect) {
           return;
         };
-        if(sse_source != null && sse_source != undefined){
+        if(sse_source !== null && sse_source !== undefined){
           console.log("sse source closing");
           sse_source.close();
         }else{

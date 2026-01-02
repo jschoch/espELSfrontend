@@ -50,7 +50,7 @@ export default function Info(props) {
                     <KV k="Pos Stop" v={props.state.stats.sp.toFixed(3)} />
 
                     <KV k="Neg Stop" v={props.state.stats.sn.toFixed(3)} />
-                    <KV k={"steps per " + mmOrImp(props.state)} v={props.state.metric == "true" ? stepsPerMM(props.nvConfig) : stepsPerIn(props.nvConfig)} />
+                    <KV k={"steps per " + mmOrImp(props.state)} v={props.state.metric === "true" ? stepsPerMM(props.nvConfig) : stepsPerIn(props.nvConfig)} />
                     <KV k={"stepper accel"} v={props.machineConfig.a} />
                     <br />
                     <KV k="DRO Pulses" v={props.state.stats.p} />
@@ -76,7 +76,7 @@ export default function Info(props) {
                 <KV k="Feeding_CCW" v={props.moveConfig.feeding_ccw ? "true": "false"} />
                 <KV k="Feeding_dir" v={props.state.stats.fd ? "true" : "false"} />
                 <KV k="Waiting for Sync" v={props.state.stats.sw ? "true" : "false"} />
-                <KV k={props.state.metric == "true" ? "Metric": "Imperial"} v="on" />
+                <KV k={props.state.metric === "true" ? "Metric": "Imperial"} v="on" />
                 <div className="card-body">
                   <p className="card-text">
                     Card content

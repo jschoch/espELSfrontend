@@ -29,9 +29,9 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
     c.movePitch =  parseFloat(movePitchRef.current.value )
     c.dwell = parseInt(dwellRef.current.value);
     //c.dwell = dwell
-    c.feeding_ccw = true; 
-    
-    if(state.metric != true){
+    c.feeding_ccw = true;
+
+    if(state.metric !== true){
       c.rapid = inToMM(rapidPitchRef.current.value);
       c.pitch = inToMM(movePitchRef.current.value);
     }
@@ -46,7 +46,7 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
     <div>
       {
         // hides controls when pos_feeding is true
-        ( !state.stats["pos_feed"] && !state.stats["sw"] && machineConfig.m != 6) &&
+        ( !state.stats["pos_feed"] && !state.stats["sw"] && machineConfig.m !== 6) &&
         <div>
           <Button variant="dark" className="btn-block" > {t("Bounce Settings")}</Button>
           <Row>
@@ -60,7 +60,7 @@ export default function Bounce({ state, machineConfig,set_machineConfig,nvConfig
                   ref={distanceRef}
                 />
                 <InputGroup.Text id="notsure">
-                  {state.metric == true ? "(mm)" : "(in)"}
+                  {state.metric === true ? "(mm)" : "(in)"}
                   {t("Move Distance")}</InputGroup.Text>
               </InputGroup>
             </Col>

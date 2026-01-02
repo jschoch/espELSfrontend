@@ -23,7 +23,7 @@ export default function Moving({ state,nvConfig,machineConfig }) {
 
       {state.stats["pos_feed"] && !state.stats["sw"] &&
         <div>
-           { machineConfig.m == "6"  && 
+           { machineConfig.m === "6"  &&
             <div>
               Bounce: {state.stats.rap? "Rapid Mode" : "Moving Mode"}
             </div>
