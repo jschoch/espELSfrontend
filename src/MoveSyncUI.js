@@ -128,6 +128,29 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
     // Manual pitch change handler
     const handleManualPitchChange = () => {
         setSelectedPresetId(null); // Deselect when manually edited
+
+        // Update state from refs - convert to mm for storage
+        if (movePitchRef.current) {
+            let value = parseFloat(movePitchRef.current.value);
+            if (!isNaN(value) && value > 0) {
+                // Convert from display units to mm (for consistency with presets)
+                if (state.metric !== true) {
+                    value = inToMM(value);
+                }
+                setMovePitch(value); // Store in mm
+            }
+        }
+
+        if (rapidPitchRef.current) {
+            let value = parseFloat(rapidPitchRef.current.value);
+            if (!isNaN(value) && value > 0) {
+                // Convert from display units to mm (for consistency with presets)
+                if (state.metric !== true) {
+                    value = inToMM(value);
+                }
+                setRapidPitch(value); // Store in mm
+            }
+        }
     };
 
     function moveSync(modifier) {
@@ -145,13 +168,10 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
         c.startSync = startSync;
         c.useStops = true;
 
-        // Read from state instead of refs (already in mm)
+        // Read from state (always stored in mm, consistent with presets)
         c.movePitch = movePitch;
         c.rapidPitch = rapidPitch;
-        if (state.metric !== true) {
-            c.movePitch = inToMM(c.movePitch);
-            c.rapidPitch = inToMM(c.rapidPitch);
-        }
+        // No conversion needed - state is always mm
         // sets direction
         c.movePitch = Math.abs(c.movePitch)
         set_last_distance(Math.abs(distanceRef.current.value))
@@ -166,14 +186,10 @@ export default function MoveSyncUI({ state, machineConfig, set_machineConfig, nv
         //c.f = feedingLeft;
         c.feeding_ccw = true;
         c.startSync = startSync;
-        // Read from state instead of refs (already in mm)
+        // Read from state (always stored in mm, consistent with presets)
         c.rapidPitch = rapidPitch;
         c.movePitch = movePitch;
-        // TODO: do we need to ensure this is positive?
-        if (state.metric !== true) {
-            c.movePitch = inToMM(c.movePitch);
-            c.rapidPitch = inToMM(c.rapidPitch);
-        }
+        // No conversion needed - state is always mm
         // sets direction
         c.rapidPitch = Math.abs(c.rapidPitch)
         // this is for the UI state
