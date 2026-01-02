@@ -76,8 +76,8 @@ const ModalError = ({ showModalError, modalErrorMsg, setShowModalError }) => {
   );
 }
 
-var default_ws_url = "ws://192.168.1.229/els";
-const default_ip = "192.168.1.229"
+var default_ws_url = "ws://192.168.1.90/els";
+const default_ip = "192.168.1.90"
 
 
 
@@ -169,7 +169,7 @@ export default function App() {
 
     var url = null;
     let search_ip = params.get('ip');
-    if (search_ip !== null || search_ip !== undefined) {
+    if (search_ip !== null && search_ip !== undefined) {
 
       console.log("serch params", search_ip);
       set_ip(search_ip);
@@ -186,13 +186,16 @@ export default function App() {
 
     } else {
       console.log("no ip in url");
-      if (cookies.ip_or_hostname !== default_ip || cookies.ip_or_hostname !== undefined) {
+      if (cookies.ip_or_hostname && cookies.ip_or_hostname !== undefined) {
         set_ws_url("ws://" + cookies.ip_or_hostname + "/els");
+        url = "http://" + cookies.ip_or_hostname + "/events";
+        set_ip(cookies.ip_or_hostname);
       } else {
-        console.log("using default url", ws_url, cookies.ip_or_hostname);
+        console.log("using default url", default_ws_url, default_ip);
+        set_ws_url(default_ws_url);
+        url = "http://" + default_ip + "/events";
+        set_ip(default_ip);
       }
-      url = "http://" + cookies.ip_or_hostname + "/events"
-      set_ip(cookies.ip_or_hostname);
     }
 
     console.log("cookies", cookies);
